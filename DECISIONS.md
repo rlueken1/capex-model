@@ -36,3 +36,19 @@
 16. Data provenance is mandatory for every input value (docs/data-sources.md). Missing
     PJM unit characteristics are estimated from public data and literature with a
     documented hierarchy and back-testing; every run emits an assumptions book.
+
+2026-11-19 (owner, expert review)
+17. Test ladder before PJM: analytic toys → PJM 5-bus → RTS-GMLC (3 regions, ~150 gens,
+    full year, published reference results) → GenX example cross-check → one PJM zone →
+    PJM single node → PJM zonal. 21 gates (0–20), see PLAN.md.
+18. Backcast accuracy drivers are first-class: daily hub-level gas prices (and fuel price as
+    a clustering feature), forced extreme-event periods, outages, imports/exports,
+    nuclear/hydro/pumped storage, DR.
+19. Policy module (state RPS/CES, RGGI by state, federal credits under current law) and
+    realism limits (annual build caps by tech/zone, going-forward-cost retirements,
+    announced retirements/RMR fixed).
+20. Engineering discipline: all costs carry a dollar year and are kept in real terms; one
+    annualization function; numerical conditioning check in health checks; run fingerprint
+    (inputs + code + solver settings hash) for exact reproducibility.
+21. Benchmarking: day-ahead LMPs first; "good enough" targets set from literature before
+    seeing results; forward runs compared with PJM West Hub futures.
