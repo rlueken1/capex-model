@@ -1,28 +1,37 @@
 # PLAN
 
 STATUS: IN_PROGRESS
-CURRENT GATE: 0 → 1 (weekend run, branch work only)
-OWNER REVIEW: Monday 2026-11-23
+CURRENT GATE: 0 (weekend run, branch work only)
+OWNER REVIEW: Monday 2026-11-23 (Gate 0 spec + Gate 1 toy model draft)
 
-## Gates
-| # | Gate | Exit criteria (owner signs off) |
-|---|------|---------------------------------|
-| 0 | Spec & metrics | formulation.md, data-schema.md, benchmarks.md, client question list approved |
-| 1 | Toy model + audit layer | LP builds/solves on toy cases; energy balance residual = 0; duals = prices; binding-constraint report; known-answer tests pass |
-| 2 | Sophistication | weighted 3-day rep periods (clustered, forced peak/scarcity periods), inter-period SOC linking, renewables, storage, reserves/regulation, zonal transmission expansion, linearized clustered UC, VRR capacity demand curve, ORDC/shortage pricing; each feature has tests |
-| 3 | Data pipeline | EIA-860/923, PUDL, NREL ATB, fuel prices, PJM/NYISO load & LMP ingested to schema, versioned |
-| 4 | Backcast harness + scoreboard | 2022–2024 backcasts; calibrate vs hold-out years; regression rule; one-off full-year fixed-fleet dispatch check of rep periods |
-| 5 | Scale to PJM zonal | ~50+ gen clusters, PJM zones, multi-year horizon; runtime target met |
-| 6 | Local web UI | inputs, run, outputs, audit views, scenario manager |
-| 7 | Continuous accuracy improvement | scoreboard trend tracked per version |
+## Gates (each ends in owner sign-off; criteria in docs/gates/; rules in docs/gates/README.md)
+| # | Gate | Core exit evidence |
+|---|------|--------------------|
+| 0 | Formulation spec | formulation.md, data-schema.md, benchmarks.md, client-questions.md, gate-1 criteria |
+| 1 | Toy model + audit layer | known-answer tests; health checks incl. marginal price-setter report |
+| 2 | CI | GitHub Actions runs tests on every push; data-download workflow skeleton |
+| 3 | Minimal data slice | PJM 2023 load, gas prices, EIA-860 fleet by tech (via Actions) |
+| 4 | Scoreboard v0 | crude PJM-wide 2023 fixed-fleet backcast; baseline errors recorded |
+| 5 | Rep periods + storage + renewables | weighted 3-day periods (clustered, forced peak/scarcity), inter-period SOC; scoreboard ≥ baseline; complexity ledger |
+| 6 | Reserves + shortage pricing | ORDC-style; scoreboard; ledger |
+| 7 | Zonal transmission + expansion | interfaces, congestion price-setters; scoreboard; ledger |
+| 8 | Clustered linear UC | min gen, startup, ramp; scoreboard; ledger |
+| 9 | Capacity market | VRR curve, ELCC accreditation; vs RPM prices; ledger |
+| 10 | First client deliverable | storage value study (arbitrage, capacity, reserves vs cost) |
+| 11 | Full data pipeline | EIA-860/923, PUDL, ATB, fuels, PJM/NYISO load & LMP, versioned |
+| 12 | Calibration + hold-out | 2022–24, calibrate/hold-out split, regression rule, one-off full-year fixed-fleet check |
+| 13 | PJM zonal scale | PJM zones, 50+ clusters, multi-year horizon, runtime target |
+| 14 | Local web UI | inputs, run, outputs, audit views, scenario manager |
+| 15 | NYISO | footprint, ICAP demand curves, benchmarks |
+| 16 | Continuous accuracy | scoreboard trend per version |
 
-First use case: **storage value** (energy arbitrage, capacity/ELCC, reserves vs build cost).
-Focus throughout: **benchmarking and backcast accuracy**.
+First use case: **storage value**. Focus throughout: **benchmarking / backcast accuracy**.
 
-## Weekend work items (branch `gate-0`, then `gate-1`) — one per session
-- [ ] W1 (Fri) Formulation lead [Opus]: draft `docs/formulation.md` (toy scope + Gate 2 extensions sketched), `docs/data-schema.md`, `docs/benchmarks.md`, `docs/client-questions.md` (10–15 questions; consulting + markets reviewers may be consulted once). Commit to `gate-0`.
-- [ ] W2 (Sat) Builder [Sonnet]: on branch `gate-1` (from `gate-0`), implement toy LP in `src/capex/` (linopy or plain highspy; single zone, ~4 techs, 1 rep period, capacity + dispatch, unserved energy) plus audit report (balance residuals, duals, binding constraints, objective decomposition).
-- [ ] W3 (Sun) Verifier [Sonnet]: write `tests/` from the spec only: screening-curve case, merit-order case, duals = marginal cost, zero-profit for built units, infeasibility/unbounded guards. Run them, record results. Then PM: write `reports/gate-0-review.md` (one page: built, passed, decisions needed) and set STATUS: AWAITING_OWNER_REVIEW.
+## Weekend work items — one per session
+- [ ] W1 (Fri) Formulation lead [Opus], branch `gate-0`: `docs/formulation.md` only — full toy scope with dual interpretations, plus Gate 5–9 extensions sketched. Include the marginal price-setter logic.
+- [ ] W2 (Sat) Formulation lead [Sonnet], branch `gate-0`: `docs/data-schema.md`, `docs/benchmarks.md` (incl. IMM marginal-fuel metric), `docs/client-questions.md` (10–15), `docs/gates/gate-1.md` (numeric tolerances). Write `reports/gate-0-review.md` with a yes/no decision list.
+- [ ] W3 (Sun) Builder [Sonnet], branch `gate-1` (created from `gate-0`; weekend exception: may start before Gate 0 sign-off): toy LP in `src/capex/` + `capex.audit` (balance residuals, duals, binding constraints, objective decomposition, marginal price-setter report). Then set STATUS: AWAITING_OWNER_REVIEW.
+- [ ] W4 (after owner review) Verifier [Sonnet], branch `gate-1`: `tests/` from the spec only; run; write `reports/gate-1-evidence.md` and `reports/gate-1-review.md`.
 
 ## Next
 W1.

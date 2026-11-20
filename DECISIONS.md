@@ -19,3 +19,14 @@
 8. Budget: ~50% of owner's weekly Pro usage. Sessions run overnight ET. Sonnet default,
    Opus for spec and gate reviews. One deliverable per session.
 9. Owner signs off every gate. No deadlines.
+
+2026-11-19 (plan revision, owner approved)
+10. 17 gates (0–16) replace the original 8; see PLAN.md. A crude PJM-wide 2023 backcast
+    (Scoreboard v0, Gate 4) comes before added sophistication; from Gate 5 on, every feature
+    must improve or hold the hold-out scoreboard.
+11. Gate rigor framework: docs/gates/README.md. Criteria fixed before each gate starts.
+12. Every solve reports the marginal price-setter per zone/hour from duals and dispatch;
+    marginal fuel shares are benchmarked against IMM statistics.
+13. Complexity value review: each feature has an ablation switch and a ledger row
+    (accuracy gain vs compute cost); keep, default-off, or drop by judgment, owner decides.
+14. CI and data downloads run in GitHub Actions.

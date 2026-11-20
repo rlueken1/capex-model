@@ -34,7 +34,12 @@ to `reports/session-log.md` ("skipped: awaiting review") and stop.
   (see DECISIONS.md). A one-off full-year *fixed-fleet dispatch* check is allowed.
 - **Solver:** HiGHS via `highspy`; keep the model solver-agnostic.
 - **Network:** this cloud workspace usually cannot reach data websites (EIA, PJM, NREL).
-  If a step needs downloads, record it in PLAN.md under "Needs owner" and move on.
+  Downloads run in GitHub Actions workflows (`.github/workflows/`), which cache data as
+  artifacts. If that isn't possible, record it in PLAN.md under "Needs owner" and move on.
+- **Gate rigor:** follow `docs/gates/README.md`: evidence file, health checks including the
+  marginal price-setter report, scoreboard no-regression, complexity value review
+  (ablation switch per feature, `reports/complexity-ledger.md`), and a review ending in a
+  yes/no decision list for the owner.
 
 ## End of every session
 1. Commit with a clear message on the gate branch and push:
