@@ -41,6 +41,13 @@ to `reports/session-log.md` ("skipped: awaiting review") and stop.
   (ablation switch per feature, `reports/complexity-ledger.md`), and a review ending in a
   yes/no decision list for the owner.
 
+- **Data provenance:** every input value carries source_id, vintage, method
+  (observed/derived/estimated/assumed), basis and confidence, per `docs/data-sources.md`.
+  Missing unit characteristics are estimated using that file's hierarchy (observed →
+  plant-level → statistical estimate from public data → cited literature default), never
+  left blank or silently defaulted. Every run writes an assumptions book.
+- **Scope:** PJM only for now. Other RTOs come later, one at a time.
+
 ## End of every session
 1. Commit with a clear message on the gate branch and push:
    `git -c push.negotiate=true push -u origin gate-N`
@@ -53,6 +60,7 @@ to `reports/session-log.md` ("skipped: awaiting review") and stop.
 - `docs/formulation.md` — math spec (sets, params, vars, constraints, objective)
 - `docs/data-schema.md` — input/output tables
 - `docs/benchmarks.md` — backcast metrics and scoreboard definition
+- `docs/data-sources.md` — source registry, provenance rule, estimation hierarchy
 - `src/capex/` — model code; `tests/` — verifier tests; `cases/` — test cases
 - `.claude/agents/` — role definitions
 - `reports/` — session log, scrum notes, gate review summaries

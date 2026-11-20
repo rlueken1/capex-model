@@ -30,3 +30,9 @@
 13. Complexity value review: each feature has an ablation switch and a ledger row
     (accuracy gain vs compute cost); keep, default-off, or drop by judgment, owner decides.
 14. CI and data downloads run in GitHub Actions.
+
+2026-11-19 (owner)
+15. NYISO gate removed. PJM only for now; other RTOs/grids added later, one at a time.
+16. Data provenance is mandatory for every input value (docs/data-sources.md). Missing
+    PJM unit characteristics are estimated from public data and literature with a
+    documented hierarchy and back-testing; every run emits an assumptions book.
