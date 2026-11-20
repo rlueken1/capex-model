@@ -5,6 +5,10 @@ expansion model with **its own formulation**, in Python, built gate by gate by a
 team of role agents. The repo is the only memory between sessions.
 
 ## Start of every session (in this order, read nothing else first)
+0. Find the newest gate branch (`git ls-remote --heads origin 'gate-*'`). If one exists,
+   fetch it (`git fetch --depth=1 origin gate-N && git checkout gate-N`) and read the
+   files below from there — the live PLAN.md lives on the newest gate branch, not on `main`.
+   New gate branches (e.g. `gate-1`) are created from the previous gate branch.
 1. `PLAN.md` — current gate, status, and the next work item(s).
 2. `DECISIONS.md` — settled decisions. Do not reopen them without a new reason.
 3. The latest file in `reports/` (if any).
