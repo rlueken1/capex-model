@@ -54,7 +54,9 @@ to `reports/session-log.md` ("skipped: awaiting review") and stop.
 2. Tick the item in PLAN.md, update "Next".
 3. Append 3–5 lines to `reports/session-log.md`: date, item, result, tests passed/failed,
    anything needing the owner.
-4. Send the owner a ≤5-line summary (SendUserMessage / PushNotification if available).
+4. Update the owner's status dashboard per `docs/status-dashboard.md` (summary, gates,
+   items, decisions, one session row).
+5. Send the owner a ≤5-line summary (SendUserMessage / PushNotification if available).
 
 ## Layout
 - `docs/formulation.md` — math spec (sets, params, vars, constraints, objective)
@@ -64,3 +66,4 @@ to `reports/session-log.md` ("skipped: awaiting review") and stop.
 - `src/capex/` — model code; `tests/` — verifier tests; `cases/` — test cases
 - `.claude/agents/` — role definitions
 - `reports/` — session log, scrum notes, gate review summaries
+- `docs/status-dashboard.md` — how to update the owner's live status page
