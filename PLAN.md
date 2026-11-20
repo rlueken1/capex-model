@@ -49,6 +49,4 @@ an ablation switch, a complexity-ledger row, and must hold or improve its benchm
 W2 (data-schema, data-sources, benchmarks, client-questions, gate-1 criteria, gate-0 review) on `gate-0`.
 
 ## Needs owner
-- Financing: simple real-WACC CRF vs NREL ATB CRF with tax/depreciation factor (~10–20% on annualized fixed cost). See formulation.md §5, §9.
-- Non-unique hourly prices when supply at capacity (T1): pull reserves/ORDC earlier than Gate 7, or score capex-mode prices on block/month averages until then?
-- Base dollar year/deflator (proposed 2024$, BEA GDP deflator) and which value sets scarcity prices in PJM backcasts (VOLL, offer cap, or ORDC max).
+- (none open) — 2026-11-20 owner answered W1's 3 questions; see DECISIONS.md 22–24.
