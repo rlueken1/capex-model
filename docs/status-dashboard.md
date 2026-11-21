@@ -35,6 +35,26 @@ Keep text short (one line per field). If the write fails, note it in
 - `id`, `asked` (date), `status` ("open" | "answered"), `question`, `recommendation`,
   `answer` (empty while open). Mark answered when DECISIONS.md records the answer.
 
-`data/board/sessions/s<YYYY-MM-DDTHHMM>` — create one per session (UTC start time):
-- `id`, `at` (ISO UTC), `task` ("Work session" | "PM scrum"), `item`, `result`
-  ("ok" | "partial" | "failed" | "skipped"), `tests` (CI / test result), `summary` (≤ 25 words)
+`data/board/sessions/s<YYYY-MM-DDTHHMM>` — create one per session (UTC start time). This
+is the owner's **full run report**, so keep notes as you work (who was spawned, what was
+debated, what was decided) and write them here at the end. Multi-line fields are plain
+text with one point per line (newline-separated), each line one short sentence:
+- `id`, `at` (ISO UTC start), `duration_min` (number)
+- `task` ("Work session" | "PM scrum"), `item` (e.g. "W2 Data schema & benchmarks")
+- `result` ("ok" | "partial" | "failed" | "skipped"), `summary` (≤ 30 words)
+- `agents`: each role involved, its model, and what it did — the main session's role first,
+  then every subagent and reviewer (e.g. "Verifier (Sonnet) — wrote T1–T4 tests")
+- `discussion`: the questions and trade-offs the agents weighed, incl. disagreements
+- `decisions`: what was decided and why (one line each); mark anything that needs owner
+  approval with "(needs you)"
+- `work_done`: concrete outputs (files, functions, tests, data pulled)
+- `progress`: progress against the item and the current gate's exit criteria, incl. what
+  was NOT finished; `gate_progress_pct` (0–100, your honest estimate for the current gate)
+- `next_steps`: what the next session(s) should do
+- `challenges`: problems hit, failed attempts, tool/network/usage-limit issues, risks
+- `needs_owner`: questions raised for Roger (also add them as `decisions/dNN` rows)
+- `tests`: test and CI results with counts (e.g. "14/14 pass; CI green")
+- `files_changed`: main files added or changed
+A skipped run still writes a row (result "skipped", summary saying why). The PM scrum's
+`discussion` and `decisions` hold the scrum's agenda, which reviewers it convened and why,
+the priorities it set, and how it re-planned the work items.
