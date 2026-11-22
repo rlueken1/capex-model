@@ -13,3 +13,6 @@
   Tests: 9/9 builder smoke tests pass (not gate evidence); T1–T4 objectives/prices match §10 informally; 120 random instances pass all health checks, UNEXPLAINED=0. Verifier tests not yet written (W4).
   Findings: T1 degenerate hours classed TIE_AT_BOUND vs gate-1.md's CAPACITY_RENT; presolve flips degenerate duals; CAPACITY_RENT ignores storage at power cap; provenance overrides and monthly deflation not implemented.
   Needs owner: STATUS set AWAITING_OWNER_REVIEW; 3 new items in PLAN.md "Needs owner". Next: owner review, then W4.
+- 2026-11-22 PM scrum (Sonnet-role PM, scheduled, no subagents) on `gate-1`: STATUS awaiting review → no build work. Checked Gate 0/1 against exit criteria; split W4 into W4a–c + W5 + W6; reports/scrum-2026-11-22.md; gate-0-review.md updated with current state and consolidated 16-item decision list.
+  Tests: none run. Finding: CI red on `gate-1` (run 12) — `.[dev]` extra missing, pytest not installed; dashboard had said "passing", corrected.
+  Needs owner: decision 16 (CI fix in W4a) added. Next: owner review Mon, then W4a.
