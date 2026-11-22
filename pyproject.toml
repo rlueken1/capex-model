@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "capex"
+version = "0.1.0"
+description = "Capacity expansion model with audit layer (formulation F-0.2)"
+requires-python = ">=3.11"
+dependencies = ["numpy", "scipy", "pandas", "highspy", "pyyaml"]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

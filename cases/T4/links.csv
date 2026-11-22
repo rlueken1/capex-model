@@ -1,0 +1,2 @@
+link_id,zone_from,zone_to,ntc_fwd_mw,ntc_rev_mw,source_id,vintage,retrieved,method,basis,confidence
+ab,A,B,50.0,50.0,toy_spec,F-0.2,2026-11-22,assumed,docs/formulation.md section 10 toy case,low

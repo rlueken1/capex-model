@@ -1,0 +1,39 @@
+case_id: T2a
+description: storage arbitrage, existing storage 10 MW / 40 MWh
+schema_version: S-0.1
+formulation_version: F-0.2
+base_dollar_year: 2024
+model_year: 2025
+dt_h: 1.0
+voll_usd_mwh: 10000
+voll_dollar_year: 2024
+finance_default: toy_simple
+seed: 0
+solver:
+  name: highs
+switches: {}
+tables:
+  periods:
+    file: periods.csv
+    sha256: f529fc444f4ab4b953137e20d49ab90ba639849da0bc01caf3a0fb8106c3d708
+  zones:
+    file: zones.csv
+    sha256: 5fe9fcc7739b622d3c05de9b433bcbf748f5352e792d8217845b577f765275c3
+  load:
+    file: load.csv
+    sha256: 7d90772e052884b1b66c38bd177ffd3284ecd7bcd7af5972d7b3ccecfd9d2fbb
+  load_meta:
+    file: load_meta.csv
+    sha256: 16d4f983ae488b769f03bda77c10d8055345393a939e498e66692b4774ab773b
+  resources:
+    file: resources.csv
+    sha256: 6efff3eaf16786d3e8401948519c2edfc8552592e521679c06dea3bad5989e94
+  finance:
+    file: finance.csv
+    sha256: a296e4eaa2cd88912af61d161a4f4c278c700f61f5b6f166dd01a80942e5c394
+  deflator:
+    file: ../../data/common/deflator.csv
+    sha256: c1fc4b6c9f000aa97d6821cf43f4d20daf61cadb31ab71239a911aa9733b153f
+  sources:
+    file: ../../data/common/sources.csv
+    sha256: 7f41d6900d122b0d488f3db363e66adcdfbe78f8cdc5cc689cb13fa401f99529

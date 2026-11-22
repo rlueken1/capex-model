@@ -1,0 +1,2 @@
+year,gdp_deflator_index,is_projection,source_id,vintage,retrieved,method,basis,confidence
+2024,100.0,False,bea_gdpdef,F-0.2,2026-11-22,assumed,placeholder index (base year = 100); toys use dollar_year = base so factor = 1; BEA series loaded at Gate 2,low

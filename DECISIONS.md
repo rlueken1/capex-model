@@ -60,3 +60,14 @@
     reserves/ORDC arrive at Gate 7; keep gate order.
 24. Base dollar year 2024$, BEA GDP deflator. PJM backcast scarcity pricing uses PJM's
     reserve shortage pricing (ORDC) curve; VOLL only as unserved-energy backstop.
+
+2026-11-22 (formulation lead, W3 — spec patch; owner confirms at Gate 0 review)
+25. Formulation F-0.2 fixes Gate 0 review findings 1–5: fuel price $\phi_{f,p,t}$ (daily values within each
+    3-day block); DECISIONS 22–24 written into §5.2/§9 (ATB-style PFF default with formula, simple CRF option);
+    `VOLL` price-setter class covers total blackout (`BLACKOUT` sub-tag, `use_ub` rent); `bal` residual in
+    unscaled MW (1e-6 for Gate 1 toys, §6.2 thresholds otherwise); $Z^0$ in reported total and decomposition
+    but not in LP or duality check; $FOM^P/FOM^E$ defined; $w_p \ge 1$ with no upper bound; one remainder-day
+    rule (§1.2); simplex (dual) forced, crossover mandatory with IPM, `basis_valid` checked. DC power flow
+    option sketched as §7.4a (`tx.model`), pending owner decision on Gate 0 review item 3.
+    Builder finding (W3): HiGHS `presolve=off` added to the default solver options (§4) so known-answer duals are
+    reproducible; recorded in the run fingerprint.

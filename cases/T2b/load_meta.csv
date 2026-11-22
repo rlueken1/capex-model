@@ -1,0 +1,2 @@
+zone,net_of_btm,year,source_id,vintage,retrieved,method,basis,confidence
+A,False,2025,toy_spec,F-0.2,2026-11-22,assumed,docs/formulation.md section 10 toy case,low

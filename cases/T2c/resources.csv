@@ -1,0 +1,4 @@
+resource_id,zone,type,tech,status,k0_mw,xmax_mw,mc_override_usd_mwh,cfix_override_usd_mw_yr,dollar_year,source_id,vintage,retrieved,method,basis,confidence,e0_mwh,xmax_mwh,vom_usd_mwh,eta_c_frac,eta_d_frac,selfdis_frac_h,cfix_e_override_usd_mwh_yr,dur_min_h,dur_max_h
+g1,A,TH,g1,existing,100,0,20.0,,2024,toy_spec,F-0.2,2026-11-22,assumed,docs/formulation.md section 10 toy case,low,,,,,,,,,
+g2,A,TH,g2,existing,200,0,60.0,,2024,toy_spec,F-0.2,2026-11-22,assumed,docs/formulation.md section 10 toy case,low,,,,,,,,,
+bat,A,ST,battery,candidate,0,10,,0.0,2024,toy_spec,F-0.2,2026-11-22,assumed,docs/formulation.md section 10 toy case,low,0.0,40.0,0.0,0.9,0.9,0.0,5000.0,4.0,4.0

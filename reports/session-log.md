@@ -9,3 +9,7 @@
   Tests: none (docs only). No network: URLs/licences marked "verify".
   Findings: fuel price must be daily φ(f,p,t); PJM 5-bus needs DC power flow; formulation.md not yet updated for DECISIONS 22–24; VOLL price-setter blackout gap → F-0.2 patch at start of W3.
   Needs owner: 12 yes/no decisions in reports/gate-0-review.md. Next: W3.
+- 2026-11-22 W3 (formulation lead Opus for F-0.2 patch; builder Sonnet subagent) on new branch `gate-1` (from `gate-0`): formulation F-0.2 (findings 1–5, DECISIONS 22–25, §7.4a DC power-flow sketch); toy LP + `capex.econ` + `capex.audit` (11 hooks, health_report, price-setter, conditioning, fingerprint), solver adapter (HiGHS dual simplex, presolve off), cases T1–T4, CLI `python -m capex run`.
+  Tests: 9/9 builder smoke tests pass (not gate evidence); T1–T4 objectives/prices match §10 informally; 120 random instances pass all health checks, UNEXPLAINED=0. Verifier tests not yet written (W4).
+  Findings: T1 degenerate hours classed TIE_AT_BOUND vs gate-1.md's CAPACITY_RENT; presolve flips degenerate duals; CAPACITY_RENT ignores storage at power cap; provenance overrides and monthly deflation not implemented.
+  Needs owner: STATUS set AWAITING_OWNER_REVIEW; 3 new items in PLAN.md "Needs owner". Next: owner review, then W4.

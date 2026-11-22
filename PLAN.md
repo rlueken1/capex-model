@@ -1,6 +1,6 @@
 # PLAN
 
-STATUS: IN_PROGRESS
+STATUS: AWAITING_OWNER_REVIEW
 CURRENT GATE: 0 (weekend run, branch work only)
 OWNER REVIEW: Monday 2026-11-23 (Gate 0 spec + Gate 1 toy model draft)
 
@@ -42,12 +42,19 @@ an ablation switch, a complexity-ledger row, and must hold or improve its benchm
 ## Weekend work items — one per session
 - [x] W1 (Fri) Formulation lead [Opus], branch `gate-0`: `docs/formulation.md` only — toy scope with dual interpretations and price-setter logic; dollar-year/real-terms rules and one annualization function (WACC, life); variable/cost scaling plan; Gate 5–10 extensions sketched (rep-period clustering features incl. fuel price, forced extreme periods, inter-period SOC, reserves, transmission, UC, policy, build limits, retirements).
 - [x] W2 (Sat) Formulation lead [Sonnet], branch `gate-0`: `docs/data-schema.md` (provenance fields, dollar-year field), `docs/data-sources.md` (complete registry incl. RTS-GMLC, PJM 5-bus, GenX examples, daily hub gas), `docs/benchmarks.md` (DA LMP first; IMM marginal-fuel; literature error targets; futures comparison; test-ladder targets), `docs/client-questions.md` (10–15), `docs/gates/gate-1.md`. Write `reports/gate-0-review.md` ending in a yes/no decision list.
-- [ ] W3 (Sun) Builder [Sonnet], branch `gate-1` (from `gate-0`; weekend exception: may start before Gate 0 sign-off): toy LP in `src/capex/` + `capex.audit` (balance residuals, duals, binding constraints, objective decomposition, price-setter report, conditioning check, run fingerprint). Then set STATUS: AWAITING_OWNER_REVIEW.
+- [x] W3 (Sun) Builder [Sonnet], branch `gate-1` (from `gate-0`; weekend exception: may start before Gate 0 sign-off): toy LP in `src/capex/` + `capex.audit` (balance residuals, duals, binding constraints, objective decomposition, price-setter report, conditioning check, run fingerprint). Then set STATUS: AWAITING_OWNER_REVIEW.
 - [ ] W4 (after owner review) Verifier [Sonnet], branch `gate-1`: `tests/` from spec only; run; `reports/gate-1-evidence.md`, `reports/gate-1-review.md`.
 
 ## Next
-W3 (Sun): builder, toy LP + `capex.audit` on `gate-1` (from `gate-0`). First apply the F-0.2 formulation patch (reports/gate-0-review.md findings 1–5) in the same commit, logged in DECISIONS.md.
+Owner review (Mon 2026-11-23): Gate 0 decision list (reports/gate-0-review.md) + F-0.2 patch (DECISIONS 25) +
+Gate 1 toy model draft on `gate-1`. After sign-off: W4 verifier writes tests from the spec, runs them, evidence + review.
 
 ## Needs owner
 - 2026-11-21 W2: Gate 0 review decision list (12 yes/no items) in reports/gate-0-review.md — for Monday review.
+- 2026-11-22 W3: confirm F-0.2 spec patch (DECISIONS 25, incl. HiGHS presolve=off default)? rec yes.
+- 2026-11-22 W3: gate-1.md expects CAPACITY_RENT for all T1 mid/peak hours, but degenerate hourly duals make some
+  hours TIE_AT_BOUND (price = an at-cap unit's MC). Amend gate-1.md so T1 mid/peak accept CAPACITY_RENT *or*
+  TIE_AT_BOUND (block averages still exact)? rec yes.
+- 2026-11-22 W3: deflator table is a 2024-only placeholder (index 100, method=assumed) until the data lead loads BEA
+  NIPA 1.1.9 — fine for Gate 1 (toys are 2024$)? rec yes.
 - (none open) — 2026-11-20 owner answered W1's 3 questions; see DECISIONS.md 22–24.
