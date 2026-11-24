@@ -16,3 +16,4 @@
 - 2026-11-22 PM scrum (Sonnet-role PM, scheduled, no subagents) on `gate-1`: STATUS awaiting review → no build work. Checked Gate 0/1 against exit criteria; split W4 into W4a–c + W5 + W6; reports/scrum-2026-11-22.md; gate-0-review.md updated with current state and consolidated 16-item decision list.
   Tests: none run. Finding: CI red on `gate-1` (run 12) — `.[dev]` extra missing, pytest not installed; dashboard had said "passing", corrected.
   Needs owner: decision 16 (CI fix in W4a) added. Next: owner review Mon, then W4a.
+- 2026-11-24 scheduled work session on `gate-1`: skipped: awaiting review (STATUS: AWAITING_OWNER_REVIEW; Gate 0 decisions in reports/gate-0-review.md still unanswered). No build work. Next: owner sign-off, then W4a.
