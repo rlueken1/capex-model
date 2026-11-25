@@ -48,8 +48,13 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
 - [x] W4a Verifier [Sonnet]: if decision 16 = yes, fix CI install line first; then `tests/test_known_answers.py`
   (T1–T4 per gate-1.md §2, expected values from closed forms), `tests/test_econ.py`, load-validation tests. Run; CI result.
 - [x] W4a-fix Builder [Sonnet]: CI run 18 (numpy 2.5.5 on runner vs 2.5.3 local): `model.py:36 Block.idx` → `np.ravel_multi_index` gets empty *object*-dtype index arrays → `TypeError: only int indices permitted`; 9 tests fail (T1, T3a, T3b, T4 + 5 builder smoke). Cast index arrays to int64; pin/record numpy in fingerprint. Do not edit verifier tests. CI must go green.
-- [ ] W4b Verifier [Sonnet]: `tests/test_health.py` — every §3 health check, dual-sign adapter, scaled/unscaled,
+- [x] W4b Verifier [Sonnet]: `tests/test_health*.py` — every §3 health check, dual-sign adapter, scaled/unscaled,
   50 seeded random instances vs `scipy linprog(highs)`, fingerprint determinism (2 processes), 6 audit mutations.
+- [ ] W4b-fix Formulation lead [Opus] spec patch + Builder [Sonnet] (2 subagents): (1) mutation M4 (swap η^c/η^d in `st_soc`) is caught by no
+  health check on T2asym (η 0.95/0.80) → add an SOC-row recomputation check from case η, σ to formulation §8.6 + gate-1.md §3 (DECISIONS), then
+  build it; (2) STORAGE_DIS price-setter row reports setter_cost=VOM, residual=π−VOM; §4 says π−VOM−v/η_d (code); (3) `build_gen` KeyError('fuel')
+  for VRE without `mc_override`/`fuel` (code, data-schema §3); (4) T2c spec: x^E=0 duals degenerate — unscaling rel 1e-5 and "rent < cost" (§3.5 says ≤)
+  cannot hold → amend gate-1.md §2/§3. Do not edit verifier tests; the failing M4 test and 4 strict xfails must turn green.
 - [ ] W4c Verifier [Sonnet]: full pytest run + CI; `reports/gate-1-evidence.md` (all 8 parts of gate-1.md §5) and
   pass/fail table in `reports/gate-1-review.md`. Failures → spec-or-code decision in DECISIONS, never tolerance edits.
 - [ ] W5 Formulation lead [Opus]: line-by-line code-vs-spec trace (§2–§6), dual conventions, price-setter logic;
@@ -58,7 +63,7 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
   T1–T4 and audit readability; PM writes the 7-item owner decision list; STATUS: AWAITING_OWNER_REVIEW.
 
 ## Next
-W4b (verifier): `tests/test_health.py` — §3 health checks, dual-sign adapter, scaled/unscaled, 50 random instances vs scipy, fingerprint determinism, 6 audit mutations. Also cover the gaps W4a noted: storage tie (STORAGE_CH/DIS) never exercised in T2a/b; T2c rent_en degenerate (4380 vs 3866.30).
+W4b-fix (formulation lead Opus spec patch + builder): M4 SOC check, STORAGE_DIS residual, VRE loader bug, T2c degeneracy spec text. CI is red on purpose until then (1 uncaught mutation = gate failure). Then W4c.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
