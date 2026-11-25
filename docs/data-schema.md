@@ -129,7 +129,8 @@ Optional `interfaces.csv` + `interface_links.csv` (G8): `iface_id, limit_mw_fwd,
 | `resource_id` (key) | str | | all | $r$ |
 | `zone` | str | | all | $z(r)$ |
 | `type` | enum `TH|VRE|ST` | | all | $\mathcal R^{TH},\mathcal R^{VRE},\mathcal R^{ST}$ |
-| `tech`, `fuel` | str | | all | reporting; `fuel` -> `fuel_prices` hub map (TH); price-setter tech/fuel |
+| `tech` | str | | all | reporting; price-setter tech |
+| `fuel` | str, nullable | | required: TH without `mc_override`; optional: VRE, ST | `fuel_map` -> hub (TH); price-setter fuel (null reported as `none`). The column may be absent if no row requires it (DECISIONS 31) |
 | `status` | `existing|candidate` | | all | G1 data rule: existing ($K^0>0,X^{max}=0$) xor candidate ($K^0=0,X^{max}>0$) |
 | `k0_mw` | float >= 0 | MW | TH,VRE | $K^0_r$ ; ST: $P^0_r$ |
 | `e0_mwh` | float >= 0 | MWh | ST | $E^0_r$ |
@@ -137,7 +138,7 @@ Optional `interfaces.csv` + `interface_links.csv` (G8): `iface_id, limit_mw_fwd,
 | `xmax_mwh` | float >= 0 or `inf` | MWh | ST | $X^{E,max}_r$ |
 | `heat_rate_mmbtu_mwh` | float > 0 | | TH w/ fuel | $HR_r$ |
 | `vom_usd_mwh` | float >= 0 | $/MWh | TH,ST | $VOM_r$ (ST: per MWh discharged) |
-| `mc_override_usd_mwh` | float | $/MWh | TH,VRE | optional; if set replaces $HR\phi+VOM$ (toys T1–T4 use it: $MC=20$ etc.) |
+| `mc_override_usd_mwh` | float | $/MWh | TH,VRE | optional; if set replaces $HR\phi+VOM$ (toys T1–T4 use it: $MC=20$ etc.). VRE without it: $MC=0$ (zero fuel cost, no VOM; never perturbed, formulation §6.1e), whether or not `fuel` is given |
 | `fom_usd_mw_yr` | float >= 0 | $/MW-yr | all | $FOM_r$ ($FOM^P_r$ for ST) |
 | `fom_usd_mwh_yr` | float >= 0 | $/MWh-yr | ST | $FOM^E_r$ |
 | `capex_usd_mw` | float >= 0 | $/MW | candidate | $I_r$ ($I^P_r$ for ST) |
@@ -253,7 +254,8 @@ Errors abort the run before the LP is built; warnings go to `health.parquet`. ID
 4. **Referential integrity:** `zone`, `zone_from/to`, `resource_id`, `finance_class`, `fuel_hub`, `source_id`,
    `profile_id` all resolve; links join distinct zones; every zone has load.
 5. **Gate-1 data rule:** resource `status=existing` => `k0>0` and `xmax=0`; `candidate` => `k0=0` and `xmax>0`. Types
-   require their columns (ST: eta_c, eta_d, e0 / xmax_mwh; TH w/ fuel: HR and a fuel hub, or `mc_override`).
+   require their columns (ST: eta_c, eta_d, e0 / xmax_mwh; TH: HR and a `fuel` that maps to a hub, or `mc_override`;
+   VRE: neither `fuel` nor `mc_override` required — missing both means $MC=0$).
    Candidates need (`capex`,`life_yr`,`finance_class`) **or** `cfix_override`.
 6. **Dollar year:** every cost column row has `dollar_year`; it exists in `deflator.csv`; `base_dollar_year` exists; a
    cost with `dollar_year > base` is allowed only if the deflator row is a projection (flagged). Cost columns with

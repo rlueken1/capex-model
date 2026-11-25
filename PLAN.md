@@ -50,7 +50,7 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
 - [x] W4a-fix Builder [Sonnet]: CI run 18 (numpy 2.5.5 on runner vs 2.5.3 local): `model.py:36 Block.idx` → `np.ravel_multi_index` gets empty *object*-dtype index arrays → `TypeError: only int indices permitted`; 9 tests fail (T1, T3a, T3b, T4 + 5 builder smoke). Cast index arrays to int64; pin/record numpy in fingerprint. Do not edit verifier tests. CI must go green.
 - [x] W4b Verifier [Sonnet]: `tests/test_health*.py` — every §3 health check, dual-sign adapter, scaled/unscaled,
   50 seeded random instances vs `scipy linprog(highs)`, fingerprint determinism (2 processes), 6 audit mutations.
-- [ ] W4b-fix1 Formulation lead [Opus], branch `gate-1`, no subagents, **spec only, no code**: (a) add an SOC-row
+- [x] W4b-fix1 Formulation lead [Opus], branch `gate-1`, no subagents, **spec only, no code**: (a) add an SOC-row
   recomputation health check (rebuild `st_soc` residuals from case η^c, η^d, σ; catches M4) to formulation §8.6 and
   gate-1.md §3; (b) confirm §4 STORAGE_DIS residual = π−VOM−v/η_d; (c) data-schema §3: `fuel` optional for VRE
   (zero-fuel when no `mc_override`); (d) T2c: x^E=0 duals are degenerate → gate-1.md §2/§3 test T2c unscaling on
@@ -69,8 +69,10 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
   sense of T1–T4 and audit readability; PM writes the 7-item owner decision list (gate-1.md §6); STATUS: AWAITING_OWNER_REVIEW.
 
 ## Next
-W4b-fix1 (formulation lead, Opus, spec only): SOC recomputation check, STORAGE_DIS residual, VRE `fuel` optional, T2c degeneracy wording → DECISIONS 31.
-Then W4b-fix2 (builder) → W4b-v (verifier) → W4c → W5 → W6. CI on `gate-1` stays red (run 22) until W4b-v, by design.
+W4b-fix2 (builder, Sonnet): implement DECISIONS 31 (a)–(c) — `storage.soc_recompute` health check from case-data η/σ
+(formulation §3 check 8), per-class `setter_cost` (§4 Outputs; STORAGE_DIS = VOM + v/η^d), VRE loads without `fuel`
+(MC = 0). W4b-fix1 done 2026-11-25 (spec amendment 1, DECISIONS 31).
+Then W4b-v (verifier; T2c tests to the interval [15,465.19, 20,000] in formulation §10) → W4c → W5 → W6. CI on `gate-1` stays red (run 22) until W4b-v, by design.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner

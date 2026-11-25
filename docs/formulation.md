@@ -5,6 +5,9 @@ F-0.2 changes (DECISIONS 25): daily fuel price $\phi_{f,p,t}$; DECISIONS 22–24
 block-average price scoring, 2024\$ / ORDC backcast scarcity); `VOLL` class covers total blackout; tolerances,
 $Z^0$, $FOM^P/FOM^E$, weight range, remainder-day rule and basic-solution requirement made consistent;
 DC power-flow option sketched for Gate 3 (§7.4a).
+F-0.2 amendment 1 (W4b-fix1, 2026-11-25, DECISIONS 31): SOC-row recomputation health check (§3 check 8, §8.6);
+storage price-setter `setter_cost`/`residual` defined per class (§4 Outputs); dual-degenerate storage duals at
+zero storage capacity (§3 check 7, T2c in §10). The LP itself is unchanged, so the version string stays `F-0.2`.
 Scope of authority: code in `src/capex/` implements this file. Any deviation changes this
 file in the same commit and is logged in `DECISIONS.md`. Constraint/variable labels in
 `code font` are the identifiers used in code, audit output and tests.
@@ -206,6 +209,19 @@ Stationarity relations used by tests and by §4 (from $s_j = c_j - \sum_i a_{ij}
    data or at capacity (see T1). Tests on prices compare weighted averages over such blocks,
    or check the price lies in the interval allowed by the price-setter class (§4), never a
    single hourly value unless the case is constructed to make it unique.
+   **Storage duals at zero storage capacity** ($P_r = E_r = 0$, e.g. T2c) are dual-degenerate: $c=d=e=0$ in every
+   hour, so $v$, $\rho^P$, $\rho^E$ are pinned only by dual feasibility (§10 T2c gives the interval). For such a
+   storage, tests compare primal values, $\pi$ and generator $\rho$ only, and check its rents against the interval
+   (at $x=0$: rent $\le$ cost, never "$<$"); $v$, $\rho^P$, $\rho^E$ are reported, not compared across scalings or
+   solver settings. On random instances, storage duals are excluded from the scaling comparison for the same reason.
+8. **SOC-row recomputation** (`storage.soc_recompute`, every solve with storage). From the **case data** — the
+   loaded $\eta^c_r$, $\eta^d_r$, $\sigma_r$, never the coefficients of the assembled matrix — and the unscaled
+   primal, recompute for every $(r,p,t)$, with the same cyclic $t^-$ as `st_soc` (§7.2 form when linked):
+   $\;r^{soc}_{r,p,t} = e_{r,p,t} - (1-\sigma_r)e_{r,p,t^-} - \eta^c_r c_{r,p,t} + d_{r,p,t}/\eta^d_r$ (MWh).
+   Pass: $\max|r^{soc}| \le 10^{-6}$ MWh on Gate 1 toy and random cases; otherwise the §6.2 `bal` thresholds
+   applied in MWh (warn $10^{-3}$, fail $10^{-1}$). Reason: checks 1–7 prove the solved LP is self-consistent, not
+   that it encodes the case; a wrong `st_soc` coefficient (e.g. $\eta^c$ and $\eta^d$ swapped, audit mutation M4)
+   leaves duality, CS and rent identities intact. Same principle as check 1, which recomputes `bal` from $D$.
 
 ---
 
@@ -249,7 +265,12 @@ the flag `IMPORT` plus the list of binding links on the island boundary (`CONGES
 the zone-hour is `UNEXPLAINED`. Health check: count of `UNEXPLAINED` must be 0.
 
 **Outputs** per $(z,p,t)$: primary class, setter resource id(s), tech/fuel, setter zone,
-$\pi$, setter cost, residual $\pi - \text{cost}$, island id, binding links. Aggregate: share of
+$\pi$, setter cost, residual $\pi - \text{cost}$, island id, binding links. **Setter cost** is the
+cost term of the class's price check, so `residual` is within $tol_\pi$ of 0 for every explained hour except
+`BLACKOUT` and `CAPACITY_RENT`: `MARGINAL_UNIT`/`TIE_AT_BOUND` $MC_r$; `STORAGE_DIS` $VOM_r + v_{r,p,t}/\eta^d_r$
+(not $VOM_r$ alone); `STORAGE_CH` $\eta^c_r v_{r,p,t}$; `VOLL` VOLL; `BLACKOUT` VOLL (residual $=\mu^{use}\ge0$);
+`CAPACITY_RENT` the interval's lower end $\max MC_{\text{at cap}}$ (residual = scarcity rent), with the interval
+reported in `price_lo`/`price_hi`. Several setters: mean of their costs. Aggregate: share of
 weighted hours ($\sum w_p$) by marginal fuel/tech per zone — the IMM comparison metric.
 Ties between several marginal units split the hour equally among them.
 
@@ -445,7 +466,8 @@ demand curve as stepped benefit segments with ELCC-accredited supply $\sum_r \te
 3. **Binding-constraint report**: per label family, count/share of binding rows (slack $\le tol$) weighted by $w_p$; list of binding bounds (`x_ub`, `flow_*`, `use_ub`).
 4. **Objective decomposition**: $Z^{inv}$ by resource, $Z^{var}$ by resource and fuel, $Z^{use}$ by zone, $Z^0$; must sum to $Z$ within $10^{-9}$ relative.
 5. **Revenue/rent table** per resource: energy revenue, variable cost, rents $R$, $C^{fix}$, profit; zero-profit flags (§3 check 5–6).
-6. **Storage**: SOC trajectories, cyclic closure residual, `simul_chdis` hours, water values.
+6. **Storage**: SOC trajectories, cyclic closure residual, **SOC-row recomputation residual** from case data
+   (§3 check 8, health check `storage.soc_recompute`), `simul_chdis` hours, water values.
 7. **Price-setter report** (§4) and `UNEXPLAINED` count; marginal fuel shares per zone.
 8. **Curtailment** and **unserved energy** by zone/period, weighted annual totals.
 9. **Conditioning report** (§6.2).
@@ -492,7 +514,14 @@ Storage $\eta^c=\eta^d=0.9$, $VOM=0$, duration 4 h.
   Net revenue $= w(60\cdot36-20\cdot44.4\overline4) = 154\,651.85$ $/yr $= R^E E^0$. $Z = 26\,125\,348.15$ $ (vs 26 280 000 without storage).
 - **T2b** candidate storage, $C^P=0$, $C^E=3\,000$, $\underline\delta=\overline\delta=4$, $X^{P,max}=10$, $X^{E,max}=40$: builds 10 MW/40 MWh
   (at bound); combined excess rent $(R^P+4R^E)-(C^P+4C^E) = 4(3\,866.30-3\,000)=3\,465.19$ $/MW-yr $\ge 0$; $Z=26\,280\,000-154\,651.85+120\,000 = 26\,245\,348.15$.
-- **T2c** same with $C^E=5\,000$: builds 0; $Z = 26\,280\,000$.
+- **T2c** same with $C^E=5\,000$: builds 0; $Z = 26\,280\,000$; prices 20 / 60 (unique, G1 / G2 marginal).
+  Storage duals are **dual-degenerate** (§3 check 7): with $P=E=0$, dual feasibility of $c,d,e$ at 0 gives
+  $\eta^d(\pi_t-\rho^P_t)\le v_t\le(\pi_t+\rho^P_t)/\eta^c$ and $v_{t^+}-v_t\le\rho^E_t$ (cyclic), so with
+  $\rho^P=0$ $v\in[18,22.\overline2]$ in low hours, $[54,66.\overline6]$ in high hours, and $\sum_t\rho^E_t\ge 54-22.\overline2$ per
+  period. Hence combined rent $R^P+4R^E\in[4\cdot3\,866.30,\;4\cdot5\,000] = [15\,465.19,\;20\,000]$ $/MW-yr: the lower
+  end is the T2a arbitrage value (using $\rho^P>0$ costs more than it saves), the upper end is reduced cost
+  $\ge 0$ at $x=0$. Any point is optimal; HiGHS returns 4 380 (scaled) or 5 000 (unscaled) for $R^E$. Tests assert
+  the interval (rent $\le$ cost, not $<$), not a point.
 
 ### T3 — VOLL-bound
 Existing G 100 MW $MC=30$; demand 80 MW except $t=48$: 120 MW; VOLL $=1\,000$; candidate Peaker $MC=100$.

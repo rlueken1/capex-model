@@ -85,3 +85,13 @@
     only, as an option; transport/copper-plate stays the default.
 30. Items 5–10, 14–16 accepted as recommended. Item 12: no extra Gate 0 reviewers (reviewers read Gate 1 in W6).
     Item 14: T1 mid/peak hours may be CAPACITY_RENT or TIE_AT_BOUND; block averages stay exact.
+
+2026-11-25 (formulation lead, W4b-fix1 — spec amendment from W4b verifier findings; owner confirms at Gate 1 review item 5)
+31. F-0.2 amendment 1 (LP unchanged; version string stays F-0.2). (a) New health check `storage.soc_recompute`
+    (formulation §3 check 8, §8.6; gate-1.md §3): recompute the `st_soc` residual from case-data η^c, η^d, σ, ≤1e-6 MWh
+    on toys. Reason: duality/CS/rent checks only prove the solved LP is self-consistent; mutation M4 (η swap) passed all
+    of them. (b) Confirmed: STORAGE_DIS setter cost = VOM + v/η^d, STORAGE_CH = η^c v; `setter_cost`/`residual` now
+    defined per class (§4 Outputs) — the code's π−VOM residual is a code bug. (c) `fuel` optional for VRE (and ST);
+    VRE without `mc_override` has MC = 0 (data-schema §3.3, §6 rule 5). (d) T2c: storage duals at zero capacity are
+    dual-degenerate; proven interval R^P+4R^E ∈ [15,465.19, 20,000] (§10); T2c tests assert the interval (rent ≤ cost,
+    not <) and compare primal, π, generator ρ across scalings, not v/ρ^P/ρ^E. A degeneracy fact, not a tolerance edit.
