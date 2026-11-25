@@ -2,7 +2,7 @@
 
 STATUS: IN_PROGRESS
 CURRENT GATE: 1 (Toy model + audit layer), branch `gate-1`
-GATE 0: approved by owner 2026-11-24 (DECISIONS 26–30); merge of `gate-0` into `main` awaits owner go-ahead
+GATE 0: approved by owner 2026-11-24 (DECISIONS 26–30); merged into `main` 2026-11-24 on owner go-ahead
 
 ## Gates (each ends in owner sign-off; criteria in docs/gates/; rules in docs/gates/README.md)
 Test ladder: analytic toys → PJM 5-bus → RTS-GMLC → GenX cross-check → one PJM zone →
@@ -62,7 +62,7 @@ Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only i
 
 ## Needs owner
 - (answered 2026-11-24) — all Gate 0 review items 1–16; see DECISIONS.md 26–30.
-- Merge `gate-0` into `main` now that Gate 0 is approved? (not done; awaiting go-ahead)
+- (answered 2026-11-24) — merge `gate-0` into `main`: yes, done.
 - (answered) 2026-11-21 W2: Gate 0 review decision list (12 yes/no items) in reports/gate-0-review.md — for Monday review.
 - (answered) 2026-11-22 W3: confirm F-0.2 spec patch (DECISIONS 25, incl. HiGHS presolve=off default)? rec yes.
 - (answered) 2026-11-22 W3: gate-1.md expects CAPACITY_RENT for all T1 mid/peak hours, but degenerate hourly duals make some
