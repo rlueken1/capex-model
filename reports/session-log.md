@@ -23,3 +23,6 @@
   Tests: 90/90 pass locally (81 verifier + 9 builder smoke); CI run 18: install fixed, 81 pass / 9 fail — `TypeError: only int indices permitted` in model.py:36 (`Block.idx`, empty object-dtype arrays into ravel_multi_index) under runner numpy; local numpy 2.5.3 passes. Builder fix added as item W4a-fix.
   Gaps noted: storage STORAGE_CH/DIS tie never triggers in T2a/b (discharge at P cap); T2c rent_en=4380 (degenerate dual at x=0, spec doesn't pin it) — only rent<cost asserted.
   Needs owner: nothing new. Next: W4a-fix, then W4b.
+- 2026-11-25 W4a-fix (builder, Sonnet subagent; extra owner-requested run) on `gate-1`: root cause was pandas `.map().to_numpy()` returning object dtype for empty gen/storage subsets, which `np.ravel_multi_index` rejects on the CI runner (not numpy itself — 2.5.5 passed locally). Fixed in data.py (int64) and `Block.idx` (cast + empty-index guard); builder regression test added; verifier tests untouched; no spec change, no pin.
+  Tests: 91/91 local (numpy 2.5.3 and 2.5.5); CI run 20 green — first green CI on gate-1.
+  Needs owner: nothing. Next: W4b.
