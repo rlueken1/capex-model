@@ -31,9 +31,10 @@ class Block:
 
     def idx(self, *ix: np.ndarray) -> np.ndarray:
         """Flat positions of index tuples (integer positions per dimension)."""
-        if self.size == 0:
-            return np.empty(np.broadcast_arrays(*ix)[0].shape, dtype=np.int64)
-        return self.offset + np.ravel_multi_index(tuple(np.broadcast_arrays(*ix)), self.shape)
+        grids = np.broadcast_arrays(*(np.asarray(a, dtype=np.int64) for a in ix))
+        if self.size == 0 or grids[0].size == 0:
+            return np.empty(grids[0].shape, dtype=np.int64)
+        return self.offset + np.ravel_multi_index(tuple(grids), self.shape)
 
     def view(self, vec: np.ndarray) -> np.ndarray:
         """Slice of a full-length vector reshaped to this block's shape."""

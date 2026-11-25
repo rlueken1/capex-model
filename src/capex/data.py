@@ -428,7 +428,7 @@ def build_gen(res: pd.DataFrame, factors: np.ndarray, ann: pd.DataFrame, tables:
     k0 = np.nan_to_num(_num(sub, "k0_mw"))
     xmax = _num0(sub, "xmax_mw")
     fom0 = np.nan_to_num(_num(sub, "fom_usd_mw_yr")) * f * k0
-    gen = Gen(ids=tuple(ids), zone=sub["zone"].map(zone_ix).to_numpy(), kind=sub["type"].to_numpy(),
+    gen = Gen(ids=tuple(ids), zone=sub["zone"].map(zone_ix).to_numpy(np.int64), kind=sub["type"].to_numpy(),
               tech=sub["tech"].to_numpy(), fuel=fuel, status=sub["status"].to_numpy(), k0=k0, xmax=xmax,
               cfix=_ann_cfix(ann, ids, "cap"), fom0=fom0, mc=mc, avail=avail)
     return gen, n_zeroed
@@ -441,7 +441,7 @@ def build_storage(res: pd.DataFrame, factors: np.ndarray, ann: pd.DataFrame, zon
     p0, e0 = np.nan_to_num(_num(sub, "k0_mw")), np.nan_to_num(_num(sub, "e0_mwh"))
     fom_p, fom_e = (np.nan_to_num(_num(sub, c)) * f for c in ("fom_usd_mw_yr", "fom_usd_mwh_yr"))
     return Storage(
-        ids=tuple(ids), zone=sub["zone"].map(zone_ix).to_numpy(), tech=sub["tech"].to_numpy(),
+        ids=tuple(ids), zone=sub["zone"].map(zone_ix).to_numpy(np.int64), tech=sub["tech"].to_numpy(),
         status=sub["status"].to_numpy(), p0=p0, e0=e0, xp_max=_num0(sub, "xmax_mw"),
         xe_max=_num0(sub, "xmax_mwh"), eta_c=_num(sub, "eta_c_frac"), eta_d=_num(sub, "eta_d_frac"),
         sigma=np.nan_to_num(_num(sub, "selfdis_frac_h")), dur_lo=_num(sub, "dur_min_h"), dur_hi=_num(sub, "dur_max_h"),

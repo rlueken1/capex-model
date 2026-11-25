@@ -36,3 +36,14 @@ def test_bad_weight_is_rejected(tmp_path: Path) -> None:
         (tmp_path / "T1" / "periods.csv").read_text().replace("121.66666666666667", "120.0"))
     with pytest.raises(DataError):
         load_case(tmp_path / "T1")
+
+
+def test_block_idx_empty_index_arrays_any_dtype():
+    """Regression (W4a-fix): empty object-dtype index arrays must not reach ravel_multi_index."""
+    import numpy as np
+    from capex.model import Block
+    blk = Block("bal", ("zone", "period", "t"), (("a", "b"), ("p",), ("t0", "t1")), offset=5)
+    out = blk.idx(np.empty((0, 1, 2), dtype=object), np.zeros((0, 1, 2), dtype=np.int64), np.zeros((0, 1, 2), dtype=np.int64))
+    assert out.shape == (0, 1, 2) and out.dtype == np.int64
+    full = blk.idx(np.array([1]), np.array([0]), np.array([1]))
+    assert full.tolist() == [5 + 3]
