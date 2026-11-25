@@ -52,3 +52,11 @@
     (inputs + code + solver settings hash) for exact reproducibility.
 21. Benchmarking: day-ahead LMPs first; "good enough" targets set from literature before
     seeing results; forward runs compared with PJM West Hub futures.
+
+2026-11-20 (owner, answering W1 questions)
+22. Annualization: NREL ATB-style CRF including tax/depreciation (project finance factor)
+    is the default; simple real-WACC CRF kept as an option. One `annualize` function.
+23. Non-unique prices at capacity: score capex-mode prices on block/monthly averages until
+    reserves/ORDC arrive at Gate 7; keep gate order.
+24. Base dollar year 2024$, BEA GDP deflator. PJM backcast scarcity pricing uses PJM's
+    reserve shortage pricing (ORDC) curve; VOLL only as unserved-energy backstop.
