@@ -46,6 +46,8 @@ to `reports/session-log.md` ("skipped: awaiting review") and stop.
   Missing unit characteristics are estimated using that file's hierarchy (observed →
   plant-level → statistical estimate from public data → cited literature default), never
   left blank or silently defaulted. Every run writes an assumptions book.
+- **Buy nothing; simplest model first** (owner, DECISIONS 26): no paid data or services. Add a feature only in
+  its own gate, and only after the simpler model passes its gate.
 - **Scope:** PJM only for now. Other RTOs come later, one at a time.
 
 ## End of every session

@@ -87,9 +87,8 @@ Actions run or the owner before reliance. Terms below are my reading of the publ
 - **Daily hub gas (`gas_hubs`)**: ICE/Platts/NGI indices are commercial; redistribution and client-facing storage are likely
   prohibited, and even internal use needs a subscription. Risk: the largest backcast accuracy driver (DECISIONS 18) sits on
   the least available data. **Fallback**: EIA Henry Hub daily + regional monthly basis (`gas_basis_fallback`, est_level 3,
-  confidence medium/low); decide whether the owner buys one licence (recommend: yes, for backcasting only, results published
-  as derived/aggregated values; verify the licence permits derived products).
-- **`west_hub_fut`**: licensed settlements; use manually transcribed settles, internal only.
+  confidence medium/low); **Owner decision (DECISIONS 27): no licence is bought; the fallback is the method.**
+- **`west_hub_fut`**: licensed settlements; no purchase (DECISIONS 28) — use only freely available settles, else drop the Gate 17 futures comparison.
 - **`pjm_dm2`**: usage terms limit redistribution; keep raw pulls in artifacts, publish only derived/aggregate metrics (verify).
 - **`imm`**: copyrighted reports; transcribe numbers with citation, no re-publishing of text/charts.
 - **`weather_re`**: Renewables.ninja is non-commercial (verify); prefer NREL data.

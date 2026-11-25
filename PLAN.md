@@ -1,8 +1,8 @@
 # PLAN
 
-STATUS: AWAITING_OWNER_REVIEW
-CURRENT GATE: 0 (weekend run, branch work only)
-OWNER REVIEW: Monday 2026-11-23 (Gate 0 spec + Gate 1 toy model draft)
+STATUS: IN_PROGRESS
+CURRENT GATE: 1 (Toy model + audit layer), branch `gate-1`
+GATE 0: approved by owner 2026-11-24 (DECISIONS 26–30); merge of `gate-0` into `main` awaits owner go-ahead
 
 ## Gates (each ends in owner sign-off; criteria in docs/gates/; rules in docs/gates/README.md)
 Test ladder: analytic toys → PJM 5-bus → RTS-GMLC → GenX cross-check → one PJM zone →
@@ -57,17 +57,19 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
   T1–T4 and audit readability; PM writes the 7-item owner decision list; STATUS: AWAITING_OWNER_REVIEW.
 
 ## Next
-Owner review (Mon 2026-11-23): consolidated decision list (16 items) in reports/gate-0-review.md, incl. F-0.2
-patch and the CI fix. After sign-off: W4a. Scrum notes: reports/scrum-2026-11-22.md.
+W4a (verifier): fix CI install line (`.[dev]` → `.[test]`), then known-answer tests T1–T4, econ and load-validation tests.
+Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
-- 2026-11-21 W2: Gate 0 review decision list (12 yes/no items) in reports/gate-0-review.md — for Monday review.
-- 2026-11-22 W3: confirm F-0.2 spec patch (DECISIONS 25, incl. HiGHS presolve=off default)? rec yes.
-- 2026-11-22 W3: gate-1.md expects CAPACITY_RENT for all T1 mid/peak hours, but degenerate hourly duals make some
+- (answered 2026-11-24) — all Gate 0 review items 1–16; see DECISIONS.md 26–30.
+- Merge `gate-0` into `main` now that Gate 0 is approved? (not done; awaiting go-ahead)
+- (answered) 2026-11-21 W2: Gate 0 review decision list (12 yes/no items) in reports/gate-0-review.md — for Monday review.
+- (answered) 2026-11-22 W3: confirm F-0.2 spec patch (DECISIONS 25, incl. HiGHS presolve=off default)? rec yes.
+- (answered) 2026-11-22 W3: gate-1.md expects CAPACITY_RENT for all T1 mid/peak hours, but degenerate hourly duals make some
   hours TIE_AT_BOUND (price = an at-cap unit's MC). Amend gate-1.md so T1 mid/peak accept CAPACITY_RENT *or*
   TIE_AT_BOUND (block averages still exact)? rec yes.
-- 2026-11-22 W3: deflator table is a 2024-only placeholder (index 100, method=assumed) until the data lead loads BEA
+- (answered) 2026-11-22 W3: deflator table is a 2024-only placeholder (index 100, method=assumed) until the data lead loads BEA
   NIPA 1.1.9 — fine for Gate 1 (toys are 2024$)? rec yes.
-- 2026-11-22 scrum: CI red on `gate-1` (`.[dev]` extra missing; pytest not installed). Let the verifier fix the
+- (answered) 2026-11-22 scrum: CI red on `gate-1` (`.[dev]` extra missing; pytest not installed). Let the verifier fix the
   install line at the start of W4a so Gate 1 evidence can come from CI? rec yes.
 - (answered) — 2026-11-20 owner answered W1's 3 questions; see DECISIONS.md 22–24.

@@ -14,7 +14,7 @@ Expected values are computed in the tests from the closed forms (not pasted roun
 
 | Case | Must reproduce | Expected price-setter report |
 |---|---|---|
-| T1 | x_Base=120, x_Peak=30, u=0; Z=40.824 M$; block prices 20 / 20.822 / 121.096; Σ w·D·π = Z; hourly mid π∈[20,80], peak π≥80; zero-profit rents R=C^fix for both builds | off-peak: MARGINAL_UNIT Base; mid and peak: CAPACITY_RENT/INVESTMENT_MARGIN; UNEXPLAINED=0 |
+| T1 | x_Base=120, x_Peak=30, u=0; Z=40.824 M$; block prices 20 / 20.822 / 121.096; Σ w·D·π = Z; hourly mid π∈[20,80], peak π≥80; zero-profit rents R=C^fix for both builds | off-peak: MARGINAL_UNIT Base; mid and peak: CAPACITY_RENT/INVESTMENT_MARGIN or TIE_AT_BOUND per hour (DECISIONS 30; block averages exact); UNEXPLAINED=0 |
 | T2a | storage charge 44.44, discharge 36 MWh per period; prices 20/60; v=22.22 / 54; R^E=3866.30, R^P=0; Z=26,125,348.15 | G1 / G2 MARGINAL_UNIT; ties with STORAGE_CH/DIS recorded |
 | T2b | builds 10 MW/40 MWh (at xP_ub, xE_ub); excess rent (R^P+4R^E)−(C^P+4C^E)=3465.19 ≥0; Z=26,245,348.15 | as T2a |
 | T2c | x=0; Z=26,280,000; combined rent < cost | as T2a |

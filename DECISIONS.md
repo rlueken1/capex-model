@@ -71,3 +71,17 @@
     option sketched as §7.4a (`tx.model`), pending owner decision on Gate 0 review item 3.
     Builder finding (W3): HiGHS `presolve=off` added to the default solver options (§4) so known-answer duals are
     reproducible; recorded in the run fingerprint.
+
+2026-11-24 (owner, Gate 0 review — reports/gate-0-review.md items 1–16)
+26. Owner accepts all recommendations in the 16-item list, with two overrides: (a) **buy nothing** — no data
+    licences or paid services; (b) **simplest model first** — add complexity only in a later gate, and only
+    after the simpler model solves properly (passes its gate). Gate 0 approved (item 1; F-0.2 confirmed, item 13).
+27. Item 4 (gas licence): **no purchase**. Regional gas = EIA Henry Hub daily + public monthly basis
+    (`gas_basis_fallback`, est_level 3). Accept the lower fuel-price confidence in backcasts.
+28. Item 11 (futures): **no purchase**. Gate 17 compares with West Hub futures only if settles are freely
+    available (public/delayed tables); otherwise that comparison is dropped and the gap logged. Never commit raw data.
+29. Items 2, 3 under the simplicity rule: daily fuel price φ(f,p,t) is built at Gate 5 (rep periods), not before;
+    Gate 1–4 toys/test systems keep one fuel price per case. DC power flow (§7.4a `tx.model`) is built at Gate 3
+    only, as an option; transport/copper-plate stays the default.
+30. Items 5–10, 14–16 accepted as recommended. Item 12: no extra Gate 0 reviewers (reviewers read Gate 1 in W6).
+    Item 14: T1 mid/peak hours may be CAPACITY_RENT or TIE_AT_BOUND; block averages stay exact.
