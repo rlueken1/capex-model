@@ -50,20 +50,27 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
 - [x] W4a-fix Builder [Sonnet]: CI run 18 (numpy 2.5.5 on runner vs 2.5.3 local): `model.py:36 Block.idx` → `np.ravel_multi_index` gets empty *object*-dtype index arrays → `TypeError: only int indices permitted`; 9 tests fail (T1, T3a, T3b, T4 + 5 builder smoke). Cast index arrays to int64; pin/record numpy in fingerprint. Do not edit verifier tests. CI must go green.
 - [x] W4b Verifier [Sonnet]: `tests/test_health*.py` — every §3 health check, dual-sign adapter, scaled/unscaled,
   50 seeded random instances vs `scipy linprog(highs)`, fingerprint determinism (2 processes), 6 audit mutations.
-- [ ] W4b-fix Formulation lead [Opus] spec patch + Builder [Sonnet] (2 subagents): (1) mutation M4 (swap η^c/η^d in `st_soc`) is caught by no
-  health check on T2asym (η 0.95/0.80) → add an SOC-row recomputation check from case η, σ to formulation §8.6 + gate-1.md §3 (DECISIONS), then
-  build it; (2) STORAGE_DIS price-setter row reports setter_cost=VOM, residual=π−VOM; §4 says π−VOM−v/η_d (code); (3) `build_gen` KeyError('fuel')
-  for VRE without `mc_override`/`fuel` (code, data-schema §3); (4) T2c spec: x^E=0 duals degenerate — unscaling rel 1e-5 and "rent < cost" (§3.5 says ≤)
-  cannot hold → amend gate-1.md §2/§3. Do not edit verifier tests; the failing M4 test and 4 strict xfails must turn green.
-- [ ] W4c Verifier [Sonnet]: full pytest run + CI; `reports/gate-1-evidence.md` (all 8 parts of gate-1.md §5) and
-  pass/fail table in `reports/gate-1-review.md`. Failures → spec-or-code decision in DECISIONS, never tolerance edits.
-- [ ] W5 Formulation lead [Opus]: line-by-line code-vs-spec trace (§2–§6), dual conventions, price-setter logic;
-  section in gate-1-review.md. Any builder fix found here becomes its own item.
-- [ ] W6 PM [Sonnet] + markets reviewer [Opus] + consulting reviewer [Opus] (2 subagents): economic sense of
-  T1–T4 and audit readability; PM writes the 7-item owner decision list; STATUS: AWAITING_OWNER_REVIEW.
+- [ ] W4b-fix1 Formulation lead [Opus], branch `gate-1`, no subagents, **spec only, no code**: (a) add an SOC-row
+  recomputation health check (rebuild `st_soc` residuals from case η^c, η^d, σ; catches M4) to formulation §8.6 and
+  gate-1.md §3; (b) confirm §4 STORAGE_DIS residual = π−VOM−v/η_d; (c) data-schema §3: `fuel` optional for VRE
+  (zero-fuel when no `mc_override`); (d) T2c: x^E=0 duals are degenerate → gate-1.md §2/§3 test T2c unscaling on
+  primal + π only and "rent ≤ cost". One DECISIONS entry (31). Deliverable: spec diff + DECISIONS 31.
+- [ ] W4b-fix2 Builder [Sonnet], branch `gate-1`: implement W4b-fix1 (a)–(c) in `capex.audit` / loader; builder smoke
+  tests only; do not edit verifier tests. Done when the M4 mutation test passes and the STORAGE_DIS and VRE xfails
+  XPASS. Expect CI red on strict XPASS until W4b-v (planned, not a failure).
+- [ ] W4b-v Verifier [Sonnet], branch `gate-1`: from the amended spec only — remove fixed xfail markers; rewrite T2c
+  tests to gate-1.md as amended; add a direct test of the new SOC check (positive + negative case). Full pytest +
+  CI must be green (0 fail, 0 xfail left without a DECISIONS reference).
+- [ ] W4c Verifier [Sonnet], branch `gate-1`: full pytest run + CI; `reports/gate-1-evidence.md` (all 8 parts of
+  gate-1.md §5) and pass/fail table in `reports/gate-1-review.md`. Failures → spec-or-code decision in DECISIONS, never tolerance edits.
+- [ ] W5 Formulation lead [Opus], branch `gate-1`: line-by-line code-vs-spec trace (§2–§6), dual conventions,
+  price-setter logic; section in gate-1-review.md. Any builder fix found here becomes its own item.
+- [ ] W6 PM [Sonnet] + markets reviewer [Opus] + consulting reviewer [Opus] (2 subagents), branch `gate-1`: economic
+  sense of T1–T4 and audit readability; PM writes the 7-item owner decision list (gate-1.md §6); STATUS: AWAITING_OWNER_REVIEW.
 
 ## Next
-W4b-fix (formulation lead Opus spec patch + builder): M4 SOC check, STORAGE_DIS residual, VRE loader bug, T2c degeneracy spec text. CI is red on purpose until then (1 uncaught mutation = gate failure). Then W4c.
+W4b-fix1 (formulation lead, Opus, spec only): SOC recomputation check, STORAGE_DIS residual, VRE `fuel` optional, T2c degeneracy wording → DECISIONS 31.
+Then W4b-fix2 (builder) → W4b-v (verifier) → W4c → W5 → W6. CI on `gate-1` stays red (run 22) until W4b-v, by design.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner

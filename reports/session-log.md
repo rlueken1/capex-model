@@ -29,3 +29,6 @@
 - 2026-11-25 W4b (verifier, Sonnet subagent) on `gate-1`: wrote tests/test_health_{checks,fingerprint,random,mutations}.py + tests/healthlib.py (independent scipy linprog LP from spec, 50 seeded random instances, storage-tie toys S1/S2) + conftest.py; all 13 §3 rows and 6 mutations covered (adapter row via five 2-var LPs, since the literal spec LP is degenerate).
   Tests: 411 pass, 1 fail, 4 xfail (strict) locally (~27 s). FAIL = gate finding: mutation M4 (swap η^c/η^d in st_soc) caught by no health check on T2asym. xfails: T2c x^E=0 dual degeneracy breaks unscaling rel 1e-5 and "rent < cost" (spec); STORAGE_DIS setter residual uses π−VOM not π−VOM−v/η_d (code); VRE loader KeyError('fuel') (code).
   CI on gate-1 will be red until W4b-fix. Needs owner: nothing yet (spec wording changes go via formulation lead in W4b-fix). Next: W4b-fix, then W4c.
+- 2026-11-25 PM scrum (PM role, scheduled, no subagents) on `gate-1`: STATUS IN_PROGRESS; Gate 1 ~60% (scope + tests done; M4 uncaught, 4 xfails, evidence and reviews to go). Split W4b-fix into W4b-fix1 (spec, Opus), W4b-fix2 (code, Sonnet), W4b-v (verifier test update, Sonnet); reports/scrum-2026-11-25.md.
+  Tests: none run. CI run 22 red by design (M4 finding) until W4b-v. Dashboard: Gate 2 evidence line corrected (CI install fixed in W4a).
+  Needs owner: nothing. Next: W4b-fix1.
