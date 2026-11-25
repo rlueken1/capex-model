@@ -45,7 +45,7 @@ an ablation switch, a complexity-ledger row, and must hold or improve its benchm
 - [x] W3 (Sun) Builder [Sonnet], branch `gate-1` (from `gate-0`; weekend exception: may start before Gate 0 sign-off): toy LP in `src/capex/` + `capex.audit` (balance residuals, duals, binding constraints, objective decomposition, price-setter report, conditioning check, run fingerprint). Then set STATUS: AWAITING_OWNER_REVIEW.
 
 Gate 1 items — start only after owner sign-off on Gate 0 (each one session, branch `gate-1`):
-- [ ] W4a Verifier [Sonnet]: if decision 16 = yes, fix CI install line first; then `tests/test_known_answers.py`
+- [x] W4a Verifier [Sonnet]: if decision 16 = yes, fix CI install line first; then `tests/test_known_answers.py`
   (T1–T4 per gate-1.md §2, expected values from closed forms), `tests/test_econ.py`, load-validation tests. Run; CI result.
 - [ ] W4b Verifier [Sonnet]: `tests/test_health.py` — every §3 health check, dual-sign adapter, scaled/unscaled,
   50 seeded random instances vs `scipy linprog(highs)`, fingerprint determinism (2 processes), 6 audit mutations.
@@ -57,7 +57,7 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
   T1–T4 and audit readability; PM writes the 7-item owner decision list; STATUS: AWAITING_OWNER_REVIEW.
 
 ## Next
-W4a (verifier): fix CI install line (`.[dev]` → `.[test]`), then known-answer tests T1–T4, econ and load-validation tests.
+W4b (verifier): `tests/test_health.py` — §3 health checks, dual-sign adapter, scaled/unscaled, 50 random instances vs scipy, fingerprint determinism, 6 audit mutations. Also cover the gaps W4a noted: storage tie (STORAGE_CH/DIS) never exercised in T2a/b; T2c rent_en degenerate (4380 vs 3866.30).
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner

@@ -19,3 +19,7 @@
 - 2026-11-24 scheduled work session on `gate-1`: skipped: awaiting review (STATUS: AWAITING_OWNER_REVIEW; Gate 0 decisions in reports/gate-0-review.md still unanswered). No build work. Next: owner sign-off, then W4a.
 - 2026-11-24 owner review (live): owner accepted all 16 Gate 0 recommendations with overrides 'buy nothing' and 'simplest model first' → DECISIONS 26–30; Gate 0 approved; STATUS IN_PROGRESS; gas licence and futures purchase dropped (free fallbacks); daily fuel price deferred to Gate 5, DC power flow to Gate 3. Tests: none run. Needs owner: go-ahead to merge gate-0 into main. Next: W4a.
 - 2026-11-24 owner go-ahead (live): merged `gate-0` into `main` (no-ff, clean). F-0.2 patch and DECISIONS 25–30 stay on `gate-1` until Gate 1 is approved. Tests: none run. Next: W4a.
+- 2026-11-25 W4a (verifier, Sonnet subagent) on `gate-1`: CI install line fixed (`.[dev]` → `.[test]`); wrote tests/test_known_answers.py (T1–T4, closed-form expected values, gate-1.md §2 tolerances, price-setter classes, binding sets), tests/test_econ.py (CRF, PFF/MACRS, Fisher, deflation, static annuity scan), tests/test_load_validation.py (one bad input each).
+  Tests: 90/90 pass locally (81 verifier + 9 builder smoke); CI result on push below/in dashboard.
+  Gaps noted: storage STORAGE_CH/DIS tie never triggers in T2a/b (discharge at P cap); T2c rent_en=4380 (degenerate dual at x=0, spec doesn't pin it) — only rent<cost asserted.
+  Needs owner: nothing new. Next: W4b.
