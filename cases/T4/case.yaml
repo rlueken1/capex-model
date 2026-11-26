@@ -1,0 +1,42 @@
+case_id: T4
+description: two zones, binding link A->B
+schema_version: S-0.1
+formulation_version: F-0.2
+base_dollar_year: 2024
+model_year: 2025
+dt_h: 1.0
+voll_usd_mwh: 10000
+voll_dollar_year: 2024
+finance_default: toy_simple
+seed: 0
+solver:
+  name: highs
+switches: {}
+tables:
+  periods:
+    file: periods.csv
+    sha256: f529fc444f4ab4b953137e20d49ab90ba639849da0bc01caf3a0fb8106c3d708
+  zones:
+    file: zones.csv
+    sha256: 3bb279431db46d1e462fd5ae65a43aa675c8af64373135a049299905a35ffd45
+  load:
+    file: load.csv
+    sha256: 5325fd1f92de2c95842fbb6d85d1cda32dbc53d638efcfbe7734252a7ec0cd0e
+  load_meta:
+    file: load_meta.csv
+    sha256: e35a44169d727b9360a4207b25e6f2570778f8bd14e4ac5753c491e1aa1e8ba7
+  resources:
+    file: resources.csv
+    sha256: d6215f7dbee2782a09ddfdba20e643a7f53450ec5206642e8638b1794706b755
+  finance:
+    file: finance.csv
+    sha256: a296e4eaa2cd88912af61d161a4f4c278c700f61f5b6f166dd01a80942e5c394
+  deflator:
+    file: ../../data/common/deflator.csv
+    sha256: c1fc4b6c9f000aa97d6821cf43f4d20daf61cadb31ab71239a911aa9733b153f
+  sources:
+    file: ../../data/common/sources.csv
+    sha256: 7f41d6900d122b0d488f3db363e66adcdfbe78f8cdc5cc689cb13fa401f99529
+  links:
+    file: links.csv
+    sha256: 8fec4b1f0c75048a8b76aeb67ae2a47a0340f90a8b8b5ad70417d0f620595840

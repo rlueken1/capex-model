@@ -13,6 +13,7 @@ team of role agents. The repo is the only memory between sessions.
 2. `DECISIONS.md` — settled decisions. Do not reopen them without a new reason.
 3. The latest file in `reports/` (if any).
 
+(Prep items also run when the next gate item is already claimed; see "Concurrent runs".)
 If `PLAN.md` says `STATUS: AWAITING_OWNER_REVIEW`, do **no** gate work. Instead do the next
 unchecked item under "Prep while awaiting owner review" in PLAN.md, on branch `prep`
 (create it from the current gate branch if missing; fetch and rebase before pushing). If
@@ -20,9 +21,10 @@ none is left, append one line to `reports/session-log.md` ("skipped: awaiting re
 
 ## Concurrent runs (burst schedules) — claim before you work
 Runs may start every 20 minutes and overlap. Before doing any work:
-1. Pick the item: the next unchecked gate item in PLAN.md, unless it is already claimed or
-   STATUS is AWAITING_OWNER_REVIEW — then the next unchecked, unclaimed prep item whose
-   "Needs Px done" prerequisite is ticked. Gate items stay strictly in order: never start a
+1. Pick the item: the next unchecked gate item in PLAN.md. If it is already claimed (by a
+   live, non-stale claim), or STATUS is AWAITING_OWNER_REVIEW, take instead the next
+   unchecked, unclaimed prep item whose "Needs Px done" prerequisite is ticked, whatever
+   STATUS says (owner, 2026-11-26). Prep stays on branch `prep` and never touches `src/capex/`. Gate items stay strictly in order: never start a
    later gate item while an earlier one is unchecked.
 2. Claim it on the gate branch: change `- [ ]` to `- [~]` and append `(claimed <ISO UTC>)`
    on that item's line, commit "claim <item>", push. If the push is rejected, fetch,

@@ -1,6 +1,23 @@
 # Formulation spec — capex-model
 
-Version: **F-0.1** (Gate 0 draft, W1). Status: draft for owner review.
+Version: **F-0.2** (Gate 0 patch, W3, 2026-11-22; F-0.1 was W1). Status: draft for owner review.
+F-0.2 changes (DECISIONS 25): daily fuel price $\phi_{f,p,t}$; DECISIONS 22–24 applied (ATB-style PFF default,
+block-average price scoring, 2024\$ / ORDC backcast scarcity); `VOLL` class covers total blackout; tolerances,
+$Z^0$, $FOM^P/FOM^E$, weight range, remainder-day rule and basic-solution requirement made consistent;
+DC power-flow option sketched for Gate 3 (§7.4a).
+F-0.2 amendment 1 (W4b-fix1, 2026-11-25, DECISIONS 31): SOC-row recomputation health check (§3 check 8, §8.6);
+storage price-setter `setter_cost`/`residual` defined per class (§4 Outputs); dual-degenerate storage duals at
+zero storage capacity (§3 check 7, T2c in §10). The LP itself is unchanged, so the version string stays `F-0.2`.
+F-0.2 amendment 2 (W5-spec1, 2026-11-26, DECISIONS 32): wording only — §6.2 states that infeasibilities are
+measured on the scaled LP and splits the "RHS ratio / any finite bound" row into a ratio metric and a magnitude
+metric (the code's reading, ratified); §5.2 `ANN ≥ I/n` check limited to PFF ≥ 1. LP and thresholds unchanged.
+F-0.2 amendment 3 (W6-spec1, 2026-11-26, DECISIONS 35): reporting only — §4 `CAPACITY_RENT` hours are attributed to
+the `INVESTMENT_MARGIN` unit(s), else to the highest-MC unit in the rent set, with the full rent set in `rent_ids`;
+§8.5 rents of $x=0$ candidates flagged `non-unique (bound)`; §8.11 assumptions-book run header and toy banner;
+§10 T2a typo ($v = 60\cdot0.9$). LP, duals, price checks and thresholds unchanged.
+F-0.2 amendment 4 (W6-spec2, 2026-11-26, DECISIONS 36): reporting only — §8.10 defines **canonical outputs** (every
+output file except `run.json`, with the single `- run_id:` line of `assumptions.md` removed) as the object of the
+byte-identity check; output tables carry no `run_id` column. LP, fingerprint inputs and thresholds unchanged.
 Scope of authority: code in `src/capex/` implements this file. Any deviation changes this
 file in the same commit and is logged in `DECISIONS.md`. Constraint/variable labels in
 `code font` are the identifiers used in code, audit output and tests.
@@ -44,8 +61,11 @@ $\Delta t$ is omitted from equations; code must still assert it.
 - **Weight identity (validated on load, tol $10^{-9}$):** $\sum_{p} 72\, w_p = H_y$, i.e. $\sum_p w_p = D_y/3$.
 - **Weight floor:** $w_p \ge 1$ (a period represents at least itself). This is what keeps
   $w_p \cdot \text{VOLL}$ from interacting with tiny weights (§6). Violations are a load error.
-- Remainder days ($D_y \bmod 3 \in \{1,2\}$) are added as $1/3$ or $2/3$ of a block to the
-  weight of the cluster their (truncated) block is assigned to (§7.1).
+- Remainder days ($D_y \bmod 3 \in \{1,2\}$) form one truncated final block of $1$ or $2$ days. It is
+  assigned to the period whose first $24(D_y \bmod 3)$ hours are nearest in feature space, and that
+  period's weight grows by $1/3$ or $2/3$ (single rule; §7.1 uses it unchanged).
+- Weight range: $w_p \ge 1$, no upper bound. Typical PJM runs ($8$–$40$ periods) have $w_p \in [1, 40]$;
+  the single-period toys of §10 have $w = 121.\overline6$. Scaling (§6) is checked for $w_p \le 122$.
 - Annual sum of an hourly quantity $q$: $\sum_p w_p \sum_t q_{p,t}$ (units: MW·h = MWh).
 
 ### 1.3 Sign conventions
@@ -72,12 +92,13 @@ $\Delta t$ is omitted from equations; code must still assert it.
 | $K^0_r$ | existing capacity (storage: $P^0_r$ power, $E^0_r$ energy) | MW, MWh |
 | $X^{max}_r$ | max new build ($+\infty$ allowed; storage: $X^{P,max}, X^{E,max}$) | MW, MWh |
 | $A_{r,p,t}\in[0,1]$ | availability (thermal: $1-$derate/outage; VRE: capacity factor) | – |
-| $MC_{r,p,t}$ | marginal cost $= HR_r\,\phi_{f(r),p} + VOM_r$ (+ adders, §7) | $/MWh |
-| $HR_r$, $\phi_{f,p}$ | heat rate; fuel price (period-indexed to allow daily gas) | MMBtu/MWh, $/MMBtu |
+| $MC_{r,p,t}$ | marginal cost $= HR_r\,\phi_{f(r),p,t} + VOM_r$ (+ adders, §7) | $/MWh |
+| $HR_r$, $\phi_{f,p,t}$ | heat rate; fuel price, hourly-indexed; real data are daily, so $\phi$ is constant on hours $1$–$24$, $25$–$48$, $49$–$72$ of a block (the three gas days of the medoid) | MMBtu/MWh, $/MMBtu |
 | $VOM_r$ | variable O&M (storage: per MWh discharged) | $/MWh |
 | $C^{fix}_r$ | annualized fixed cost of new capacity $=\text{ANN}(I_r,\ldots)+FOM_r$ (§5) | $/MW-yr |
 | $C^{P}_r, C^{E}_r$ | storage annualized fixed cost, power / energy part | $/MW-yr, $/MWh-yr |
 | $FOM_r$ | fixed O&M | $/MW-yr |
+| $FOM^P_r, FOM^E_r$ | storage fixed O&M, power / energy part | $/MW-yr, $/MWh-yr |
 | $\eta^c_r,\eta^d_r$ | charge / discharge efficiency (RTE $=\eta^c\eta^d$) | – |
 | $\sigma_r$ | self-discharge per hour | 1/h |
 | $\underline\delta_r,\overline\delta_r$ | min / max duration of new storage $E/P$ | h |
@@ -146,7 +167,8 @@ $$\min Z = \underbrace{\sum_{r\in\mathcal R^{TH}\cup\mathcal R^{VRE}} C^{fix}_r 
 + \underbrace{\sum_p w_p \sum_t\Big[\sum_{r} MC_{r,p,t}\,g_{r,p,t} + \sum_{r\in\mathcal R^{ST}} VOM_r d_{r,p,t}\Big]}_{Z^{var}}
 + \underbrace{\sum_p w_p\sum_t\sum_z \text{VOLL}\,u_{z,p,t}}_{Z^{use}} + Z^0$$
 $Z^0 = \sum_r FOM_r K^0_r + \sum_{r\in\mathcal R^{ST}} (FOM^P_r P^0_r + FOM^E_r E^0_r)$ is a constant
-(existing FOM, no retirement in Gate 1); it is added to the reported total, not to the LP.
+(existing FOM, no retirement in Gate 1); it is added to the reported total and to the objective
+decomposition (§8.4), but is **not** in the LP and **not** in the strong-duality check (§3 check 2).
 Sunk capex of existing units is excluded.
 
 ---
@@ -167,7 +189,7 @@ the scaled LP; $y = S\,\tilde y$ is in $/(unit of row RHS) per year.
 | `st_dur_lo` / `st_dur_hi` | $\ge0$ / $\le0$ | rent transfer between power and energy builds | $y$ | $/MWh-yr |
 | `flow_ub`/`flow_lb` (col) | $s\le0$ / $s\ge0$ | congestion rent $\pi_{e(l)}-\pi_{o(l)}$ | $\mu_{l,p,t} = -s/w_p$ | $/MWh |
 | `x_ub` (col) | $s\le0$ | value of relaxing build limit $R_r - C^{fix}_r$ | $-s$ | $/MW-yr |
-| `use_ub` (col) | $s \le 0$ | (only if total blackout) | $-s/w_p$ | $/MWh |
+| `use_ub` (col) | $s \le 0$ | blackout rent $\pi - \text{VOLL}$ (only if $u=D$) | $-s/w_p$ | $/MWh |
 
 Stationarity relations used by tests and by §4 (from $s_j = c_j - \sum_i a_{ij}y_i$):
 - $g$: $w_p MC - y^{bal} - y^{gen}=s_g$ → if $g>0$ and not at cap: $\pi = MC$; if at cap: $\pi = MC + \rho$.
@@ -178,8 +200,9 @@ Stationarity relations used by tests and by §4 (from $s_j = c_j - \sum_i a_{ij}
 - $x$: $C^{fix} - \sum_{p,t} A\,(-y^{gen}) = s_x$ → $s_x = C^{fix}_r - R_r$.
 
 **Verifier checks (Gate 1 health checks; tolerances in `docs/gates/gate-1.md`):**
-1. `bal` residual $|\text{LHS}-D| \le 10^{-6}$ MW·(scaled) every $(z,p,t)$.
-2. Strong duality: $|Z^{primal}-Z^{dual}|/|Z| \le 10^{-7}$, where
+1. `bal` residual $|\text{LHS}-D|$, measured in **unscaled MW**, every $(z,p,t)$: Gate 1 toy and random cases
+   require $\le 10^{-6}$ MW; all other runs use the §6.2 warn/fail thresholds ($10^{-3}$ / $10^{-1}$ MW).
+2. Strong duality on the LP objective (i.e. excluding the constant $Z^0$): $|Z^{primal}-Z^{dual}|/|Z| \le 10^{-7}$, where
    $Z^{dual}=\sum_i b_i y_i + \sum_j (\text{bound}_j \cdot s_j)$ over active bounds.
 3. Complementary slackness on every row and bound: $|y_i \cdot \text{slack}_i| \le tol$.
 4. Dual sign feasibility per the table (raw signs).
@@ -196,14 +219,30 @@ Stationarity relations used by tests and by §4 (from $s_j = c_j - \sum_i a_{ij}
    data or at capacity (see T1). Tests on prices compare weighted averages over such blocks,
    or check the price lies in the interval allowed by the price-setter class (§4), never a
    single hourly value unless the case is constructed to make it unique.
+   **Storage duals at zero storage capacity** ($P_r = E_r = 0$, e.g. T2c) are dual-degenerate: $c=d=e=0$ in every
+   hour, so $v$, $\rho^P$, $\rho^E$ are pinned only by dual feasibility (§10 T2c gives the interval). For such a
+   storage, tests compare primal values, $\pi$ and generator $\rho$ only, and check its rents against the interval
+   (at $x=0$: rent $\le$ cost, never "$<$"); $v$, $\rho^P$, $\rho^E$ are reported, not compared across scalings or
+   solver settings. On random instances, storage duals are excluded from the scaling comparison for the same reason.
+8. **SOC-row recomputation** (`storage.soc_recompute`, every solve with storage). From the **case data** — the
+   loaded $\eta^c_r$, $\eta^d_r$, $\sigma_r$, never the coefficients of the assembled matrix — and the unscaled
+   primal, recompute for every $(r,p,t)$, with the same cyclic $t^-$ as `st_soc` (§7.2 form when linked):
+   $\;r^{soc}_{r,p,t} = e_{r,p,t} - (1-\sigma_r)e_{r,p,t^-} - \eta^c_r c_{r,p,t} + d_{r,p,t}/\eta^d_r$ (MWh).
+   Pass: $\max|r^{soc}| \le 10^{-6}$ MWh on Gate 1 toy and random cases; otherwise the §6.2 `bal` thresholds
+   applied in MWh (warn $10^{-3}$, fail $10^{-1}$). Reason: checks 1–7 prove the solved LP is self-consistent, not
+   that it encodes the case; a wrong `st_soc` coefficient (e.g. $\eta^c$ and $\eta^d$ swapped, audit mutation M4)
+   leaves duality, CS and rent identities intact. Same principle as check 1, which recomputes `bal` from $D$.
 
 ---
 
 ## 4. Price-setter algorithm
 
 Run on every solve, per $(z,p,t)$, using unscaled primal and economic duals. Requires a
-**basic (vertex) solution**: simplex, or IPM with crossover. An IPM solution without
-crossover is rejected by audit (interior solutions make every unit look marginal).
+**basic (vertex) solution**. Solver config therefore forces it: HiGHS `solver=simplex`,
+`simplex_strategy=1` (dual), `presolve=off` by default (presolve changes which degenerate dual vertex is
+returned; with it on, T3a's Peaker reduced cost reads 0 instead of 40,500); if IPM is chosen, `run_crossover=on` is mandatory. The
+adapter reports `basis_valid`; audit rejects a solution without a valid basis (IPM without
+crossover makes every unit look marginal). Solver choice and options enter the fingerprint (§8.10).
 
 Tolerances: $tol_q = \max(10^{-3}\text{ MW}, 10^{-6} K_r)$; $tol_\pi = \max(0.01\ \$/\text{MWh}, 10^{-5}|\pi|)$.
 "Interior" means strictly inside bounds by more than $tol_q$.
@@ -219,25 +258,42 @@ match is recorded, the first class matched is the *primary* class:
 | Class | Condition | Price check |
 |---|---|---|
 | `VOLL` | $u_{z',p,t} > tol_q$ and $u < D - tol_q$ | $\lvert\pi-\text{VOLL}\rvert\le tol_\pi$ |
+| `VOLL` / sub-tag `BLACKOUT` | $u_{z',p,t} \ge D - tol_q$, $D>tol_q$ (`use_ub` binding; total blackout) | $\pi \ge \text{VOLL} - tol_\pi$ and $\lvert \pi - \text{VOLL} - \mu^{use}\rvert \le tol_\pi$, $\mu^{use}=-s_{use}/w_p$ |
 | `MARGINAL_UNIT` | $r$ with $tol_q < g < A K - tol_q$ | $\lvert\pi - MC_r\rvert \le tol_\pi$ |
 | `STORAGE_DIS` | $d$ interior, `st_pwr` slack | $\lvert\pi - VOM - v/\eta^d\rvert \le tol_\pi$ |
 | `STORAGE_CH` | $c$ interior, `st_pwr` slack | $\lvert\pi - \eta^c v\rvert\le tol_\pi$ |
 | `TIE_AT_BOUND` | $r$ at a bound with $\lvert MC_r-\pi\rvert\le tol_\pi$ | (same) |
 | `CAPACITY_RENT` | none of the above; every resource in the island with $MC<\pi - tol_\pi$ is at cap; at least one resource at cap with $\rho>tol_\pi$ | $\max MC_{\text{at cap}} - tol_\pi \le \pi \le \min(\text{VOLL}, \min MC_{\text{with room}}) + tol_\pi$ |
 
-`CAPACITY_RENT` is attributed to the at-cap resources with $\rho>0$; sub-tag
-`INVESTMENT_MARGIN` if any of them has an interior build ($0<x<X^{max}$; the price recovers
-its capex, cf. T1, T3b), else `DEGENERATE` (price is not unique: any value in the check
-interval is optimal; reported with the interval). Units attributed outside zone $z$ get
+`CAPACITY_RENT` attribution (amendment 3). Let the **rent set** $S$ be the at-cap resources in
+the island with $\rho>tol_\pi$; it is reported in full in column `rent_ids` (sorted ids; empty
+for every other class). The **setters** (`setter_ids`, and the hour's attribution in the
+summary) are a subset of $S$:
+1. if some $r\in S$ has an interior build ($0<x_r<X^{max}_r$, i.e. `build_status` = `interior`),
+   the setters are all such $r$; sub-tag `INVESTMENT_MARGIN` (the price recovers their capex,
+   cf. T1, T3b);
+2. else the setter is the $r\in S$ with the largest $MC_r$ (all $r\in S$ with
+   $MC_r \ge \max_S MC - tol_\pi$ on a tie); sub-tag `DEGENERATE` (price is not unique: any
+   value in the check interval is optimal; reported with the interval).
+Reason: on a real fleet almost every unit is at cap in a scarcity hour, so attributing the hour
+to all of $S$ would count nuclear and coal as price-setters in the marginal-fuel shares. The
+class's condition and price check are unchanged. Units attributed outside zone $z$ get
 the flag `IMPORT` plus the list of binding links on the island boundary (`CONGESTED`).
 
 **Step 2 — unexplained.** If no class matches, or the matched class fails its price check,
 the zone-hour is `UNEXPLAINED`. Health check: count of `UNEXPLAINED` must be 0.
 
 **Outputs** per $(z,p,t)$: primary class, setter resource id(s), tech/fuel, setter zone,
-$\pi$, setter cost, residual $\pi - \text{cost}$, island id, binding links. Aggregate: share of
+$\pi$, setter cost, residual $\pi - \text{cost}$, island id, binding links. **Setter cost** is the
+cost term of the class's price check, so `residual` is within $tol_\pi$ of 0 for every explained hour except
+`BLACKOUT` and `CAPACITY_RENT`: `MARGINAL_UNIT`/`TIE_AT_BOUND` $MC_r$; `STORAGE_DIS` $VOM_r + v_{r,p,t}/\eta^d_r$
+(not $VOM_r$ alone); `STORAGE_CH` $\eta^c_r v_{r,p,t}$; `VOLL` VOLL; `BLACKOUT` VOLL (residual $=\mu^{use}\ge0$);
+`CAPACITY_RENT` the interval's lower end $\max MC_{\text{at cap}}$ (residual = scarcity rent), with the interval
+reported in `price_lo`/`price_hi` (this does not change with the setter subset). Several setters (other
+classes): mean of their costs. Further column `rent_ids` (the `CAPACITY_RENT` rent set $S$, else empty). Aggregate: share of
 weighted hours ($\sum w_p$) by marginal fuel/tech per zone — the IMM comparison metric.
-Ties between several marginal units split the hour equally among them.
+Ties between several marginal units split the hour equally among them; a `CAPACITY_RENT` hour is split
+equally among its setters only (not among all of `rent_ids`).
 
 Later classes (inserted before `CAPACITY_RENT`, by gate): `RESERVE_ORDC` (G7: price includes
 reserve shadow price via headroom coupling), `LOSS_HURDLE` (G8: island test becomes
@@ -268,14 +324,25 @@ binding ramp row whose dual explains $\pi - MC$), `POLICY` (G10: $MC$ includes R
 Inputs: overnight cost $I$ (base $ per MW or per MWh), real WACC $r$, economic life $n$ (yr),
 optional construction spend profile $(\phi_1,\dots,\phi_L)$, $\sum\phi_k=1$, $\phi_k$ = share spent in
 year $k$ before COD ($k=L$ is the last year), optional multiplicative project-finance factor
-$\text{PFF}$ (default 1; see open question Q1).
+$\text{PFF}$ (DECISIONS 22: ATB-style is the default, below).
 
 $$\text{CRF}(r,n) = \begin{cases} \dfrac{r(1+r)^n}{(1+r)^n-1} & r \ne 0\\[4pt] 1/n & r=0 \end{cases}
 \qquad
 \text{IDC factor } \kappa = \sum_{k=1}^{L}\phi_k(1+r)^{L-k+0.5}\ \ (\kappa=1 \text{ if no profile})$$
 $$\text{ANN}(I) = I\cdot \kappa\cdot \text{PFF}\cdot \text{CRF}(r,n)\qquad[\$/\text{MW-yr}]$$
-Mid-year spending convention. Edge cases: $|r| < 10^{-9}$ uses the $r=0$ branch; require
-$n \ge 1$, $r > -1$, $\phi_k\ge0$; raise otherwise. Output is checked: $\text{ANN}\ge I/n$ for $r\ge0$.
+Mid-year spending convention.
+
+**Project finance factor (DECISIONS 22).** `finance.mode ∈ {atb_pff (default), simple_crf}` per finance class
+(`finance.csv`). `simple_crf`: $\text{PFF}=1$. `atb_pff` (NREL ATB method): 
+$$\text{PFF} = \frac{1 - T\cdot \text{PVD}}{1-T},\qquad \text{PVD} = \sum_{k=1}^{M} \frac{m_k}{(1+i)^{k}},$$
+$T$ = combined federal+state tax rate, $m_k$ = MACRS depreciation shares for class life $M$ ($\sum m_k = 1$;
+half-year convention tables, $M+1$ entries), $i$ = nominal WACC $= f_d\, i_d (1-T) + (1-f_d)\, i_e$; the real WACC for the CRF is
+$r = (1+i)/(1+\pi^e)-1$ (Fisher, §5.1). If a class supplies `pff` directly, that value is used and recorded
+as `method=assumed`. Both modes are tested; toys use `cfix_override` so neither affects T1–T4. Edge cases: $|r| < 10^{-9}$ uses the $r=0$ branch; require
+$n \ge 1$, $r > -1$, $\phi_k\ge0$; raise otherwise. Output is checked: $\text{ANN}\ge I/n$ when $r\ge0$ **and** $\text{PFF}\ge1$ (then $\kappa\ge1$ and
+$\text{CRF}\ge1/n$, so the bound holds). The `atb_pff` formula gives $\text{PFF}\ge1$ whenever $\text{PVD}\le1$, i.e. for any
+nominal WACC $i\ge0$; only a directly supplied `pff` < 1 (`method=assumed`) can fall below it, and then the check is
+skipped, not failed (DECISIONS 32).
 
 Use: $C^{fix}_r = \text{ANN}(I_r) + FOM_r$ (FOM added *after* annualization, never annualized);
 storage $C^P_r = \text{ANN}(I^P_r)+FOM^P_r$, $C^E_r = \text{ANN}(I^E_r)+FOM^E_r$; transmission
@@ -292,10 +359,11 @@ $\tilde x = k_P x$; scaled objective $\tilde Z = k_C Z$; scaled cost coefficient
 (so $/MWh → M$/GWh and $/MW-yr → M$/GW-yr share the factor). Raw duals unscale with
 $S = k_P/k_C = 10^3$ (§3). Optional extra objective factor $s_{obj}$ (default 1) is divided out too.
 
-Typical scaled magnitudes (PJM-size, $w_p\in[1,40]$):
+Typical scaled magnitudes (PJM-size, $w_p\in[1,40]$; toys $w\le122$, same bounds hold within $\times4$):
 | Item | Range |
 |---|---|
 | matrix: balance/flow/storage coefficients, $\eta$, $1/\eta$, $A$ | $10^{-3}$ … $1.2$ |
+| matrix: DC power flow $B_l$ or PTDF (§7.4a, Gate 3+) | $10^{-3}$ … $10^{2}$ (per-unit on 100 MVA) |
 | matrix: duration coefficients $\overline\delta$ (≤ 1000 h for seasonal) | up to $10^3$ |
 | objective: $w_p MC$ | $10^{-4}$ … $10$ |
 | objective: $w_p\text{VOLL}$ (VOLL ≤ 10 000 $/MWh) | ≤ $4\times10^2$ |
@@ -311,16 +379,23 @@ objective (and later the price-setter check), never a row. (e) Zero-cost VRE is 
 ### 6.2 Conditioning check (`capex.audit.conditioning`, every solve)
 Reports on the scaled LP: rows, cols, nnz; min/max $|a_{ij}|$ over nonzeros and ratio;
 min/max nonzero $|c_j|$, $|b_i|$, finite $|\text{bounds}|$ and ratios; count of coefficients below
-$10^{-6}$; after solve: max primal and dual infeasibility (unscaled), max `bal` residual,
-solver status, iteration count, whether crossover ran.
+$10^{-6}$; after solve: max primal and dual infeasibility (scaled: the units the solver's tolerances act on),
+max `bal` residual (unscaled MW), solver status, iteration count, whether crossover ran.
 | Metric | Warn | Fail |
 |---|---|---|
 | matrix ratio $\max|a|/\min|a|$ | $>10^6$ | $>10^9$ |
 | objective ratio | $>10^8$ | $>10^{11}$ |
-| RHS ratio / any finite bound | $>10^6$ / $>10^5$ | $>10^9$ / $>10^7$ |
+| RHS ratio $\max|b|/\min|b|$ (nonzero finite row bounds) | $>10^6$ | $>10^9$ |
+| largest finite variable bound $\max|l_j|,|u_j|$ (absolute, scaled units) | $>10^5$ | $>10^7$ |
 | max primal or dual infeasibility (scaled) | $>10^{-7}$ | $>10^{-5}$ |
-| max `bal` residual (MW) | $>10^{-3}$ | $>10^{-1}$ |
+| max `bal` residual (unscaled MW; Gate 1 toys require $\le10^{-6}$, §3) | $>10^{-3}$ | $>10^{-1}$ |
 A **fail** marks the run invalid in the fingerprint; a warn is listed in the health report.
+Definitions (DECISIONS 32). Ratios and minima use nonzero finite magnitudes only; $\pm\infty$ bounds are skipped. The bound
+metric is a magnitude, not a ratio: it flags big-M-style bounds (rule (c)); the smallest nonzero bound is reported only.
+Primal infeasibility = max violation of scaled row and column bounds; dual infeasibility = max of the scaled stationarity
+residual $|c - A^\top y - s|$ and any dual-sign violation. Scaled is used because the solver's feasibility tolerances
+($10^{-7}$) act there; the unscaled physical check is the `bal` residual row. Note: a $10^{9}$ MW bound is $10^{6}$ scaled
+and only warns; rule (c) still forbids it, and the builder must not rely on this check to catch it.
 
 ---
 
@@ -329,10 +404,10 @@ A **fail** marks the run invalid in the fingerprint; a warn is listed in the hea
 Each item: equations at sketch level, ablation switch (config key), accuracy risk (⚠).
 
 ### 7.1 Representative periods (Gate 5) — switch `ts.mode ∈ {full_blocks, clustered}`, `ts.n_periods`
-- Candidate pool: all consecutive 3-day blocks $j=1..J$ of the year ($J=\lfloor D_y/3\rfloor$; remainder days
-  attached to the last block as a fractional block).
+- Candidate pool: all consecutive 3-day blocks $j=1..J$ of the year ($J=\lfloor D_y/3\rfloor$); the truncated
+  remainder block follows the single rule of §1.2.
 - Feature vector per block: hourly zonal load, wind CF, solar CF, net load
-  ($D - \sum A^{VRE}K^{VRE}$ at current fleet), daily fuel price (hub gas) — each z-scored,
+  ($D - \sum A^{VRE}K^{VRE}$ at current fleet), the three daily fuel prices (hub gas) — each z-scored,
   feature-group weights in config (`ts.features.*`, each switchable, incl. `ts.features.fuel_price`).
 - Clustering: k-medoids (medoids are real blocks: preserves chronology and cross-correlation);
   hierarchical/k-means with medoid representation as alternative (Kotzur et al. 2018a; Hoffmann
@@ -370,6 +445,18 @@ Split $f = f^+ - f^-$, $f^\pm \ge 0$. Losses: receiving end gets $(1-\lambda_l)f
 Expansion $y_l\ge0$, cost $\text{ANN}(I_l)+FOM_l$: `flow_ub`: $f^+ \le F^+_l + y_l$, $f^- \le F^-_l + y_l$ (rows when expandable).
 Interfaces: `iface[i,p,t]`: $\sum_l \beta_{i,l}(f^+_l-f^-_l)\le \bar F_i$ (PJM transfer interfaces).
 ⚠ Transport ignores loop flow; intra-zonal congestion (large in PJM) is invisible at zonal resolution.
+
+### 7.4a DC power flow option (Gate 3 PJM 5-bus; owner decision pending, Gate 0 review item 3) — switch `tx.model ∈ {transport, dcpf}`
+Nodes $n$ (buses; in zonal runs a zone is a node), lines $l$ with susceptance $B_l$ (per unit, 100 MVA base) and
+rating $F_l$. Angle form (default for small systems): free $\theta_{n,p,t}$, `ref_angle`: $\theta_{n_0,p,t}=0$ per island;
+`kvl[l,p,t]`: $f_{l,p,t} - B_l(\theta_{o(l)} - \theta_{e(l)}) = 0$; `flow_ub/flow_lb` as in §2 (bounds on $f$).
+PTDF form (large systems): $f_{l} = \sum_n \text{PTDF}_{l,n}\,\text{inj}_n$ with `kvl` rows replaced; same duals.
+LMP decomposition: $\pi_n = \lambda_{ref} - \sum_l \text{PTDF}_{l,n}\,\mu_l$ (energy + congestion; lossless).
+Price-setter: Step 0 islands no longer suffice (loop flow makes $\Delta\pi$ non-zero on unconstrained lines). With
+`dcpf` the class `MARGINAL_UNIT` may hold at **several** nodes at once; a node with no local marginal unit is
+`CONGESTION_LOOP`: price check $|\pi_n - \sum_{m\in\text{marg}} \alpha_{n,m} MC_m| \le tol_\pi$ where the weights $\alpha$
+solve the PTDF system restricted to marginal units and binding lines. Spec completed at Gate 3.
+⚠ Zonal PJM runs keep `transport` unless Gate 8 shows `dcpf` improves the scoreboard (ledger row).
 
 ### 7.5 Clustered linear UC (Gate 9) — switches `uc.enabled`, `uc.min_updown`, `uc.ramps`
 Palmintier & Webster (2014, 2016): per cluster $r$ of identical units of size $\bar P_r$, commitment
@@ -410,25 +497,36 @@ demand curve as stepped benefit segments with ELCC-accredited supply $\sum_r \te
 3. **Binding-constraint report**: per label family, count/share of binding rows (slack $\le tol$) weighted by $w_p$; list of binding bounds (`x_ub`, `flow_*`, `use_ub`).
 4. **Objective decomposition**: $Z^{inv}$ by resource, $Z^{var}$ by resource and fuel, $Z^{use}$ by zone, $Z^0$; must sum to $Z$ within $10^{-9}$ relative.
 5. **Revenue/rent table** per resource: energy revenue, variable cost, rents $R$, $C^{fix}$, profit; zero-profit flags (§3 check 5–6).
-6. **Storage**: SOC trajectories, cyclic closure residual, `simul_chdis` hours, water values.
+   Column units in data-schema §5 (`rents`). Column `rent_note` = `non-unique (bound)` for every candidate with
+   `build_status` = `at_zero` (amendment 3): its column is at the lower bound, so $R$, $R^P$, $R^E$ and `excess_rent`
+   are one vertex of a dual interval (cf. T2c, T3a) and must not be read as the cost cut needed to build; empty otherwise.
+6. **Storage**: SOC trajectories, cyclic closure residual, **SOC-row recomputation residual** from case data
+   (§3 check 8, health check `storage.soc_recompute`), `simul_chdis` hours, water values.
 7. **Price-setter report** (§4) and `UNEXPLAINED` count; marginal fuel shares per zone.
 8. **Curtailment** and **unserved energy** by zone/period, weighted annual totals.
 9. **Conditioning report** (§6.2).
-10. **Run fingerprint**: SHA-256 over (canonical input tables: sorted, fixed float repr; config incl. all switches; formulation version string `F-x.y`; git commit + dirty-diff hash; solver name, version, all options; Python and package versions; clustering seed); stored with run id, timestamps, solve time, model size. Same fingerprint ⇒ bit-identical outputs expected.
+10. **Run fingerprint**: SHA-256 over (canonical input tables: sorted, fixed float repr; config incl. all switches; formulation version string `F-x.y`; git commit + dirty-diff hash; solver name, version, all options; Python and package versions; clustering seed); stored with run id, timestamps, solve time, model size. Same fingerprint ⇒ byte-identical **canonical outputs**
+    expected (amendment 4). Canonical outputs = every file written to `outputs/<run_id>/` except `run.json`, with
+    `assumptions.md` compared after deleting its one line that starts `- run_id: `. Per-run values (run_id,
+    timestamps, solve time) may appear only in those two places; every other file, including `health_report.md`,
+    `conditioning.json` and all tables, must be a pure function of the fingerprint inputs. Output tables do not
+    repeat `run_id` as a column; it is read from `run.json` or the directory name when runs are stacked.
 11. **Assumptions book** (from data layer): provenance mix by parameter, dollar-year conversions, annualization table.
+   Starts with the run header of data-sources.md "Assumptions book format" item 1 (run_id and fingerprint equal to
+   `run.json`, case, base dollar year); for a case with no input cell whose `method` is observed, derived or estimated,
+   the header adds the banner line "Toy case: all inputs assumed; numbers are illustrative, not PJM estimates."
+   (amendment 3).
 
 ---
 
 ## 9. Known accuracy risks / open questions (owner)
-- **Q1 Financing.** Simple real-WACC CRF vs NREL ATB's CRF × ProFinFactor (taxes, MACRS). Differences ~10–20% in
-  $C^{fix}$. Proposal: our CRF, with optional `PFF` from ATB documented per tech. Decide default.
-- **Q2 Degenerate prices.** In an energy-only LP, hours where supply is exactly at capacity have non-unique prices
-  (T1). Hourly LMP backcasts are sensitive; ORDC (G7) fixes most of it. Bring reserves/ORDC earlier, or score
-  capex-mode prices only on block/month averages until G7?
-- **Q3 Base dollar year and deflator.** Proposed: 2024$, BEA GDP implicit price deflator. CPI-U is the alternative some clients expect.
-- **Q4 VOLL / price cap.** Gate 1 uses one VOLL (toy). For PJM: VOLL vs offer cap ($1,000–2,000/MWh) vs ORDC
-  max penalty — which defines scarcity prices in backcasts?
-- **Q5 Leap years and remainder days.** Fractional-block remainder (§1.2) vs dropping Feb 29/Dec 31.
+- **Q1 Financing — resolved (DECISIONS 22):** ATB-style PFF default, simple CRF optional (§5.2).
+- **Q2 Degenerate prices — resolved (DECISIONS 23):** capex-mode prices scored on block/monthly averages until G7.
+- **Q3 Base dollar year — resolved (DECISIONS 24):** 2024\$, BEA GDP implicit price deflator.
+- **Q4 Scarcity pricing — resolved (DECISIONS 24):** PJM backcasts use PJM's reserve shortage (ORDC) curve (G7);
+  VOLL is only the unserved-energy backstop (Gate 1 toys keep a single VOLL).
+- **Q5 Leap years and remainder days.** Single fractional-block rule (§1.2) adopted in F-0.2; revisit only if G5
+  validation shows a bias.
 - **Q6 Storage inverter.** `st_pwr` uses $c+d\le P$ (single inverter). OK for batteries; pumped hydro may need separate pump/turbine ratings.
 - Risk: lossless transport and no intra-zonal congestion bias east/west spreads low until G8.
 - Risk: no min-gen/UC until G9 → off-peak prices too high, nuclear/coal cycling absent.
@@ -455,11 +553,18 @@ Existing: G1 100 MW $MC=20$; G2 200 MW $MC=60$. Demand $t=1..36$: 50 MW, $t=37..
 Storage $\eta^c=\eta^d=0.9$, $VOM=0$, duration 4 h.
 - **T2a** existing storage $P^0=10$ MW, $E^0=40$ MWh. Prices 20 / 60 (G1 / G2 marginal). Per period: charge
   $40/0.9 = 44.4\overline4$ MWh, discharge $36$ MWh (hourly schedule not unique). Water value $v = 20/0.9 = 22.2\overline2$ during
-  charging, $v = 60/0.9 = 54$ during discharging; $R^E = w(54-22.2\overline2) = 3\,866.30$ $/MWh-yr, $R^P = 0$.
+  charging, $v = 60\cdot0.9 = 54$ during discharging ($\pi = v/\eta^d$); $R^E = w(54-22.2\overline2) = 3\,866.30$ $/MWh-yr, $R^P = 0$.
   Net revenue $= w(60\cdot36-20\cdot44.4\overline4) = 154\,651.85$ $/yr $= R^E E^0$. $Z = 26\,125\,348.15$ $ (vs 26 280 000 without storage).
 - **T2b** candidate storage, $C^P=0$, $C^E=3\,000$, $\underline\delta=\overline\delta=4$, $X^{P,max}=10$, $X^{E,max}=40$: builds 10 MW/40 MWh
   (at bound); combined excess rent $(R^P+4R^E)-(C^P+4C^E) = 4(3\,866.30-3\,000)=3\,465.19$ $/MW-yr $\ge 0$; $Z=26\,280\,000-154\,651.85+120\,000 = 26\,245\,348.15$.
-- **T2c** same with $C^E=5\,000$: builds 0; $Z = 26\,280\,000$.
+- **T2c** same with $C^E=5\,000$: builds 0; $Z = 26\,280\,000$; prices 20 / 60 (unique, G1 / G2 marginal).
+  Storage duals are **dual-degenerate** (§3 check 7): with $P=E=0$, dual feasibility of $c,d,e$ at 0 gives
+  $\eta^d(\pi_t-\rho^P_t)\le v_t\le(\pi_t+\rho^P_t)/\eta^c$ and $v_{t^+}-v_t\le\rho^E_t$ (cyclic), so with
+  $\rho^P=0$ $v\in[18,22.\overline2]$ in low hours, $[54,66.\overline6]$ in high hours, and $\sum_t\rho^E_t\ge 54-22.\overline2$ per
+  period. Hence combined rent $R^P+4R^E\in[4\cdot3\,866.30,\;4\cdot5\,000] = [15\,465.19,\;20\,000]$ $/MW-yr: the lower
+  end is the T2a arbitrage value (using $\rho^P>0$ costs more than it saves), the upper end is reduced cost
+  $\ge 0$ at $x=0$. Any point is optimal; HiGHS returns 4 380 (scaled) or 5 000 (unscaled) for $R^E$. Tests assert
+  the interval (rent $\le$ cost, not $<$), not a point.
 
 ### T3 — VOLL-bound
 Existing G 100 MW $MC=30$; demand 80 MW except $t=48$: 120 MW; VOLL $=1\,000$; candidate Peaker $MC=100$.

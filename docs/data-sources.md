@@ -87,9 +87,8 @@ Actions run or the owner before reliance. Terms below are my reading of the publ
 - **Daily hub gas (`gas_hubs`)**: ICE/Platts/NGI indices are commercial; redistribution and client-facing storage are likely
   prohibited, and even internal use needs a subscription. Risk: the largest backcast accuracy driver (DECISIONS 18) sits on
   the least available data. **Fallback**: EIA Henry Hub daily + regional monthly basis (`gas_basis_fallback`, est_level 3,
-  confidence medium/low); decide whether the owner buys one licence (recommend: yes, for backcasting only, results published
-  as derived/aggregated values; verify the licence permits derived products).
-- **`west_hub_fut`**: licensed settlements; use manually transcribed settles, internal only.
+  confidence medium/low); **Owner decision (DECISIONS 27): no licence is bought; the fallback is the method.**
+- **`west_hub_fut`**: licensed settlements; no purchase (DECISIONS 28) — use only freely available settles, else drop the Gate 17 futures comparison.
 - **`pjm_dm2`**: usage terms limit redistribution; keep raw pulls in artifacts, publish only derived/aggregate metrics (verify).
 - **`imm`**: copyrighted reports; transcribe numbers with citation, no re-publishing of text/charts.
 - **`weather_re`**: Renewables.ninja is non-commercial (verify); prefer NREL data.
@@ -99,7 +98,10 @@ Actions run or the owner before reliance. Terms below are my reading of the publ
 
 ## Assumptions book format (`outputs/<run_id>/assumptions.md`; machine form `assumptions_cells.parquet`)
 Generated from `resolved_provenance.parquet`, no hand editing. Sections:
-1. **Run header**: run_id, fingerprint, case, base dollar year, formulation/schema versions, data vintages.
+1. **Run header**: run_id (one line `- run_id: <id>`, the only per-run line in the book; it is dropped from the
+   byte-identity comparison, formulation §8.10), fingerprint (both equal to `run.json`), case, base dollar year, formulation/schema versions,
+   data vintages. If no input cell has `method` observed, derived or estimated, add the banner line "Toy case: all inputs
+   assumed; numbers are illustrative, not PJM estimates." (formulation §8 item 11).
 2. **Provenance mix**: per parameter family (capacity, heat rate, VOM, FOM, capex, outage, fuel price, load, profiles)
    share of capacity (MW) and of cells by `method` and `est_level`; table `family | observed | derived | estimated | assumed`.
 3. **Source table**: each `source_id` used, vintage, retrieved, licence class.

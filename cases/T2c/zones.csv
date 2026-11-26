@@ -1,0 +1,2 @@
+zone_id,name,rto,source_id,vintage,retrieved,method,basis,confidence
+A,toy zone A,PJM,toy_spec,F-0.2,2026-11-22,assumed,docs/formulation.md section 10 toy case,low

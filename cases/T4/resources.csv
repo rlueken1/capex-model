@@ -1,0 +1,3 @@
+resource_id,zone,type,tech,status,k0_mw,xmax_mw,mc_override_usd_mwh,cfix_override_usd_mw_yr,dollar_year,source_id,vintage,retrieved,method,basis,confidence
+g_a,A,TH,g_a,existing,1000,0,20,,2024,toy_spec,F-0.2,2026-11-22,assumed,docs/formulation.md section 10 toy case,low
+g_b,B,TH,g_b,existing,1000,0,50,,2024,toy_spec,F-0.2,2026-11-22,assumed,docs/formulation.md section 10 toy case,low

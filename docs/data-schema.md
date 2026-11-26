@@ -129,7 +129,8 @@ Optional `interfaces.csv` + `interface_links.csv` (G8): `iface_id, limit_mw_fwd,
 | `resource_id` (key) | str | | all | $r$ |
 | `zone` | str | | all | $z(r)$ |
 | `type` | enum `TH|VRE|ST` | | all | $\mathcal R^{TH},\mathcal R^{VRE},\mathcal R^{ST}$ |
-| `tech`, `fuel` | str | | all | reporting; `fuel` -> `fuel_prices` hub map (TH); price-setter tech/fuel |
+| `tech` | str | | all | reporting; price-setter tech |
+| `fuel` | str, nullable | | required: TH without `mc_override`; optional: VRE, ST | `fuel_map` -> hub (TH); price-setter fuel (null reported as `none`). The column may be absent if no row requires it (DECISIONS 31) |
 | `status` | `existing|candidate` | | all | G1 data rule: existing ($K^0>0,X^{max}=0$) xor candidate ($K^0=0,X^{max}>0$) |
 | `k0_mw` | float >= 0 | MW | TH,VRE | $K^0_r$ ; ST: $P^0_r$ |
 | `e0_mwh` | float >= 0 | MWh | ST | $E^0_r$ |
@@ -137,7 +138,7 @@ Optional `interfaces.csv` + `interface_links.csv` (G8): `iface_id, limit_mw_fwd,
 | `xmax_mwh` | float >= 0 or `inf` | MWh | ST | $X^{E,max}_r$ |
 | `heat_rate_mmbtu_mwh` | float > 0 | | TH w/ fuel | $HR_r$ |
 | `vom_usd_mwh` | float >= 0 | $/MWh | TH,ST | $VOM_r$ (ST: per MWh discharged) |
-| `mc_override_usd_mwh` | float | $/MWh | TH,VRE | optional; if set replaces $HR\phi+VOM$ (toys T1–T4 use it: $MC=20$ etc.) |
+| `mc_override_usd_mwh` | float | $/MWh | TH,VRE | optional; if set replaces $HR\phi+VOM$ (toys T1–T4 use it: $MC=20$ etc.). VRE without it: $MC=0$ (zero fuel cost, no VOM; never perturbed, formulation §6.1e), whether or not `fuel` is given |
 | `fom_usd_mw_yr` | float >= 0 | $/MW-yr | all | $FOM_r$ ($FOM^P_r$ for ST) |
 | `fom_usd_mwh_yr` | float >= 0 | $/MWh-yr | ST | $FOM^E_r$ |
 | `capex_usd_mw` | float >= 0 | $/MW | candidate | $I_r$ ($I^P_r$ for ST) |
@@ -216,7 +217,9 @@ Adders (delivery, basis, CO$_2$ via G10) are separate columns/tables, never fold
 | `benchmarks_*.parquet` | 4,12,14 | | observed DA/RT LMP (zone,date,hour), IMM marginal fuel shares, EIA-923 monthly gen, RPM prices, IMM storage revenue; P(meta) | scoreboard (`docs/benchmarks.md`); never enter the LP |
 
 ## 5. Outputs (`outputs/<run_id>/`) — all in I/O units, base 2024$, real; weights applied only where stated
-Every output table has `run_id`. Raw duals use the canonical convention (§1.3); economic quantities per §3.
+Every output table belongs to one run through its directory `outputs/<run_id>/`; tables do not repeat `run_id` as a
+column, so that canonical outputs are byte-identical across runs (formulation §8.10, amendment 4); a reader that stacks
+runs adds `run_id` from `run.json`. Raw duals use the canonical convention (§1.3); economic quantities per §3.
 
 | File | Gate | Key | Columns | Notes (audit §8) |
 |---|---|---|---|---|
@@ -226,8 +229,8 @@ Every output table has `run_id`. Raw duals use the canonical convention (§1.3);
 | `flows.parquet` | 1 | `link_id,period_id,t` | `flow_mw`, `congestion_rent_usd_mwh` ($\mu$), `at_bound` | |
 | `capacity.parquet` | 1 | `resource_id` | `existing_mw`, `new_mw`, `existing_mwh`, `new_mwh`, `at_xmax`, `x_reduced_cost_usd_mw_yr` | $x,x^P,x^E$ |
 | `duals_raw.parquet` | 1 | `label,index` | `dual` (canonical), `slack`, `basis_status`, `weight` | all row families + `x_ub`, `flow_*`, `use_ub` bounds |
-| `rents.parquet` | 1 | `resource_id` | `energy_revenue`, `variable_cost`, `rent_cap_usd_mw_yr` ($R$), `rent_pwr`, `rent_en` ($R^P,R^E$), `cfix`, `profit`, `zero_profit_flag` ($/yr unless noted) | §8.5, checks §3.5–3.6 |
-| `price_setter.parquet` | 1 | `zone,period_id,t` | `primary_class`, `all_classes`, `setter_ids`, `setter_tech`, `setter_fuel`, `setter_zone`, `price`, `setter_cost`, `residual`, `island_id`, `binding_links`, `flags` (`IMPORT`,`CONGESTED`,`INVESTMENT_MARGIN`,`DEGENERATE`,`UNEXPLAINED`), `price_lo`, `price_hi` | §4 |
+| `rents.parquet` | 1 | `resource_id` | `kind` (generator tech kind, or `ST` for storage); **\$/yr:** `energy_revenue`, `variable_cost`, `fixed_cost` (total fixed cost of built + existing capacity), `profit`, `revenue_identity_residual`; **\$/MW-yr (per unit of capacity):** `rent_cap_usd_mw_yr` ($R$, generators), `rent_pwr` ($R^P$), `cfix` (generators $C^{fix}$; storage $C^P+\delta C^E$ with $\delta$ the fixed duration, $\delta=0$ if duration is free), `excess_rent` (rent − `cfix`, candidates only); **\$/MWh-yr:** `rent_en` ($R^E$); **flags:** `build_status` (`at_zero`/`interior`/`at_max`/`existing`), `zero_profit_ok`, `rent_note` (`non-unique (bound)` for candidates at `at_zero`, else empty) | §8.5, checks §3.5–3.6. Per-unit and total columns differ by the capacity: e.g. T2b `bat` `cfix` 12,000 \$/MW-yr vs `fixed_cost` 120,000 \$/yr (C1) |
+| `price_setter.parquet` | 1 | `zone,period_id,t` | `primary_class`, `all_classes`, `setter_ids`, `setter_tech`, `setter_fuel`, `setter_zone`, `price`, `setter_cost`, `residual`, `island_id`, `binding_links`, `flags` (`IMPORT`,`CONGESTED`,`INVESTMENT_MARGIN`,`DEGENERATE`,`UNEXPLAINED`), `price_lo`, `price_hi`, `rent_ids` (`CAPACITY_RENT` rent set; `setter_ids` holds only the attributed subset) | §4 |
 | `price_setter_summary.parquet` | 1 | `zone,tech,fuel,class` | `share_weighted_hours`, `weighted_hours` | IMM comparison metric |
 | `objective.parquet` | 1 | `component,id` | `component` (`Z_inv`,`Z_var`,`Z_use`,`Z0`), `id` (resource/zone/fuel), `value_usd_yr`; plus `total` row | sums to $Z$ within 1e-9 rel. |
 | `annualization.parquet` | 1 | `resource_id` | `I`, `dollar_year_in`, `deflator_factor`, `r`, `n`, `kappa`, `pff`, `crf`, `ann`, `fom`, `cfix` | §5.2 print |
@@ -253,7 +256,8 @@ Errors abort the run before the LP is built; warnings go to `health.parquet`. ID
 4. **Referential integrity:** `zone`, `zone_from/to`, `resource_id`, `finance_class`, `fuel_hub`, `source_id`,
    `profile_id` all resolve; links join distinct zones; every zone has load.
 5. **Gate-1 data rule:** resource `status=existing` => `k0>0` and `xmax=0`; `candidate` => `k0=0` and `xmax>0`. Types
-   require their columns (ST: eta_c, eta_d, e0 / xmax_mwh; TH w/ fuel: HR and a fuel hub, or `mc_override`).
+   require their columns (ST: eta_c, eta_d, e0 / xmax_mwh; TH: HR and a `fuel` that maps to a hub, or `mc_override`;
+   VRE: neither `fuel` nor `mc_override` required — missing both means $MC=0$).
    Candidates need (`capex`,`life_yr`,`finance_class`) **or** `cfix_override`.
 6. **Dollar year:** every cost column row has `dollar_year`; it exists in `deflator.csv`; `base_dollar_year` exists; a
    cost with `dollar_year > base` is allowed only if the deflator row is a projection (flagged). Cost columns with

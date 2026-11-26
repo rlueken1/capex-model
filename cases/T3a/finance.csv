@@ -1,0 +1,2 @@
+finance_class,mode,wacc_real_frac,source_id,vintage,retrieved,method,basis,confidence
+toy_simple,simple_crf,0.07,toy_spec,F-0.2,2026-11-22,assumed,docs/formulation.md section 10 toy case,low

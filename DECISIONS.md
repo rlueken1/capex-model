@@ -60,3 +60,80 @@
     reserves/ORDC arrive at Gate 7; keep gate order.
 24. Base dollar year 2024$, BEA GDP deflator. PJM backcast scarcity pricing uses PJM's
     reserve shortage pricing (ORDC) curve; VOLL only as unserved-energy backstop.
+
+2026-11-22 (formulation lead, W3 — spec patch; owner confirms at Gate 0 review)
+25. Formulation F-0.2 fixes Gate 0 review findings 1–5: fuel price $\phi_{f,p,t}$ (daily values within each
+    3-day block); DECISIONS 22–24 written into §5.2/§9 (ATB-style PFF default with formula, simple CRF option);
+    `VOLL` price-setter class covers total blackout (`BLACKOUT` sub-tag, `use_ub` rent); `bal` residual in
+    unscaled MW (1e-6 for Gate 1 toys, §6.2 thresholds otherwise); $Z^0$ in reported total and decomposition
+    but not in LP or duality check; $FOM^P/FOM^E$ defined; $w_p \ge 1$ with no upper bound; one remainder-day
+    rule (§1.2); simplex (dual) forced, crossover mandatory with IPM, `basis_valid` checked. DC power flow
+    option sketched as §7.4a (`tx.model`), pending owner decision on Gate 0 review item 3.
+    Builder finding (W3): HiGHS `presolve=off` added to the default solver options (§4) so known-answer duals are
+    reproducible; recorded in the run fingerprint.
+
+2026-11-24 (owner, Gate 0 review — reports/gate-0-review.md items 1–16)
+26. Owner accepts all recommendations in the 16-item list, with two overrides: (a) **buy nothing** — no data
+    licences or paid services; (b) **simplest model first** — add complexity only in a later gate, and only
+    after the simpler model solves properly (passes its gate). Gate 0 approved (item 1; F-0.2 confirmed, item 13).
+27. Item 4 (gas licence): **no purchase**. Regional gas = EIA Henry Hub daily + public monthly basis
+    (`gas_basis_fallback`, est_level 3). Accept the lower fuel-price confidence in backcasts.
+28. Item 11 (futures): **no purchase**. Gate 17 compares with West Hub futures only if settles are freely
+    available (public/delayed tables); otherwise that comparison is dropped and the gap logged. Never commit raw data.
+29. Items 2, 3 under the simplicity rule: daily fuel price φ(f,p,t) is built at Gate 5 (rep periods), not before;
+    Gate 1–4 toys/test systems keep one fuel price per case. DC power flow (§7.4a `tx.model`) is built at Gate 3
+    only, as an option; transport/copper-plate stays the default.
+30. Items 5–10, 14–16 accepted as recommended. Item 12: no extra Gate 0 reviewers (reviewers read Gate 1 in W6).
+    Item 14: T1 mid/peak hours may be CAPACITY_RENT or TIE_AT_BOUND; block averages stay exact.
+
+2026-11-25 (formulation lead, W4b-fix1 — spec amendment from W4b verifier findings; owner confirms at Gate 1 review item 5)
+31. F-0.2 amendment 1 (LP unchanged; version string stays F-0.2). (a) New health check `storage.soc_recompute`
+    (formulation §3 check 8, §8.6; gate-1.md §3): recompute the `st_soc` residual from case-data η^c, η^d, σ, ≤1e-6 MWh
+    on toys. Reason: duality/CS/rent checks only prove the solved LP is self-consistent; mutation M4 (η swap) passed all
+    of them. (b) Confirmed: STORAGE_DIS setter cost = VOM + v/η^d, STORAGE_CH = η^c v; `setter_cost`/`residual` now
+    defined per class (§4 Outputs) — the code's π−VOM residual is a code bug. (c) `fuel` optional for VRE (and ST);
+    VRE without `mc_override` has MC = 0 (data-schema §3.3, §6 rule 5). (d) T2c: storage duals at zero capacity are
+    dual-degenerate; proven interval R^P+4R^E ∈ [15,465.19, 20,000] (§10); T2c tests assert the interval (rent ≤ cost,
+    not <) and compare primal, π, generator ρ across scalings, not v/ρ^P/ρ^E. A degeneracy fact, not a tolerance edit.
+
+2026-11-26 (formulation lead, W5-spec1 — spec wording from W5 findings F2, F6; owner confirms at Gate 1 review)
+32. F-0.2 amendment 2 (wording only; LP, thresholds and code unchanged; version string stays F-0.2). (a) §6.2: primal
+    and dual infeasibility are measured on the **scaled** LP (the solver's tolerances act there; `bal` gives the
+    unscaled MW check). The text said "unscaled", the table "(scaled)"; the table and the code were right. (b) §6.2 row
+    "RHS ratio / any finite bound" split into two metrics: RHS ratio max|b|/min|b| over nonzero finite row bounds
+    (warn 1e6, fail 1e9) and largest finite variable bound, absolute in scaled units (warn 1e5, fail 1e7). This is the
+    reading in `conditioning.py` (`rhs_ratio`, `bound_max`); its SPEC-AMBIGUITY note can be dropped at the next code
+    touch. (c) §5.2: the ANN ≥ I/n output check applies only when r ≥ 0 and PFF ≥ 1 (ATB-style PFF ≥ 1 for any nominal
+    WACC ≥ 0); a directly supplied pff < 1 skips it, as `econ.py:annualize` does.
+
+2026-11-26 (owner, Gate 1 review — "yes to all" on reports/gate-1-review.md decisions 1–9, plus P1 licence question)
+33. Gate 1 review answered yes to all 9 items: (1) T1–T4 within tolerance; (2) all health checks pass, UNEXPLAINED = 0;
+    (3) fingerprint deterministic (environment-bound by design); (4) all audit mutations caught; (5) spec changes
+    F-0.2 amendments 1–2 / DECISIONS 30–32 accepted; (6) local log in place of CI accepted (moot, CI green);
+    (7) merge `gate-1` into `main` and mark Gate 1 DONE **after** item 8's fixes land and CI is green — this is the
+    owner's advance approval for that merge, executed by item W7; (8) close M1, M2, C1, C2 first via W6-spec1, W6-fix1,
+    W6-fix1-test; (9) carry later-gate findings (W5 F3–F5, F7, F8; markets M3–M5, M7; consulting C3–C8) into the draft
+    criteria of the gates named (P2 and later gate drafts).
+34. RTS-GMLC licence (P1): no LICENSE file upstream; owner approves use as an internal test system (subset vendored in
+    `cases/raw/rts_gmlc/`, cited) and never in client deliverables until terms are confirmed.
+
+2026-11-26 (formulation lead, W6-spec1 — spec from W6 findings M1, M2, M6, C1, C2; owner pre-approved by DECISIONS 33 item 8)
+35. F-0.2 amendment 3 (reporting only; LP, duals, price checks and thresholds unchanged; version stays F-0.2). (a) M1, new rule:
+    a `CAPACITY_RENT` hour's setters are the rent-set units (at cap, ρ > tol_π) with an interior build (`INVESTMENT_MARGIN`),
+    else the rent-set unit(s) with the highest MC (`DEGENERATE`); only setters share the hour in the summary; the full rent
+    set goes in new column `rent_ids`; `setter_cost` stays the interval lower end max MC at cap (formulation §4). Reason: on a
+    real fleet nearly every unit is at cap in scarcity hours, so equal splitting would credit nuclear/coal as price-setters.
+    (b) M2: `rents.rent_note` = `non-unique (bound)` for candidates with build_status `at_zero` (§8 item 5). (c) C1:
+    data-schema §5 `rents` names the unit of every column ($/yr totals vs $/MW-yr, $/MWh-yr per unit). (d) C2: assumptions
+    book starts with run_id/fingerprint (= run.json), case, base $ year, and a "Toy case: all inputs assumed…" banner when
+    no input cell is observed/derived/estimated (§8 item 11; data-sources.md). (e) M6: §10 T2a typo, v = 60·0.9 = 54.
+
+2026-11-26 (formulation lead, W6-spec2 — conflict found by W6-fix1; within DECISIONS 33 item 8 scope)
+36. F-0.2 amendment 4 (reporting only; LP, fingerprint inputs and thresholds unchanged; version stays F-0.2). Canonical
+    outputs, the object of gate-1.md §3 byte-identity, = every file in `outputs/<run_id>/` except `run.json`, with
+    `assumptions.md` compared after removing its single `- run_id: ` line (which must exist once and equal `run.json`).
+    Per-run values (run_id, timestamps, solve time) may appear only there; all other files are pure functions of the
+    fingerprint inputs. data-schema §5 "every output table has `run_id`" replaced: tables carry no `run_id` column (the
+    code already omits it); stacking readers take it from `run.json`. Reason: DECISIONS 35(d) put the random run_id in
+    the assumptions book, which made byte-identity impossible as worded. Rejected: a deterministic run_id (two runs
+    would share an id) and dropping run_id from the book (undoes C2). Verifier updates its test in W6-fix1-test.
