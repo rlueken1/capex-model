@@ -47,3 +47,8 @@
   Tests: 428 pass / 0 fail / 0 xfail locally (~29 s); CI #32 green (428, 21 s) on a3182e4 (same code).
   Notes for W5/W6: fingerprint is environment-bound (local ≠ CI hash); builder smoke tests import tests/healthlib.py; gate-1.md still says CI comes in Gate 2 though CI is live.
   Needs owner: nothing. Next: W5.
+- 2026-11-25 W5 (formulation lead, Opus subagent; main session reviewed) on `gate-1`: line-by-line code-vs-spec trace §2–§6,
+  dual conventions, price-setter logic → "Formulation trace (W5)" in reports/gate-1-review.md. Verdict: code implements F-0.2
+  amendment 1 for the toy scope; dual signs match §1.3 on T1–T4; no blockers. Should-fix: F1 price-setter hours failing the
+  primary class's price check keep that class in the summary (code+test) → W5-fix1/W5-fix1-test; F2 §6.2 wording → W5-spec1.
+  Later-gate F3–F5 noted in PLAN Next. Tests: none changed; T1–T4 re-solved, all health checks pass. Needs owner: nothing.

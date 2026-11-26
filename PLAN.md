@@ -63,8 +63,16 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
   CI must be green (0 fail, 0 xfail left without a DECISIONS reference).
 - [x] W4c Verifier [Sonnet], branch `gate-1`: full pytest run + CI; `reports/gate-1-evidence.md` (all 8 parts of
   gate-1.md §5) and pass/fail table in `reports/gate-1-review.md`. Failures → spec-or-code decision in DECISIONS, never tolerance edits.
-- [ ] W5 Formulation lead [Opus], branch `gate-1`: line-by-line code-vs-spec trace (§2–§6), dual conventions,
+- [x] W5 Formulation lead [Opus], branch `gate-1`: line-by-line code-vs-spec trace (§2–§6), dual conventions,
   price-setter logic; section in gate-1-review.md. Any builder fix found here becomes its own item.
+- [ ] W5-fix1 Builder [Sonnet], branch `gate-1`: price-setter (`audit/pricesetter.py:record`) — an hour whose first
+  matched class fails its price check must get primary_class=UNEXPLAINED and count as UNEXPLAINED in
+  `price_setter_summary` (W5 finding F1). Builder smoke tests only; do not edit verifier tests.
+- [ ] W5-fix1-test Verifier [Sonnet], branch `gate-1`: from the spec, a fixture where the first matched class fails its
+  price check; assert primary_class and summary show UNEXPLAINED (F1). Full pytest + CI green.
+- [ ] W5-spec1 Formulation lead [Opus], branch `gate-1`, spec only: §6.2 wording — infeasibility scaled vs unscaled
+  (text vs table) and the "RHS ratio / any finite bound" row; ratify the code's reading; fold in §5.2 "ANN ≥ I/n" only
+  holds for PFF ≥ 1 (F2, F6). One DECISIONS entry.
 - [ ] W6 PM [Sonnet] + markets reviewer [Opus] + consulting reviewer [Opus] (2 subagents), branch `gate-1`: economic
   sense of T1–T4 and audit readability; PM writes the 7-item owner decision list (gate-1.md §6); STATUS: AWAITING_OWNER_REVIEW.
 
@@ -81,9 +89,11 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   only, not scheduled; caches to artifacts; never commits raw data. Draft for Gate 2 review.
 
 ## Next
-W5 (formulation lead, Opus): line-by-line code-vs-spec trace (§2–§6), dual conventions, price-setter logic; section
-in reports/gate-1-review.md. W4c done 2026-11-26: reports/gate-1-evidence.md (all 8 §5 parts) + verifier pass/fail
-table in reports/gate-1-review.md — every row PASS or N-A, no failures; 428 pass locally, CI #32 green. Then W6.
+W5-fix1 (builder, Sonnet): price-setter UNEXPLAINED labelling (F1). W5 done 2026-11-25: formulation trace in
+reports/gate-1-review.md — code implements F-0.2 amendment 1 for the toy scope, no blockers; 2 should-fix (F1 code,
+F2 spec) → W5-fix1, W5-fix1-test, W5-spec1; then W6. Later-gate findings for the Gate 2 criteria list (P2 draft):
+F3 explicit zeros in A when availability 0 (`eliminate_zeros`), F4 zero-profit check skips xE for free-duration
+storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
