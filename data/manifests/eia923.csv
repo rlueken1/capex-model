@@ -1,0 +1,3 @@
+source_id,vintage,file,url,sha256,bytes,auth_env,enabled,note
+eia923,2023,f923_2023.zip,https://www.eia.gov/electricity/data/eia923/xls/f923_2023.zip,unpinned,,,false,DRAFT (P4): annual bulk zip (no key); disabled until Gate 11/16; URL pattern to verify
+eia923,2023-api,facility_fuel_2023.json,https://api.eia.gov/v2/electricity/facility-fuel/data/?api_key={EIA_API_KEY}&frequency=monthly&data[0]=generation&start=2023-01&end=2023-12&length=5000,unpinned,,EIA_API_KEY,false,DRAFT (P4): keyed-source pattern (D7); needs repo secret EIA_API_KEY (free EIA key); paging beyond 5000 rows not yet handled; API output is not byte-stable so this row stays pin_mode=record
