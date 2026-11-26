@@ -1,0 +1,88 @@
+# Gate 2, G2-3 — docs/gates/gate-2.md section 3 (D1-D8).
+# Manual dispatch only (D1). Downloads one registry source listed in
+# data/manifests/<source_id>.csv, checks SHA-256 (D2, D3), writes provenance.json (D4)
+# and caches the result as a workflow artifact (D5). Never commits data (D6).
+name: data-download
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_id:
+        description: "Registry source_id (docs/data-sources.md), e.g. pjm5, eia860, eia923, atb"
+        required: true
+        type: string
+      vintage:
+        description: "Manifest vintage (blank = the manifest's only vintage)"
+        required: false
+        type: string
+        default: ""
+      pin_mode:
+        description: "verify = pinned hashes must match; record = first fetch of an unpinned source, hashes recorded not checked"
+        required: false
+        type: choice
+        options: [verify, record]
+        default: verify
+
+permissions:
+  contents: read   # D6: read-only; no push, no release, no cache writes to the repo
+
+concurrency:
+  group: data-download-${{ inputs.source_id }}-${{ inputs.vintage }}
+  cancel-in-progress: false
+
+jobs:
+  download:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - name: Fetch and verify
+        id: fetch
+        env:
+          SOURCE_ID: ${{ inputs.source_id }}
+          VINTAGE: ${{ inputs.vintage }}
+          PIN_MODE: ${{ inputs.pin_mode }}
+          # D7: keyed sources. Empty when the secret is not set; the script then skips
+          # that source with a message. The value is never echoed (GitHub also masks it).
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+          PJM_DATAMINER_KEY: ${{ secrets.PJM_DATAMINER_KEY }}
+        run: |
+          args=("$SOURCE_ID" --pin-mode "$PIN_MODE" --out-dir "download/$SOURCE_ID")
+          if [ -n "$VINTAGE" ]; then args+=(--vintage "$VINTAGE"); fi
+          python scripts/fetch_source.py "${args[@]}"
+
+      # D3: fetch_source.py exits 1 on any hash/size mismatch (step fails, job fails, output dir removed),
+      # so every later step is skipped. D7: a disabled or keyless source exits 0 without writing
+      # fetched=true, so the steps below are skipped and nothing is uploaded.
+      - name: Re-verify before upload
+        if: steps.fetch.outputs.fetched == 'true'
+        env:
+          SOURCE_ID: ${{ inputs.source_id }}
+        run: python scripts/verify_artifact.py "download/$SOURCE_ID"
+
+      - name: Provenance summary
+        if: steps.fetch.outputs.fetched == 'true'
+        env:
+          SOURCE_ID: ${{ inputs.source_id }}
+        run: python scripts/verify_artifact.py "download/$SOURCE_ID" --summary >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Note skipped source
+        if: steps.fetch.outputs.fetched != 'true'
+        env:
+          SOURCE_ID: ${{ inputs.source_id }}
+        run: echo "data-download $SOURCE_ID: skipped (disabled or secret not set); nothing uploaded" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload artifact
+        if: steps.fetch.outputs.fetched == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-${{ inputs.source_id }}-${{ inputs.vintage || 'default' }}-${{ github.run_id }}
+          path: download/${{ inputs.source_id }}/
+          if-no-files-found: error
+          retention-days: 90   # D5: stated retention; re-dispatch to refresh
