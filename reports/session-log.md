@@ -138,3 +138,8 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - DRAFT docs/drafts/storage-study-outline.md: questions, design, revenue stack, 6–10 charts, sanity ranges, validation, 6 owner decisions.
 - 258 lines, 8 sources, 25 "(verify)"; no code changed, no tests run (docs only).
 - Gaps: PJM has no 2 h storage ELCC class; no public arbitrage/reserve revenue ranges found. Owner: 6 yes/no items (Needs owner).
+
+2026-11-26 11:25Z — P10 (data lead, Sonnet), branch `prep` 458d67e
+- DRAFT docs/drafts/eia-mapping.md: EIA-860/860M/923 + PUDL → data-schema mapping, PM/fuel code maps, heat-rate derivation, estimation hierarchy (heat rate, min gen, ramp, outage, start), back-test plan, provenance.
+- 397 lines, 49 "(verify)" (written offline; column names from memory); no code changed, no tests run (docs only).
+- 9 schema gaps found. Owner: 10 yes/no items (Needs owner). Prep list now exhausted; runs will skip until W7b.
