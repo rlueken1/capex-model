@@ -56,3 +56,7 @@
   UNEXPLAINED whenever it fails its primary class's price check (formulation §4 Step 2), so its weighted hours go to
   UNEXPLAINED in `price_setter_summary`. One-line change; builder smoke test `tests/builder/test_builder_pricesetter_unexplained.py`
   (perturbed T1 price). Tests: 429 passed, 0 failed, 0 xfail locally. Verifier tests untouched. Needs owner: nothing.
+- 2026-11-26 W5-fix1-test (verifier, Sonnet subagent; main session verified) on `gate-1`: new `tests/test_health_pricesetter_unexplained.py`
+  written from formulation §4 Step 2 / gate-1 §3 (builder tests not read). Perturbs π by +5 $/MWh in up to 3 MARGINAL_UNIT hours of T1/S1/S2:
+  asserts primary_class=UNEXPLAINED, summary moves exactly those weighted hours from MARGINAL_UNIT to UNEXPLAINED, zone totals = Σw·72; control has 0 UNEXPLAINED.
+  Tests: 438 passed / 0 failed / 0 xfail locally. Mutation check (price check ignored in `record`) → 6/9 new tests fail as intended (3 controls pass). Needs owner: nothing. Next: W5-spec1.
