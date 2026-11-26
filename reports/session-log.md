@@ -78,3 +78,8 @@
 - F-0.2 amendment 3 / DECISIONS 35: CAPACITY_RENT hours attributed to INVESTMENT_MARGIN units, else highest-MC rent-set unit; full set in `rent_ids` (M1).
 - `rents.rent_note` = `non-unique (bound)` for x = 0 candidates (M2); every `rents` column's unit named in data-schema §5 (C1); assumptions-book header + toy banner (C2); T2a typo 60·0.9 (M6).
 - Tests not run (no code change). Next: W6-fix1 builder. Nothing needs the owner.
+
+2026-11-26 W6-fix1 (builder, Sonnet subagent; main session Opus) on `gate-1`.
+- M1: CAPACITY_RENT setters = rent-set units with interior build, else highest-MC; full set in new `rent_ids` column. M2: `rents.rent_note`. C2: assumptions-book run header + toy banner.
+- Tests: 435 passed / 4 failed — fingerprint determinism tests compare assumptions.md bytes, which now carries the random run_id (spec conflict, not a code bug).
+- Added W6-spec2 (formulation lead) to define canonical outputs; W6-fix1-test then updates the test. CI red until then (planned). Nothing needs the owner.

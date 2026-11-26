@@ -80,8 +80,12 @@ Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in ord
 - [x] W6-spec1 Formulation lead [Opus], branch `gate-1`, spec only: §4 CAPACITY_RENT hour attributed to the INVESTMENT_MARGIN
   unit, else the highest-MC at-cap unit, full list in a separate column (M1); data-schema `rents` per-column units (C1); §10 T2a
   typo 60·0.9 (M6). One DECISIONS entry.
-- [~] W6-fix1 Builder [Sonnet], branch `gate-1`: implement M1; flag x = 0 candidate rents `non-unique (bound)` (M2); (claimed 2026-11-26T07:17:27Z)
+- [x] W6-fix1 Builder [Sonnet], branch `gate-1`: implement M1; flag x = 0 candidate rents `non-unique (bound)` (M2);
   assumptions-book header (run_id, fingerprint, base $ year, "toy case, illustrative only") (C2). Builder smoke tests only.
+- [ ] W6-spec2 Formulation lead [Opus], branch `gate-1`, spec only: resolve the conflict W6-fix1 found — gate-1.md §3 needs
+  byte-identical canonical outputs across runs, but data-sources.md/§8.11 put the per-run random `run_id` in `assumptions.md`.
+  Rec: canonical outputs = every output file except `run.json` and the `run_id` line of `assumptions.md`. One DECISIONS entry.
+  (CI red on 4 fingerprint-determinism tests until W6-fix1-test; planned, not a regression.)
 - [ ] W6-fix1-test Verifier [Sonnet], branch `gate-1`: tests for M1, M2, C2 from the amended spec; full pytest + CI green.
 - [ ] W7 PM [Sonnet], branch `gate-1`: confirm W6-spec1/fix1/fix1-test done and CI green on the final gate-1 commit; then
   merge `gate-1` into `main` (owner pre-approved, DECISIONS 33 item 7), mark Gate 1 DONE, start `gate-2` from `gate-1`, and
@@ -113,6 +117,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+W6-fix1 done 2026-11-26: M1 (`rent_ids`, setters = INVESTMENT_MARGIN units else highest-MC), M2 `rent_note`, C2 header + toy banner. 435 pass / 4 fail: the random run_id in assumptions.md breaks the verifier's byte-identity test (spec conflict) → new item W6-spec2, then W6-fix1-test also updates that test. Next: W6-spec2.
 W6-spec1 done 2026-11-26 (F-0.2 amendment 3, DECISIONS 35: M1 attribution rule + `rent_ids`, M2 `rent_note`, C1 units, C2 header/banner, M6 typo; spec only). Next: W6-fix1 (builder) implements M1, M2, C2 per the amended spec.
 Owner answered Gate 1 review 2026-11-26: yes to all 9 (DECISIONS 33) and RTS-GMLC internal use (DECISIONS 34). Next: W6-spec1 (Opus), W6-fix1, W6-fix1-test, then W7 merge. Prep lane keeps running: a run that finds the next gate item claimed takes the next prep item (owner, 2026-11-26).
 P1 done 2026-11-26 on `prep`: RTS-GMLC commit 3ece0d3, 43-file subset (9 MB) in `cases/raw/rts_gmlc/` incl. PLEXOS DA reference solutions; full MANIFEST.csv. Next prep: P2. Finding for Gate 2 list: fingerprint `git_state` splits untracked paths on whitespace (fails on paths with spaces); `data/common/sources.csv` is hashed by case manifests, so registry rows there need a re-hash at P5.

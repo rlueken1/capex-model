@@ -101,10 +101,11 @@ def write_outputs(out_dir: Path, sv: Solved, health: HealthReport) -> Fingerprin
     for name, table in output_tables(sv, health).items():
         table.to_csv(out_dir / f"{name}.csv", index=False)
     fp = fingerprint_of(sv, health)
-    (out_dir / "run.json").write_text(json.dumps(run_json(sv, health, fp), indent=2, default=str))
+    run = run_json(sv, health, fp)
+    (out_dir / "run.json").write_text(json.dumps(run, indent=2, default=str))
     (out_dir / "conditioning.json").write_text(json.dumps(
         {"metrics": health.audit.conditioning.metrics, "status": health.audit.conditioning.status}, indent=2, default=str))
-    (out_dir / "assumptions.md").write_text(assumptions.assumptions_book(sv.case))
+    (out_dir / "assumptions.md").write_text(assumptions.assumptions_book(sv.case, run["run_id"], run["fingerprint"]))
     (out_dir / "health_report.md").write_text(health.to_markdown(sv.case.case_id))
     return fp
 

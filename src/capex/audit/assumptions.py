@@ -23,12 +23,28 @@ def counts(case: Case) -> pd.DataFrame:
     return pd.DataFrame({"item": list(items), "value": list(items.values())})
 
 
-def assumptions_book(case: Case) -> str:
+TOY_BANNER = "Toy case: all inputs assumed; numbers are illustrative, not PJM estimates."
+
+
+def is_toy(case: Case) -> bool:
+    """True when no input cell has method observed, derived or estimated."""
+    return not any(case.tables[name]["method"].isin(["observed", "derived", "estimated"]).any()
+                   for name in PROVENANCE_TABLES if name in case.tables)
+
+
+def run_header(case: Case, run_id: str, fingerprint: str) -> list[str]:
+    """Run header (data-sources.md, assumptions book item 1), with the toy banner when applicable."""
+    lines = [f"- run_id: {run_id}", f"- fingerprint: {fingerprint}", f"- case: {case.case_id}",
+             f"- base dollar year: {case.base_dollar_year}"]
+    return lines + ([TOY_BANNER] if is_toy(case) else [])
+
+
+def assumptions_book(case: Case, run_id: str, fingerprint: str) -> str:
     """Markdown assumptions book for one run."""
     sections = [("Provenance mix", provenance_mix(case)), ("Dollar-year conversions to base "
                 f"{case.base_dollar_year}$", case.conversions), ("Annualization table (formulation 5.2)",
                 case.annualization), ("Counts", counts(case))]
-    parts = [f"# Assumptions book: {case.case_id}"]
+    parts = [f"# Assumptions book: {case.case_id}", "\n".join(run_header(case, run_id, fingerprint))]
     for title, table in sections:
         parts += [f"## {title}", table.to_string(index=False) if len(table) else "(none)"]
     return "\n\n".join(parts) + "\n"

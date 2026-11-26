@@ -117,7 +117,8 @@ def storage_reduced_cost_residual(sv: Solved, eco: Economics) -> float:
 
 def rent_table(sv: Solved, eco: Economics) -> pd.DataFrame:
     """Revenue/rent table per resource with zero-profit flags (hook 5, section 3 checks 5-6)."""
-    return pd.concat([gen_rents(sv, eco), storage_rents(sv, eco)], ignore_index=True)
+    table = pd.concat([gen_rents(sv, eco), storage_rents(sv, eco)], ignore_index=True)
+    return table.assign(rent_note=np.where(table["build_status"] == "at_zero", "non-unique (bound)", ""))
 
 
 @dataclass(frozen=True)

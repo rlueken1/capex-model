@@ -29,8 +29,8 @@ class _Interval(NamedTuple):
     """CAPACITY_RENT price interval (Z,P,T) and the build status of generators."""
     lo: np.ndarray
     hi: np.ndarray
-    x: np.ndarray           # (G,) new build
-    tol_q: np.ndarray       # (G,)
+    rent: np.ndarray        # (Z,G,P,T) rent set S: at-cap units in the island with rho > tol_pi
+    invest: np.ndarray      # (G,) interior build (0 < x < xmax)
 
 
 @dataclass(frozen=True)
@@ -119,6 +119,8 @@ def _classes(sv: Solved, eco: Economics, isl: np.ndarray, tol_pi: np.ndarray) ->
     rent_units = inisl_g & (at_cap & (eco.rho > tol_pi[gen.zone]))[None]
     lo = np.where(inisl_g & at_cap[None], mc_b, -np.inf).max(axis=1, initial=-np.inf)
     hi = np.minimum(case.voll, np.where(inisl_g & room[None], mc_b, np.inf).min(axis=1, initial=np.inf))
+    invest = (x > tq[:, 0, 0]) & (x < gen.xmax - tq[:, 0, 0])
+    rent_setters = _rent_setters(rent_units, invest, mc_b, tpi_z)
     cond_cr = ~violators & rent_units.any(axis=1)
     ok_cr = cond_cr & (pi >= lo - tol_pi) & (pi <= hi + tol_pi)
     classes = [
@@ -127,8 +129,15 @@ def _classes(sv: Solved, eco: Economics, isl: np.ndarray, tol_pi: np.ndarray) ->
         _storage_class("STORAGE_DIS", (dis > tq_s) & pwr_slack, pc_dis, inisl_s),
         _storage_class("STORAGE_CH", (ch > tq_s) & pwr_slack, pc_ch, inisl_s),
         _gen_class("TIE_AT_BOUND", present & ~interior, np.ones_like(near_mc), inisl_g & near_mc),
-        _Class("CAPACITY_RENT", cond_cr, ok_cr, rent_units, "gen")]
-    return classes, _Interval(lo, hi, x, tq[:, 0, 0])
+        _Class("CAPACITY_RENT", cond_cr, ok_cr, rent_setters, "gen")]
+    return classes, _Interval(lo, hi, rent_units, invest)
+
+
+def _rent_setters(rent: np.ndarray, invest: np.ndarray, mc: np.ndarray, tol_pi: np.ndarray) -> np.ndarray:
+    """(tol_pi is (Z,1,P,T).) CAPACITY_RENT setters (Z,G,P,T): rent-set units with an interior build, else the highest-MC rent-set units."""
+    built = rent & invest[None, :, None, None]
+    top = np.where(rent, mc, -np.inf).max(axis=1, keepdims=True, initial=-np.inf)
+    return np.where(built.any(axis=1, keepdims=True), built, rent & (mc >= top - tol_pi))
 
 
 def _boundary_links(sv: Solved, isl: np.ndarray, at_bound: np.ndarray, bad: np.ndarray
@@ -193,6 +202,7 @@ class _Ctx:
         ids = techs = fuels = szones = []
         costs: list[float] = []
         lo = hi = np.nan
+        rent_ids: list[str] = []
         if explained:
             pool = self.pools(cls.kind)
             members = np.flatnonzero(cls.setters[z, :, p, t])
@@ -202,9 +212,8 @@ class _Ctx:
             if cls.name == "CAPACITY_RENT":
                 lo, hi = self.interval.lo[z, p, t], self.interval.hi[z, p, t]
                 costs = [lo]
-                tq = self.interval.tol_q[members]
-                invest = ((self.interval.x[members] > tq) & (self.interval.x[members] < case.gen.xmax[members] - tq)).any()
-                flags.append("INVESTMENT_MARGIN" if invest else "DEGENERATE")
+                rent_ids = sorted(pool["ids"][self.interval.rent[z, :, p, t]])
+                flags.append("INVESTMENT_MARGIN" if self.interval.invest[members].any() else "DEGENERATE")
             if cls.name == "VOLL_BLACKOUT":
                 flags.append("BLACKOUT")
         if any(sz != zones[z] for sz in szones):
@@ -224,7 +233,7 @@ class _Ctx:
                "setter_fuel": _join(sorted(set(fuels))), "setter_zone": _join(sorted(set(szones))), "price": price,
                "setter_cost": cost, "residual": price - cost, "island_id": int(self.islands[z, p, t]),
                "binding_links": _join(links), "flags": _join(flags), "price_lo": lo, "price_hi": hi,
-               "weight_hours": case.w[p]}
+               "rent_ids": _join(rent_ids), "weight_hours": case.w[p]}
         n = len(ids)
         pieces = [(zones[z], "none", "none", name, case.w[p])] if n == 0 else \
             [(zones[z], tc, fl, name, case.w[p] / n) for tc, fl in zip(techs, fuels)]

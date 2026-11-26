@@ -3,6 +3,7 @@ against the spec's known answers (that is the verifier's job)."""
 import json
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from capex.cli import main
@@ -82,3 +83,17 @@ def test_vre_without_fuel_column_has_zero_mc(tmp_path: Path) -> None:
     spec = Spec(["A"], [W1], np.full((1, 1, 72), 60.0),
                 [th("g", "A", k0=100, mc=20.0), th("w", "A", k0=50, kind="VRE", mc=None, avail=prof)])
     assert float(load_case(write_case(spec, tmp_path)).gen.mc[1].max()) == 0.0
+
+
+def test_amendment3_outputs_present(tmp_path: Path) -> None:
+    main(["run", str(CASES / "T3b"), "--out", str(tmp_path)])
+    run = json.loads((tmp_path / "run.json").read_text())
+    book = (tmp_path / "assumptions.md").read_text()
+    assert run["run_id"] in book and run["fingerprint"] in book
+    assert "Toy case: all inputs assumed; numbers are illustrative, not PJM estimates." in book
+    ps = pd.read_csv(tmp_path / "price_setter.csv", keep_default_na=False)
+    assert "rent_ids" in ps.columns
+    cr = ps[ps["primary_class"] == "CAPACITY_RENT"]
+    assert (cr["rent_ids"] != "").all() and (ps[ps["primary_class"] != "CAPACITY_RENT"]["rent_ids"] == "").all()
+    rents = pd.read_csv(tmp_path / "rents.csv", keep_default_na=False)
+    assert ((rents["build_status"] == "at_zero") == (rents["rent_note"] == "non-unique (bound)")).all()
