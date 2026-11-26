@@ -102,7 +102,7 @@ One per session, strictly in order; claim before work (CLAUDE.md).
   junit XML + log artifacts, runtime report, pytest-socket (no network in tests). Builder smoke checks only.
 - [x] G2-2 Builder [Sonnet]: CI criteria C5–C7 — `xfail_strict`, marker-reason checker script, health-run job over T1–T4 with
   output artifacts, two-job fingerprint comparison with different PYTHONHASHSEED.
-- [ ] G2-2-fix Verifier [Sonnet]: `tests/draft/test_pjm5bus.py:118` is a strict xfail with no `Gate <n>`/`DECISIONS <n>` in its
+- [~] G2-2-fix Verifier [Sonnet]: `tests/draft/test_pjm5bus.py:118` is a strict xfail with no `Gate <n>`/`DECISIONS <n>` in its (claimed 2026-11-26T15:24Z)
   reason and drafts must be skips (C5) → make it a skip citing `Gate 3` (keep the 14,957.28 vs .29 note). CI `test` job is red on
   the C5 marker step until then (planned, not a regression). Run `scripts/check_markers.py` + full pytest; CI green.
 - [ ] G2-3 Builder [Sonnet]: data-download workflow D1–D8 end to end for `pjm5` (pinned MATPOWER case5.m) using the P4 draft;
