@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Verify a downloaded data artifact against its provenance.json and the committed manifest.
 
-DRAFT (prep item P4; gate-2.md D8). Run before any case loader reads the files:
-    python scripts/verify_artifact.py <artifact_dir>
+Gate 2, G2-3 (gate-2.md D8). Run before any case loader reads the files:
+    python scripts/verify_artifact.py <artifact_dir> [--against <vendored_dir>] [--summary]
 Checks: every file listed in provenance.json exists with that sha256 and size; no extra
 files; and for manifest rows with a pinned sha256, provenance agrees with the manifest
-(so an artifact from an older manifest is caught). Exit 0 ok, 1 mismatch, 2 bad input.
+(so an artifact from an older manifest is caught). --against also requires each file's sha256 to equal
+the same-named file in a vendored directory. --summary prints a markdown provenance table (for
+$GITHUB_STEP_SUMMARY) and nothing else. Exit 0 ok, 1 mismatch, 2 bad input.
 """
 from __future__ import annotations
 
@@ -53,16 +55,46 @@ def verify(art: Path, manifest_dir: Path) -> list[str]:
     return problems
 
 
+def verify_against(art: Path, vendored: Path) -> list[str]:
+    """Each data file in the artifact must equal the same-named file in `vendored` (sha256)."""
+    prov = json.loads((art / "provenance.json").read_text())
+    problems = []
+    for f in prov["files"]:
+        other = vendored / f["file"]
+        if not other.is_file():
+            problems.append(f"{f['file']}: no vendored copy in {vendored}")
+        elif sha256_file(other)[0] != f["sha256"]:
+            problems.append(f"{f['file']}: sha256 differs from vendored copy {other}")
+    return problems
+
+
+def summary_markdown(art: Path) -> str:
+    """provenance.json and a file/hash table as markdown."""
+    text = (art / "provenance.json").read_text()
+    prov = json.loads(text)
+    rows = "\n".join(f"| `{f['file']}` | {f['bytes']} | `{f['sha256']}` | {f['verified']} |" for f in prov["files"])
+    return (f"### data-download {prov['source_id']} ({prov['vintage']})\n\n"
+            f"| file | bytes | sha256 | pinned and verified |\n|---|---|---|---|\n{rows}\n\n"
+            f"<details><summary>provenance.json</summary>\n\n```json\n{text}```\n\n</details>\n")
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("artifact_dir")
     p.add_argument("--manifest-dir", default="data/manifests")
+    p.add_argument("--against", default=None, help="vendored directory whose same-named files must hash equal")
+    p.add_argument("--summary", action="store_true", help="print a markdown provenance table and exit")
     a = p.parse_args(argv)
     art = Path(a.artifact_dir)
-    if not art.is_dir():
-        print(f"ERROR: {art} is not a directory", file=sys.stderr)
+    if not (art / "provenance.json").is_file():
+        print(f"ERROR: {art} is not a directory with provenance.json", file=sys.stderr)
         return 2
+    if a.summary:
+        print(summary_markdown(art))
+        return 0
     problems = verify(art, Path(a.manifest_dir))
+    if a.against:
+        problems += verify_against(art, Path(a.against))
     for msg in problems:
         print(f"FAIL: {msg}", file=sys.stderr)
     if not problems:

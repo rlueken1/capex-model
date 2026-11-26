@@ -156,3 +156,6 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - 2026-11-26 G2-2-fix (verifier): tests/draft/test_pjm5bus.py congestion-surplus marker changed from strict xfail to skip citing "Gate 3" (draft 14,957.28 vs independent 14,957.29 note kept for Gate 3 approval).
   Tests: check_markers.py exit 0, --self-test exit 1; full pytest 481 pass / 30 skip / 0 xfail / 0 fail locally (network disabled). CI: see next gate-2 run.
   Needs owner: nothing. Next: G2-3 (builder, data-download workflow for pjm5).
+- 2026-11-26 G2-3 (builder, Sonnet): data-download workflow gate-grade for pjm5 (D1–D8): ubuntu-24.04, step-summary provenance, skip note; verify_artifact `--against`/`--summary`; new scripts/fetch_artifact.py consumer; tests/builder/test_data_download_smoke.py (16).
+  Tests: 497 pass / 30 skip / 0 fail locally (network disabled); check_markers clean. Live pjm5 fetch from workspace matched both pinned hashes. Not yet run on Actions.
+  Needs owner: data-download.yml must be on `main` before any dispatch (G2-7 evidence) — copy the file to main? rec yes. Next: G2-4.

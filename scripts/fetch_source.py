@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Download one registry source from its committed manifest and write provenance.json.
 
-DRAFT (prep item P4, for Gate 2 review; docs/gates/gate-2.md section 3, D1-D8).
+Gate 2, G2-3 (docs/gates/gate-2.md section 3, D1-D8).
 Stdlib only, so the workflow needs no project install.
 
 Manifest: data/manifests/<source_id>.csv with columns
