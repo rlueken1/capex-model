@@ -93,3 +93,8 @@
 - New `tests/test_reporting_w6.py` (21 cases): M1 setter attribution + `rent_ids` (designed interior-build case, T3b closed form, degenerate highest-MC branch), M2 `rent_note` on x = 0 candidates, C2 assumptions header/banner, no `run_id` columns.
 - `tests/test_health_fingerprint.py`: byte-identity now on canonical outputs per §8.10 / DECISIONS 36 (assumptions.md minus its `- run_id:` line, checked equal to run.json).
 - Tests: 460 passed / 0 failed / 0 xfail locally; CI run 57 green on ca92d50; no spec-vs-code failures. Next: W7 merge. Nothing needs the owner.
+
+2026-11-26 W7a (PM, main session; no subagents) on `gate-1`.
+- Confirmed W6-spec1/fix1/spec2/fix1-test done; CI run 58 green on 7c7837f; 460 pass locally. gate-1 → main has 1 trivial conflict (CLAUDE.md, take gate-1's).
+- Merge NOT done: scheduled-run prompt forbids runs from merging to main / marking a gate done. Split W7 → W7a (done) + W7b (owner action). STATUS: AWAITING_OWNER_REVIEW.
+- Needs owner: do the merge + Gate 1 DONE + create gate-2 (reports/gate-1-merge-readiness.md), or amend the run prompt.

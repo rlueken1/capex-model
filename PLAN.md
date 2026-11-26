@@ -1,6 +1,6 @@
 # PLAN
 
-STATUS: IN_PROGRESS (Gate 1 review answered yes to all, DECISIONS 33; closing W6 fixes, then W7 merge)
+STATUS: AWAITING_OWNER_REVIEW (W7a done: gate-1 merge-ready, CI green; the merge to `main` + Gate 1 DONE need you — see Needs owner)
 CURRENT GATE: 1 (Toy model + audit layer), branch `gate-1`
 GATE 0: approved by owner 2026-11-24 (DECISIONS 26–30); merged into `main` 2026-11-24 on owner go-ahead
 
@@ -88,9 +88,12 @@ Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in ord
   (CI red on 4 fingerprint-determinism tests until W6-fix1-test; planned, not a regression.)
 - [x] W6-fix1-test Verifier [Sonnet], branch `gate-1`: tests for M1, M2, C2 from the amended spec; update the byte-identity
   test to canonical outputs per formulation §8.10 (amendment 4, DECISIONS 36); full pytest + CI green.
-- [~] W7 PM [Sonnet], branch `gate-1`: confirm W6-spec1/fix1/fix1-test done and CI green on the final gate-1 commit; then (claimed 2026-11-26T08:16Z)
-  merge `gate-1` into `main` (owner pre-approved, DECISIONS 33 item 7), mark Gate 1 DONE, start `gate-2` from `gate-1`, and
-  set STATUS: AWAITING_OWNER_REVIEW until the PM scrum plans Gate 2 items. If CI is red, do not merge: add a fix item instead.
+- [x] W7a PM [Sonnet], branch `gate-1`: confirm W6-spec1/fix1/fix1-test done and CI green on the final gate-1 commit;
+  merge-readiness note `reports/gate-1-merge-readiness.md`. Done 2026-11-26: all done, CI run 58 green on 7c7837f, 460 pass
+  locally; one trivial CLAUDE.md conflict vs `main` (take gate-1's version). Merge NOT done: the scheduled-run prompt says
+  runs never merge to main or mark a gate done, which overrides DECISIONS 33 item 7 for unattended runs.
+- [ ] W7b OWNER ACTION (not claimable by runs): merge `gate-1` into `main`, mark Gate 1 DONE, create `gate-2` from `gate-1`
+  (or tell runs they may, by changing the scheduled-task prompt). Then the PM scrum plans Gate 2 items.
 
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
 Use when STATUS is AWAITING_OWNER_REVIEW, or when the next gate item is already claimed by another run (owner, 2026-11-26). One item per session, in order. Drafts and raw data only:
@@ -118,6 +121,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+W7a done 2026-11-26: gate-1 is merge-ready (all W6 fixes done, CI run 58 green, 460 pass; one trivial CLAUDE.md conflict). Merge + Gate 1 DONE left to the owner (W7b) because the scheduled-run prompt forbids runs from merging to main or marking a gate done. STATUS: AWAITING_OWNER_REVIEW → runs take prep items (next: P2).
 W6-fix1-test done 2026-11-26: verifier tests for M1/M2/C2 + canonical-output determinism (DECISIONS 36) in `tests/test_reporting_w6.py`, `tests/test_health_fingerprint.py`; 460 pass / 0 fail; CI run 57 green. Next: W7 (PM) confirms CI green on final gate-1 commit, then merges gate-1 → main (pre-approved, DECISIONS 33 item 7).
 W6-spec2 done 2026-11-26 (F-0.2 amendment 4, DECISIONS 36): canonical outputs = all output files except `run.json`, `assumptions.md` minus its one `- run_id:` line; tables carry no `run_id` column (data-schema §5). Spec only. Next: W6-fix1-test (verifier) updates the determinism test + M1/M2/C2 tests; CI should then go green.
 W6-fix1 done 2026-11-26: M1 (`rent_ids`, setters = INVESTMENT_MARGIN units else highest-MC), M2 `rent_note`, C2 header + toy banner. 435 pass / 4 fail: the random run_id in assumptions.md breaks the verifier's byte-identity test (spec conflict) → new item W6-spec2, then W6-fix1-test also updates that test. Next: W6-spec2.
@@ -133,6 +137,7 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
+- 2026-11-26 W7a: gate-1 is merge-ready. The scheduled-task prompt says runs must never merge to main or mark a gate done, so W7's merge (pre-approved in DECISIONS 33 item 7) was not executed. Either (a) merge `gate-1` → `main` yourself (resolve CLAUDE.md by taking gate-1's version), mark Gate 1 DONE, create `gate-2`; or (b) amend the scheduled prompt to allow it and re-open W7b for a run. rec (a). Details: reports/gate-1-merge-readiness.md.
 - (answered 2026-11-26, DECISIONS 34: yes) 2026-11-26 P1: RTS-GMLC has no LICENSE file and no terms in README. OK to use it as an internal test system (vendored subset in repo, cited, not in client deliverables) until terms are confirmed? rec yes.
 - (answered 2026-11-26, DECISIONS 33: yes to all) 2026-11-26 W6: Gate 1 review — 9 yes/no decisions in reports/gate-1-review.md (all rec yes; merge after W6 fixes + green CI).
 - (answered 2026-11-24) — all Gate 0 review items 1–16; see DECISIONS.md 26–30.
