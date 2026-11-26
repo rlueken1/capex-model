@@ -114,7 +114,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   price, forced peak/scarcity/extreme periods, weights, inter-period SOC linking) into a Gate 5 spec draft.
 - [x] P8 Markets reviewer [Sonnet]: notes on PJM RPM mechanics for Gate 14 (VRR curve parameters, Net CONE, ELCC
   classes, BRA timing) as `docs/drafts/pjm-rpm-notes.md`, every number cited or marked "verify".
-- [ ] P9 Consulting reviewer [Sonnet]: outline of the Gate 15 storage value study (`docs/drafts/storage-study-outline.md`):
+- [~] P9 Consulting reviewer [Sonnet]: outline of the Gate 15 storage value study (`docs/drafts/storage-study-outline.md`): (claimed 2026-11-26T10:55Z)
   client questions, outputs, charts, sanity ranges.
 - [ ] P10 Data lead [Sonnet]: EIA-860/923 field mapping to data-schema.md (`docs/drafts/eia-mapping.md`), incl. the
   estimation hierarchy for missing heat rates, min gen, ramp, outage rates.
