@@ -112,7 +112,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   marked skip until Gate 3. Needs P2 done.
 - [x] P7 Formulation lead [Opus]: detail §7.1 representative-period selection (clustering features incl. daily fuel
   price, forced peak/scarcity/extreme periods, weights, inter-period SOC linking) into a Gate 5 spec draft.
-- [ ] P8 Markets reviewer [Sonnet]: notes on PJM RPM mechanics for Gate 14 (VRR curve parameters, Net CONE, ELCC
+- [~] P8 Markets reviewer [Sonnet]: notes on PJM RPM mechanics for Gate 14 (VRR curve parameters, Net CONE, ELCC (claimed 2026-11-26T10:36Z)
   classes, BRA timing) as `docs/drafts/pjm-rpm-notes.md`, every number cited or marked "verify".
 - [ ] P9 Consulting reviewer [Sonnet]: outline of the Gate 15 storage value study (`docs/drafts/storage-study-outline.md`):
   client questions, outputs, charts, sanity ranges.
