@@ -87,8 +87,8 @@ Proposed by W6 — start only if the owner answers Gate 1 review decision 8 = ye
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
 Use only when STATUS is AWAITING_OWNER_REVIEW. One item per session, in order. Drafts and raw data only:
 no changes to `src/capex/`, no gate branch edits except ticking these boxes and the session log.
-- [ ] P1 Data lead [Sonnet]: fetch RTS-GMLC (github.com/GridMod/RTS-GMLC) into `cases/raw/rts_gmlc/` (or record
-  the pinned commit + file list if too large); add registry rows with provenance per docs/data-sources.md. No model code.
+- [~] P1 Data lead [Sonnet]: fetch RTS-GMLC (github.com/GridMod/RTS-GMLC) into `cases/raw/rts_gmlc/` (or record
+  the pinned commit + file list if too large); add registry rows with provenance per docs/data-sources.md. No model code. (claimed 2026-11-26T06:36:27Z)
 - [ ] P2 Formulation lead [Opus]: draft `docs/gates/gate-2.md` (CI + data-download workflow) and `docs/gates/gate-3.md`
   (PJM 5-bus: DC power flow per §7.4a, expected LMPs/congestion with sources and tolerances). Marked DRAFT for owner.
 - [ ] P3 Data lead [Sonnet]: PJM 5-bus case data into `cases/raw/pjm5bus/` from a published source available offline or
