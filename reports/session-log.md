@@ -143,3 +143,5 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - DRAFT docs/drafts/eia-mapping.md: EIA-860/860M/923 + PUDL → data-schema mapping, PM/fuel code maps, heat-rate derivation, estimation hierarchy (heat rate, min gen, ramp, outage, start), back-test plan, provenance.
 - 397 lines, 49 "(verify)" (written offline; column names from memory); no code changed, no tests run (docs only).
 - 9 schema gaps found. Owner: 10 yes/no items (Needs owner). Prep list now exhausted; runs will skip until W7b.
+
+2026-11-26T11:35Z — skipped: nothing claimable (AWAITING_OWNER_REVIEW; W7b owner-only; prep P1–P10 done)
