@@ -165,3 +165,8 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - Fixed carried findings F3 (eliminate_zeros in _triplets), F4 (free-duration storage checks s_xP and s_xE), F5 (scipy ranged-row dual no longer overwritten), P1-a (git_state NUL-separated untracked paths).
 - 4 builder smoke tests added; local 501 pass / 30 skip / 0 fail; check_markers OK; T1–T4 health runs ok, outputs unchanged.
 - No spec change; nothing needs the owner. Next: G2-5 verifier tests.
+
+## 2026-11-26 — G2-5 (verifier, Sonnet)
+- Added `tests/test_gate2_findings.py` (27 cases: F3, F4, F5, P1-a) and `tests/test_check_markers.py` (19 cases: C5), written from gate-2.md §2/§4 and formulation.md.
+- Result: 46/46 pass on gate-2; 10 F3–F5/P1-a cases fail on the pre-fix commit (faaa9cd^), so the tests catch the original bugs.
+- Full suite 547 pass / 30 skip / 0 fail (network off); check_markers exit 0. Nothing needs the owner. Next: G2-6 (Opus).
