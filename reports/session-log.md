@@ -180,3 +180,8 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 CI #107 on c975ea4 green: 547 pass / 30 skip / 0 fail, ~63 s, version block = pins, 7/7 health cases identical across PYTHONHASHSEED 0/12345, objectives = local exactly.
 Data-download dispatch refused ("no workflow_dispatch trigger"): data-download.yml is invalid YAML at line 79 (V2-1), on main and gate-2. Local fetch/verify pass D2–D5. Added G2-7a (builder fix + workflow-parse CI step) and G2-7b (dispatch evidence) before G2-8.
 Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact downloads blocked in this workspace (C3 run.json / C7 π not inspected).
+
+2026-11-26 G2-7a (builder, Sonnet subagent) on `gate-2` fc90b77.
+- Fixed V2-1: data-download.yml line 79 `run:` → block scalar; both workflow files now parse.
+- New `scripts/check_workflows.py` + ci.yml step "Parse workflow files" (fails exit 1 on line-79 regression, demonstrated). Local 547 pass / 30 skip / 0 fail.
+- NOT done: copy to `main` (DECISIONS 41) — push to main blocked in this unattended run; scheduled prompt says never on main. Owner action; G2-7b waits.

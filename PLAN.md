@@ -113,11 +113,11 @@ One per session, strictly in order; claim before work (CLAUDE.md).
   gate-2.md header to "approved".
 - [x] G2-7 Verifier [Sonnet]: `reports/gate-2-evidence.md` (§5 parts 1–8). Done 2026-11-26: C1–C9 pass on CI #107; parts 3–4
   (Actions dispatches) blocked by V2-1 — `data-download.yml` is invalid YAML (line 79), so GitHub has no dispatch trigger.
-- [~] G2-7a (claimed 2026-11-26T21:24:03Z) Builder [Sonnet]: fix V2-1 — line 79 of `.github/workflows/data-download.yml` as a block scalar (`run: |`); add a
+- [x] G2-7a Builder [Sonnet]: fix V2-1 — line 79 of `.github/workflows/data-download.yml` as a block scalar (`run: |`); add a
   `ci.yml` step that parses every `.github/workflows/*.yml` (PyYAML `safe_load`) and fails on error. No verifier tests here.
   Then copy **only** that fixed file onto `main` (commit "copy fixed data-download.yml to main (DECISIONS 41)"; owner-approved
   2026-11-26, DECISIONS 41 — the one exception to "never touch main"; no other file, no merge) and confirm the dispatch API accepts it.
-- [ ] G2-7b Verifier [Sonnet]: needs G2-7a done (it puts the fixed file on `main`). Dispatch `data-download.yml` (ref `gate-2`,
+- [ ] G2-7b Verifier [Sonnet]: needs the fixed data-download.yml on `main` (G2-7a could not push it — owner action, see Needs owner). Dispatch `data-download.yml` (ref `gate-2`,
   `source_id=pjm5`) twice (D5 equal hashes) and once from a throwaway branch with a corrupted manifest hash (D3 fails,
   nothing uploaded; delete the branch after); fill gate-2-evidence.md §3–§4 and the D table.
 - [ ] G2-8 PM [Sonnet] + markets reviewer [Sonnet] (1 subagent): `reports/gate-2-review.md` pass/fail table and owner yes/no
@@ -149,6 +149,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+G2-7a done 2026-11-26 on `gate-2` (fc90b77): data-download.yml line 79 → `run: |` block scalar; new `scripts/check_workflows.py` (PyYAML safe_load, already pinned 6.0.3) as CI step "Parse workflow files"; shown to fail (exit 1, line 79) with the fix reverted. Local 547 pass / 30 skip / 0 fail; check_markers exit 0. **Copy to `main` NOT done**: the run's push to `main` was refused by the session's safety guard and the scheduled prompt says "never on main" → owner action (Needs owner). Next: owner copies the file to `main`, then G2-7b.
 G2-7a (builder, Sonnet): fix V2-1 (data-download.yml YAML error, line 79) + workflow-parse CI step; then copy just that file to `main` (DECISIONS 41); then G2-7b dispatch evidence; then G2-8.
 G2-7 done 2026-11-26: `reports/gate-2-evidence.md`. CI #107 green (547 pass / 30 skip / 0 fail, ≈63 s, versions = pins, 7/7 cases identical across seeds, objectives = local exactly). Dispatch refused: data-download.yml does not parse (V2-1), on `main` and `gate-2`; local fetch/verify pass D2–D5 (repeat hashes equal; corrupted hash exits 1, nothing kept). C3/C7-π not inspected directly (artifact download blocked here).
 G2-7 (verifier, Sonnet): `reports/gate-2-evidence.md` (§5 parts 1–8); trigger the data-download dispatches (pjm5, then broken-hash on a throwaway branch) if the session can.
@@ -184,6 +185,7 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
+- 2026-11-26 G2-7a: fixed `.github/workflows/data-download.yml` is on `gate-2` (fc90b77) but could not be copied to `main` — the unattended run's push to `main` was blocked, and the scheduled prompt forbids working on main (conflicts with DECISIONS 41). Please either copy it yourself (`git checkout origin/gate-2 -- .github/workflows/data-download.yml` on main, commit "copy fixed data-download.yml to main (DECISIONS 41)", push) or amend the scheduled prompt to allow exactly this. G2-7b waits on it. rec: copy it yourself.
 - (answered 2026-11-26, yes, DECISIONS 41: the G2-7a run copies the fixed file to `main`) 2026-11-26 G2-7: `.github/workflows/data-download.yml` on `main` (f123ad1) is invalid YAML (line 79, `: ` inside an unquoted `run:`), so GitHub never registered its dispatch trigger and logs a failed run on every push. After G2-7a fixes it on `gate-2`, OK to copy the fixed file onto `main` again (same scope as DECISIONS 39), so G2-7b can run the D3/D5 dispatches? rec yes (owner action, or allow a run to do it).
 - (answered 2026-11-26, yes, DECISIONS 39; done: file on `main` at f123ad1) 2026-11-26 G2-3: GitHub dispatches a workflow only if its file is on the default branch; `main` lacks `.github/workflows/data-download.yml`, so G2-7 cannot run the D3/D5 evidence dispatches. OK to copy just that one file (dispatch-only, `contents: read`, inert until dispatched) onto `main` now, then `gh workflow run data-download.yml --ref gate-2 -f source_id=pjm5`? rec yes (owner action, or allow a run to do it).
 - (answered 2026-11-26, DECISIONS 37–38: yes to all) P3, P5, P8, P9, P10 items and W7a (owner: merge gate-1 now); Gate 2 criteria approved.
