@@ -100,7 +100,7 @@ Use when STATUS is AWAITING_OWNER_REVIEW, or when the next gate item is already 
 no changes to `src/capex/`, no gate branch edits except ticking these boxes and the session log.
 - [x] P1 Data lead [Sonnet]: fetch RTS-GMLC (github.com/GridMod/RTS-GMLC) into `cases/raw/rts_gmlc/` (or record
   the pinned commit + file list if too large); add registry rows with provenance per docs/data-sources.md. No model code.
-- [~] P2 Formulation lead [Opus]: draft `docs/gates/gate-2.md` (CI + data-download workflow) and `docs/gates/gate-3.md` (claimed 2026-11-26T08:35Z)
+- [x] P2 Formulation lead [Opus]: draft `docs/gates/gate-2.md` (CI + data-download workflow) and `docs/gates/gate-3.md`
   (PJM 5-bus: DC power flow per §7.4a, expected LMPs/congestion with sources and tolerances). Marked DRAFT for owner.
 - [ ] P3 Data lead [Sonnet]: PJM 5-bus case data into `cases/raw/pjm5bus/` from a published source available offline or
   on GitHub (e.g. a MATPOWER/PowerModels case file); provenance; note any source that needs owner download.
@@ -121,6 +121,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+P2 done 2026-11-26 on `prep` (07bd44a): DRAFT `docs/gates/gate-2.md` (CI C1–C9, data-download D1–D8, carried F3–F5 + P1 findings) and `docs/gates/gate-3.md` (pjm5 P5a–P5f; LMPs 16.98/26.38/30.00/39.94/10.00 reproduced by an independent scipy DC-OPF; inputs written from memory → P3 must verify vs MATPOWER case5). Next prep: P3 (P6 now unblocked).
 W7a done 2026-11-26: gate-1 is merge-ready (all W6 fixes done, CI run 58 green, 460 pass; one trivial CLAUDE.md conflict). Merge + Gate 1 DONE left to the owner (W7b) because the scheduled-run prompt forbids runs from merging to main or marking a gate done. STATUS: AWAITING_OWNER_REVIEW → runs take prep items (next: P2).
 W6-fix1-test done 2026-11-26: verifier tests for M1/M2/C2 + canonical-output determinism (DECISIONS 36) in `tests/test_reporting_w6.py`, `tests/test_health_fingerprint.py`; 460 pass / 0 fail; CI run 57 green. Next: W7 (PM) confirms CI green on final gate-1 commit, then merges gate-1 → main (pre-approved, DECISIONS 33 item 7).
 W6-spec2 done 2026-11-26 (F-0.2 amendment 4, DECISIONS 36): canonical outputs = all output files except `run.json`, `assumptions.md` minus its one `- run_id:` line; tables carry no `run_id` column (data-schema §5). Spec only. Next: W6-fix1-test (verifier) updates the determinism test + M1/M2/C2 tests; CI should then go green.

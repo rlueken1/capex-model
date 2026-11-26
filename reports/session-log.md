@@ -98,3 +98,9 @@
 - Confirmed W6-spec1/fix1/spec2/fix1-test done; CI run 58 green on 7c7837f; 460 pass locally. gate-1 → main has 1 trivial conflict (CLAUDE.md, take gate-1's).
 - Merge NOT done: scheduled-run prompt forbids runs from merging to main / marking a gate done. Split W7 → W7a (done) + W7b (owner action). STATUS: AWAITING_OWNER_REVIEW.
 - Needs owner: do the merge + Gate 1 DONE + create gate-2 (reports/gate-1-merge-readiness.md), or amend the run prompt.
+
+2026-11-26 P2 (formulation lead, main session Opus; no subagents) on `prep` (07bd44a).
+- DRAFT `docs/gates/gate-2.md`: CI criteria C1–C9 (pinned env after the W4a-fix numpy break, strict xfail, health-run artifacts, 2-job determinism), data-download D1–D8 (dispatch-only, manifest hashes, provenance.json, never commit data), carried F3–F5 + P1-a/b.
+- DRAFT `docs/gates/gate-3.md`: pjm5 cases P5a–P5f, KVL/PTDF/LMP-decomposition/rent-identity checks, mutations M7–M10, work order incl. §7.4a completion (F-0.3).
+- Published 5-bus LMPs reproduced by an independent scipy DC-OPF; case inputs were written from memory → P3 must verify. No tests run (docs only).
+- Needs owner (at boundary): approve/amend both drafts; gate-3 dispatch tolerance 0.01 vs 0.1 MW.
