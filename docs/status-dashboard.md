@@ -58,3 +58,22 @@ text with one point per line (newline-separated), each line one short sentence:
 A skipped run still writes a row (result "skipped", summary saying why). The PM scrum's
 `discussion` and `decisions` hold the scrum's agenda, which reviewers it convened and why,
 the priorities it set, and how it re-planned the work items.
+
+## Upcoming runs — `data/board/schedule/*` (every session and scrum)
+
+Keeps the owner's "Upcoming scheduled runs" table current. Two kinds of rows:
+
+- `kind: "run"` — one per upcoming run in the next 7 days, id `r<YYYYMMDDTHHMM>` (UTC):
+  `id`, `kind`, `at` (ISO UTC), `task` ("Work session" | "PM scrum" | "Schedule reset"),
+  `role` (expected role and model, or "Per plan"), `plan` (one line: the PLAN.md item it
+  should pick up, or "Expected to skip: waiting for your sign-off"), `notes` (optional).
+- `kind: "cadence"` — the standing weekly schedule, ids `c1`, `c2`, …: `id`, `kind`,
+  `task`, `when` (e.g. "Sat & Sun 12:41pm & 8:41pm" ET), `trigger` (scheduled task name), `notes`.
+
+At the end of each run: delete `run` rows whose `at` is in the past, and re-map the plan
+of the remaining rows to the PLAN.md items in order (one item per work session; after the
+item that pauses for owner review, later work sessions are "Expected to skip"). Get run
+times from `list_triggers` (Claude_Code_Remote) if that tool is available — names start
+with "capex"; convert cron (CRON_TZ=America/New_York) to the next 7 days — and refresh the
+`cadence` rows if the cron changed. If it isn't available, keep the existing times. The PM
+scrum always rebuilds the full 7-day list.
