@@ -88,7 +88,7 @@ Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in ord
   set STATUS: AWAITING_OWNER_REVIEW until the PM scrum plans Gate 2 items. If CI is red, do not merge: add a fix item instead.
 
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
-Use only when STATUS is AWAITING_OWNER_REVIEW. One item per session, in order. Drafts and raw data only:
+Use when STATUS is AWAITING_OWNER_REVIEW, or when the next gate item is already claimed by another run (owner, 2026-11-26). One item per session, in order. Drafts and raw data only:
 no changes to `src/capex/`, no gate branch edits except ticking these boxes and the session log.
 - [x] P1 Data lead [Sonnet]: fetch RTS-GMLC (github.com/GridMod/RTS-GMLC) into `cases/raw/rts_gmlc/` (or record
   the pinned commit + file list if too large); add registry rows with provenance per docs/data-sources.md. No model code.
@@ -113,7 +113,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
-Owner answered Gate 1 review 2026-11-26: yes to all 9 (DECISIONS 33) and RTS-GMLC internal use (DECISIONS 34). Next: W6-spec1 (Opus), W6-fix1, W6-fix1-test, then W7 merge. Prep lane pauses while STATUS is IN_PROGRESS.
+Owner answered Gate 1 review 2026-11-26: yes to all 9 (DECISIONS 33) and RTS-GMLC internal use (DECISIONS 34). Next: W6-spec1 (Opus), W6-fix1, W6-fix1-test, then W7 merge. Prep lane keeps running: a run that finds the next gate item claimed takes the next prep item (owner, 2026-11-26).
 P1 done 2026-11-26 on `prep`: RTS-GMLC commit 3ece0d3, 43-file subset (9 MB) in `cases/raw/rts_gmlc/` incl. PLEXOS DA reference solutions; full MANIFEST.csv. Next prep: P2. Finding for Gate 2 list: fingerprint `git_state` splits untracked paths on whitespace (fails on paths with spaces); `data/common/sources.csv` is hashed by case manifests, so registry rows there need a re-hash at P5.
 AWAITING OWNER REVIEW of Gate 1 (reports/gate-1-review.md, 9-item decision list). Meanwhile runs take prep items P1… on `prep`.
 W6 done 2026-11-26: markets + consulting reviews (Opus) both yes, no blockers; 4 should-fix (M1, M2, C1, C2) → proposed W6-spec1/fix1/fix1-test if decision 8 = yes. 438 pass. W6 (PM + markets + consulting reviewers): economic sense, owner decision list, then STATUS: AWAITING_OWNER_REVIEW. W5-spec1 done 2026-11-26 (spec wording only, DECISIONS 32; 438 pass). W5-fix1-test done 2026-11-26 (9 verifier tests, 438 pass). W5-fix1 done 2026-11-26 (one-line fix in `record`). W5 done 2026-11-25: formulation trace in
