@@ -102,7 +102,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   the pinned commit + file list if too large); add registry rows with provenance per docs/data-sources.md. No model code.
 - [x] P2 Formulation lead [Opus]: draft `docs/gates/gate-2.md` (CI + data-download workflow) and `docs/gates/gate-3.md`
   (PJM 5-bus: DC power flow per §7.4a, expected LMPs/congestion with sources and tolerances). Marked DRAFT for owner.
-- [ ] P3 Data lead [Sonnet]: PJM 5-bus case data into `cases/raw/pjm5bus/` from a published source available offline or
+- [~] P3 Data lead [Sonnet]: PJM 5-bus case data into `cases/raw/pjm5bus/` from a published source available offline or (claimed 2026-11-26T08:56:11Z)
   on GitHub (e.g. a MATPOWER/PowerModels case file); provenance; note any source that needs owner download.
 - [ ] P4 Builder [Sonnet]: draft `.github/workflows/data-download.yml` (EIA-860/923, NREL ATB) as `workflow_dispatch`
   only, not scheduled; caches to artifacts; never commits raw data. Draft for Gate 2 review.
