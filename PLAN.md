@@ -107,7 +107,7 @@ One per session, strictly in order; claim before work (CLAUDE.md).
   the C5 marker step until then (planned, not a regression). Run `scripts/check_markers.py` + full pytest; CI green.
 - [x] G2-3 Builder [Sonnet]: data-download workflow D1–D8 end to end for `pjm5` (pinned MATPOWER case5.m) using the P4 draft;
   consumer-side verify script. EIA/ATB steps stay declared-but-disabled.
-- [ ] G2-4 Builder [Sonnet]: carried code findings F3, F4, F5, P1-a (gate-2.md §4). No verifier tests here.
+- [~] G2-4 Builder [Sonnet]: carried code findings F3, F4, F5, P1-a (gate-2.md §4). No verifier tests here. (claimed 2026-11-26T17:24Z)
 - [ ] G2-5 Verifier [Sonnet]: tests from the spec for F3, F4, F5, P1-a and for the C5 checker (a marker without a reason fails).
 - [ ] G2-6 Formulation lead [Opus]: P1-b decision (keep or exclude `sources.csv` from case manifests) + DECISIONS entry; refresh
   gate-2.md header to "approved".
