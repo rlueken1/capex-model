@@ -108,7 +108,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   only, not scheduled; caches to artifacts; never commits raw data. Draft for Gate 2 review.
 - [x] P5 Data lead [Sonnet]: convert the P1 RTS-GMLC raw data into the model's input schema (docs/data-schema.md) under
   `cases/rts_gmlc/` with provenance; loader smoke check only. Needs P1 done.
-- [~] P6 Verifier [Sonnet]: draft `tests/draft/test_pjm5bus.py` from the P2 Gate 3 draft (expected LMPs/congestion), (claimed 2026-11-26T09:56:23Z)
+- [x] P6 Verifier [Sonnet]: draft `tests/draft/test_pjm5bus.py` from the P2 Gate 3 draft (expected LMPs/congestion),
   marked skip until Gate 3. Needs P2 done.
 - [ ] P7 Formulation lead [Opus]: detail §7.1 representative-period selection (clustering features incl. daily fuel
   price, forced peak/scarcity/extreme periods, weights, inter-period SOC linking) into a Gate 5 spec draft.
@@ -121,6 +121,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+P6 done 2026-11-26 on `prep` (5fd6057): DRAFT `tests/draft/test_pjm5bus.py` + README. Independent scipy DC-OPF (angle + PTDF, any reference bus) reproduces gate-3.md §2 (LMPs, dispatch, cost, only D–E binding, μ≈62.32, decomposition, rent identity, KVL): 21 pass now; 1 strict xfail — draft surplus 14,957.28 should read 14,957.29 (= 62.32204×240; fix in gate-3.md at approval). P5a–P5f, §4 checks, M7–M10: 29 skipped until Gate 3, with 12 SPEC-GAP notes for W-spec (config keys, output columns, μ sign, check ids, α output, mutation hooks). Full suite 459 pass / 29 skip / 1 xfail. Next prep: P7.
 P5 done 2026-11-26 on `prep` (0386daa): `cases/rts_gmlc/` (3 zones, 4 links, 155 resources: 73 TH/81 VRE/1 ST; 14,549.8 MW = gen.csv), 8784 h as 122 consecutive 72-h blocks (loader fixes T=72), gzipped availability, per-cell provenance + assumptions register; `scripts/convert_rts_gmlc.py` regenerates byte-identically. Loader validates; 438 pass; not solved. Choices for Gate 4: heat rate = secant incremental PMin→PMax (no no-load term), hydro/RTPV as curtailable VRE, CSP as VRE capped at 200 MW, thermal availability 1.0 (FOR kept as x_ cols), link ratings = summed Cont Rating; PLEXOS reference covers only 336 h. Next prep: P6.
 P4 done 2026-11-26 on `prep` (707cee7): DRAFT `.github/workflows/data-download.yml` (dispatch only, `contents: read`, 90-day artifact), `data/manifests/{pjm5,eia860,eia923,atb}.csv`, `scripts/fetch_source.py` + `verify_artifact.py` (stdlib) + `fetch_artifact.md` (D8). pjm5 pinned+enabled; EIA/ATB declared, disabled, unpinned (`pin_mode=record` for first pin); EIA_API_KEY skip pattern. Local checks pass (fetch, repeat-hash, broken pin, unknown id, skips); not yet run on Actions. Gate 2 note: GitHub only dispatches a workflow whose file is on the default branch, so the D5/D3 evidence runs need it on `main` first. Next prep: P5.
 P3 done 2026-11-26 on `prep` (23d0d47): MATPOWER `case5.m` vendored in `cases/raw/pjm5bus/` (sha256-pinned, MANIFEST, parsed CSVs); every gate-3.md draft input matches and an independent DC-OPF reproduces LMPs 16.98/26.38/30.00/39.94/10.00 (D-E binds at 240 MW). Case-file licence unverified (see Needs owner). Next prep: P4.

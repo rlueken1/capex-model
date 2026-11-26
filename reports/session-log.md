@@ -117,3 +117,7 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - 2026-11-26 P5 (data lead, Sonnet, branch `prep` 0386daa): RTS-GMLC → `cases/rts_gmlc/` in model input schema with provenance; conversion script reproducible.
   155 resources, 3 zones, 4 links, 8784 h as 122×72-h blocks; capacity matches gen.csv. Loader smoke ok (not solved); pytest 438 pass.
   Needs owner: `rts_gmlc` row in common sources.csv requires re-hashing T1–T4 manifests (rec yes, at Gate 4).
+- 2026-11-26 P6 (verifier, Sonnet subagent; main session verified) on `prep` (5fd6057): DRAFT `tests/draft/test_pjm5bus.py` from gate-3.md draft
+  only (src not read). Independent scipy DC-OPF self-checks: 21 pass, 1 strict xfail (gate-3.md surplus 14,957.28 vs 14,957.29, rounding).
+  Model-facing P5a–P5f, §4 health checks, M7–M10: 29 skipped until Gate 3; 12 SPEC-GAP notes for Gate 3 W-spec.
+  Tests: full suite 459 passed / 29 skipped / 1 xfailed / 0 failed. Needs owner: nothing new (fix 14,957.29 when approving gate-3.md).
