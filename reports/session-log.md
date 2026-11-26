@@ -185,3 +185,5 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 - Fixed V2-1: data-download.yml line 79 `run:` → block scalar; both workflow files now parse.
 - New `scripts/check_workflows.py` + ci.yml step "Parse workflow files" (fails exit 1 on line-79 regression, demonstrated). Local 547 pass / 30 skip / 0 fail.
 - NOT done: copy to `main` (DECISIONS 41) — push to main blocked in this unattended run; scheduled prompt says never on main. Owner action; G2-7b waits.
+
+2026-11-26T22:24Z skipped: nothing claimable — G2-7b blocked (fixed data-download.yml still not on `main`, owner action in Needs owner); all prep items P1–P10 done.
