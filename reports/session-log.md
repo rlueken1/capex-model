@@ -175,3 +175,8 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - P1-b decided: exclude `data/common/sources.csv` from case-manifest sha256 pins (DECISIONS 40); registry still hashed in the run fingerprint; ids append-only.
 - Edited T1–T4 `case.yaml` (dropped the `sources` sha256), data-schema §5 + §6 rule 1, gate-2.md P1-b row + [P] note, rts_gmlc README follow-up.
 - Full suite 547 pass / 30 skip / 0 fail (network off); check_markers exit 0. Nothing needs the owner. Next: G2-7 (verifier).
+
+2026-11-26 G2-7 (verifier, main session, no subagents): wrote `reports/gate-2-evidence.md`.
+CI #107 on c975ea4 green: 547 pass / 30 skip / 0 fail, ~63 s, version block = pins, 7/7 health cases identical across PYTHONHASHSEED 0/12345, objectives = local exactly.
+Data-download dispatch refused ("no workflow_dispatch trigger"): data-download.yml is invalid YAML at line 79 (V2-1), on main and gate-2. Local fetch/verify pass D2–D5. Added G2-7a (builder fix + workflow-parse CI step) and G2-7b (dispatch evidence) before G2-8.
+Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact downloads blocked in this workspace (C3 run.json / C7 π not inspected).
