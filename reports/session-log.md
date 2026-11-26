@@ -160,3 +160,8 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
   Tests: 497 pass / 30 skip / 0 fail locally (network disabled); check_markers clean. Live pjm5 fetch from workspace matched both pinned hashes. Not yet run on Actions.
   Needs owner: data-download.yml must be on `main` before any dispatch (G2-7 evidence) — copy the file to main? rec yes. Next: G2-4.
 - 2026-11-26 owner (live): yes to copying data-download.yml onto main → done (main f123ad1, DECISIONS 39). G2-7 can now dispatch with --ref gate-2.
+
+2026-11-26 G2-4 (builder, Sonnet subagent), branch gate-2
+- Fixed carried findings F3 (eliminate_zeros in _triplets), F4 (free-duration storage checks s_xP and s_xE), F5 (scipy ranged-row dual no longer overwritten), P1-a (git_state NUL-separated untracked paths).
+- 4 builder smoke tests added; local 501 pass / 30 skip / 0 fail; check_markers OK; T1–T4 health runs ok, outputs unchanged.
+- No spec change; nothing needs the owner. Next: G2-5 verifier tests.

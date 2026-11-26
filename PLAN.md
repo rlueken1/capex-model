@@ -107,7 +107,7 @@ One per session, strictly in order; claim before work (CLAUDE.md).
   the C5 marker step until then (planned, not a regression). Run `scripts/check_markers.py` + full pytest; CI green.
 - [x] G2-3 Builder [Sonnet]: data-download workflow D1–D8 end to end for `pjm5` (pinned MATPOWER case5.m) using the P4 draft;
   consumer-side verify script. EIA/ATB steps stay declared-but-disabled.
-- [~] G2-4 Builder [Sonnet]: carried code findings F3, F4, F5, P1-a (gate-2.md §4). No verifier tests here. (claimed 2026-11-26T17:24Z)
+- [x] G2-4 Builder [Sonnet]: carried code findings F3, F4, F5, P1-a (gate-2.md §4). No verifier tests here.
 - [ ] G2-5 Verifier [Sonnet]: tests from the spec for F3, F4, F5, P1-a and for the C5 checker (a marker without a reason fails).
 - [ ] G2-6 Formulation lead [Opus]: P1-b decision (keep or exclude `sources.csv` from case manifests) + DECISIONS entry; refresh
   gate-2.md header to "approved".
@@ -142,7 +142,8 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
-G2-4 (builder): carried code findings F3, F4, F5, P1-a (gate-2.md §4).
+G2-5 (verifier): tests from the spec for F3, F4, F5, P1-a and the C5 checker.
+G2-4 done 2026-11-26: F3 `_triplets` → `eliminate_zeros()` (shape kept); F4 free-duration candidate storage checks both s_xP and s_xE vs own build status (§3 check 5); F5 `ScipyHighsSolver` ranged row keeps ≤ dual and adds ≥ dual (`+=`); P1-a `git_state` untracked list via `ls-files -z`, split on NUL. 4 builder smoke tests in `tests/builder/test_builder_g2_4_smoke.py`. Local 501 pass / 30 skip / 0 fail; T1–T4 health runs ok, outputs unchanged. No spec change.
 G2-3 done 2026-11-26: data-download.yml gate-grade (ubuntu-24.04, dispatch only, `contents: read`, provenance + hash table in step summary, skip note for disabled/keyless sources); `verify_artifact.py --against <vendored dir>` and `--summary`; new consumer `scripts/fetch_artifact.py` (gh run download → verify); 16 builder smoke tests (offline, file:// URLs). Live fetch of pjm5 from this workspace verified both pinned hashes. Local 497 pass / 30 skip / 0 fail. Not yet run on Actions: dispatch needs data-download.yml on `main` (Needs owner).
 G2-2-fix done 2026-11-26: `tests/draft/test_pjm5bus.py` congestion-surplus marker is now `skip` citing `Gate 3` (14,957.28 vs .29 note kept; fix the value at Gate 3 approval). `check_markers.py` exit 0, `--self-test` exit 1; local 481 pass / 30 skip / 0 xfail / 0 fail.
 G2-2 done 2026-11-26 (d734cc5): `xfail_strict = true`; `scripts/check_markers.py` (ast; `--self-test` must exit 1) as a CI step; `health-run` matrix job (PYTHONHASHSEED 0/12345) runs T1, T2a–c, T3a–b, T4 via `python -m capex run` with `scripts/ci_health_run.py` (fails on health `fail` or UNEXPLAINED), uploads `health-seed-<seed>`; `compare` job runs `scripts/compare_runs.py` (fingerprints + canonical outputs byte-identical; `--numeric` = local-vs-CI obj/π rel 1e-9). Local: 481 pass / 29 skip / 1 xfail / 0 fail; 7/7 cases healthy and identical across seeds. Not yet proven on Actions.

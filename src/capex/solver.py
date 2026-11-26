@@ -107,7 +107,7 @@ class ScipyHighsSolver:
         row_dual = np.zeros(lp.n_rows)
         row_dual[eq] = res.eqlin.marginals
         row_dual[le] = res.ineqlin.marginals[:le.sum()]
-        row_dual[ge] = -res.ineqlin.marginals[le.sum():]
+        row_dual[ge] += -res.ineqlin.marginals[le.sum():]
         return Solution(
             x=res.x, row_dual=row_dual, col_dual=res.lower.marginals + res.upper.marginals,
             row_activity=a @ res.x, objective=float(res.fun), status="Optimal", iterations=int(res.nit),

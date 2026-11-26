@@ -50,7 +50,7 @@ def git_state() -> tuple[str, str]:
     try:
         commit = _git(["rev-parse", "HEAD"]).decode().strip()
         diff = _git(["diff", "HEAD", "--", *CODE_PATHS])
-        untracked = sorted(_git(["ls-files", "--others", "--exclude-standard", "--", *CODE_PATHS]).decode().split())
+        untracked = sorted(_git(["ls-files", "--others", "--exclude-standard", "-z", "--", *CODE_PATHS]).decode().split("\0")[:-1])
     except (OSError, subprocess.CalledProcessError):
         return "unknown", "unknown"
     digest = hashlib.sha256(diff)
