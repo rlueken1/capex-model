@@ -13,8 +13,10 @@ team of role agents. The repo is the only memory between sessions.
 2. `DECISIONS.md` — settled decisions. Do not reopen them without a new reason.
 3. The latest file in `reports/` (if any).
 
-If `PLAN.md` says `STATUS: AWAITING_OWNER_REVIEW`, do **no** build work: append one line
-to `reports/session-log.md` ("skipped: awaiting review") and stop.
+If `PLAN.md` says `STATUS: AWAITING_OWNER_REVIEW`, do **no** gate work. Instead do the next
+unchecked item under "Prep while awaiting owner review" in PLAN.md, on branch `prep`
+(create it from the current gate branch if missing; fetch and rebase before pushing). If
+none is left, append one line to `reports/session-log.md` ("skipped: awaiting review") and stop.
 
 ## Hard rules
 - **One deliverable per session.** Pick the next unchecked item in PLAN.md, finish it,
@@ -46,6 +48,8 @@ to `reports/session-log.md` ("skipped: awaiting review") and stop.
   Missing unit characteristics are estimated using that file's hierarchy (observed →
   plant-level → statistical estimate from public data → cited literature default), never
   left blank or silently defaulted. Every run writes an assumptions book.
+- **Buy nothing; simplest model first** (owner, DECISIONS 26): no paid data or services. Add a feature only in
+  its own gate, and only after the simpler model passes its gate.
 - **Scope:** PJM only for now. Other RTOs come later, one at a time.
 
 ## End of every session
