@@ -65,7 +65,7 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
   gate-1.md §5) and pass/fail table in `reports/gate-1-review.md`. Failures → spec-or-code decision in DECISIONS, never tolerance edits.
 - [x] W5 Formulation lead [Opus], branch `gate-1`: line-by-line code-vs-spec trace (§2–§6), dual conventions,
   price-setter logic; section in gate-1-review.md. Any builder fix found here becomes its own item.
-- [~] W5-fix1 Builder [Sonnet], branch `gate-1`: (claimed 2026-11-26T05:16Z) price-setter (`audit/pricesetter.py:record`) — an hour whose first
+- [x] W5-fix1 Builder [Sonnet], branch `gate-1`: price-setter (`audit/pricesetter.py:record`) — an hour whose first
   matched class fails its price check must get primary_class=UNEXPLAINED and count as UNEXPLAINED in
   `price_setter_summary` (W5 finding F1). Builder smoke tests only; do not edit verifier tests.
 - [ ] W5-fix1-test Verifier [Sonnet], branch `gate-1`: from the spec, a fixture where the first matched class fails its
@@ -102,7 +102,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
-W5-fix1 (builder, Sonnet): price-setter UNEXPLAINED labelling (F1). W5 done 2026-11-25: formulation trace in
+W5-fix1-test (verifier, Sonnet): F1 fixture from the spec. W5-fix1 done 2026-11-26 (one-line fix in `record`). W5 done 2026-11-25: formulation trace in
 reports/gate-1-review.md — code implements F-0.2 amendment 1 for the toy scope, no blockers; 2 should-fix (F1 code,
 F2 spec) → W5-fix1, W5-fix1-test, W5-spec1; then W6. Later-gate findings for the Gate 2 criteria list (P2 draft):
 F3 explicit zeros in A when availability 0 (`eliminate_zeros`), F4 zero-profit check skips xE for free-duration

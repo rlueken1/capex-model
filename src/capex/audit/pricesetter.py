@@ -188,7 +188,7 @@ class _Ctx:
         matched = self.matched[:, z, p, t]
         explained = bool(self.explained[z, p, t])
         cls = self.classes[self.primary[z, p, t]]
-        name = PRIMARY_NAME.get(cls.name, cls.name) if matched.any() else "UNEXPLAINED"
+        name = PRIMARY_NAME.get(cls.name, cls.name) if explained else "UNEXPLAINED"
         flags: list[str] = [] if explained else ["UNEXPLAINED"]
         ids = techs = fuels = szones = []
         costs: list[float] = []

@@ -52,3 +52,7 @@
   amendment 1 for the toy scope; dual signs match §1.3 on T1–T4; no blockers. Should-fix: F1 price-setter hours failing the
   primary class's price check keep that class in the summary (code+test) → W5-fix1/W5-fix1-test; F2 §6.2 wording → W5-spec1.
   Later-gate F3–F5 noted in PLAN Next. Tests: none changed; T1–T4 re-solved, all health checks pass. Needs owner: nothing.
+- 2026-11-26 W5-fix1 (builder, Sonnet subagent; main session verified) on `gate-1`: `pricesetter.py:record` now labels an hour
+  UNEXPLAINED whenever it fails its primary class's price check (formulation §4 Step 2), so its weighted hours go to
+  UNEXPLAINED in `price_setter_summary`. One-line change; builder smoke test `tests/builder/test_builder_pricesetter_unexplained.py`
+  (perturbed T1 price). Tests: 429 passed, 0 failed, 0 xfail locally. Verifier tests untouched. Needs owner: nothing.
