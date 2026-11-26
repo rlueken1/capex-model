@@ -18,6 +18,20 @@ unchecked item under "Prep while awaiting owner review" in PLAN.md, on branch `p
 (create it from the current gate branch if missing; fetch and rebase before pushing). If
 none is left, append one line to `reports/session-log.md` ("skipped: awaiting review") and stop.
 
+## Concurrent runs (burst schedules) — claim before you work
+Runs may start every 20 minutes and overlap. Before doing any work:
+1. Pick the item: the next unchecked gate item in PLAN.md, unless it is already claimed or
+   STATUS is AWAITING_OWNER_REVIEW — then the next unchecked, unclaimed prep item whose
+   "Needs Px done" prerequisite is ticked. Gate items stay strictly in order: never start a
+   later gate item while an earlier one is unchecked.
+2. Claim it on the gate branch: change `- [ ]` to `- [~]` and append `(claimed <ISO UTC>)`
+   on that item's line, commit "claim <item>", push. If the push is rejected, fetch,
+   rebase, re-read PLAN.md and pick again.
+3. A claim older than 60 minutes with no completing commit is stale and may be taken over.
+4. When done, replace `[~] … (claimed …)` with `[x]`. Always fetch + rebase before every push.
+5. If nothing is claimable, log "skipped: nothing claimable" and stop (cheap exit).
+Dashboard writes: on a version conflict, re-read and retry once.
+
 ## Hard rules
 - **One deliverable per session.** Pick the next unchecked item in PLAN.md, finish it,
   commit, stop. Do not start a second item.
