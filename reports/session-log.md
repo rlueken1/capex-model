@@ -127,3 +127,9 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - Choices: Ward + medoid (no seed, byte-deterministic), forced extreme blocks at weight 1, annual-total rescaling switch, Kotzur superposition SOC linking.
 - Tests: none run (spec only); toy T5 expected values cross-checked with an independent scipy LP.
 - Owner: 10 yes/no items at end of gate-5.md, notably a test-only full-chronology expansion run on RTS-GMLC (exception to DECISIONS 3). Next prep: P8.
+
+## 2026-11-26 — P8 (prep, markets reviewer [Sonnet])
+- Item: PJM RPM notes for Gate 14. Result: DRAFT `docs/drafts/pjm-rpm-notes.md` on `prep` (6c1e9c7), 481 lines, 23 sources, 37 "(verify)".
+- Findings: 2026/27–2028/29 BRAs cleared at the collar cap everywhere; 2029/30 BRA due Dec 2026; new VRR curve from 2028/29; ELCC class ratings tabulated.
+- Tests: none (notes only; no code). IMM State of the Market not yet consulted.
+- Owner: new Needs-owner item — use 2024/25 + 2025/26 as M7.1 pass/fail years (capped years report-only); rec yes. Next prep: P9.
