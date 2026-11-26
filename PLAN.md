@@ -87,6 +87,19 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   on GitHub (e.g. a MATPOWER/PowerModels case file); provenance; note any source that needs owner download.
 - [ ] P4 Builder [Sonnet]: draft `.github/workflows/data-download.yml` (EIA-860/923, NREL ATB) as `workflow_dispatch`
   only, not scheduled; caches to artifacts; never commits raw data. Draft for Gate 2 review.
+- [ ] P5 Data lead [Sonnet]: convert the P1 RTS-GMLC raw data into the model's input schema (docs/data-schema.md) under
+  `cases/rts_gmlc/` with provenance; loader smoke check only. Needs P1 done.
+- [ ] P6 Verifier [Sonnet]: draft `tests/draft/test_pjm5bus.py` from the P2 Gate 3 draft (expected LMPs/congestion),
+  marked skip until Gate 3. Needs P2 done.
+- [ ] P7 Formulation lead [Opus]: detail §7.1 representative-period selection (clustering features incl. daily fuel
+  price, forced peak/scarcity/extreme periods, weights, inter-period SOC linking) into a Gate 5 spec draft.
+- [ ] P8 Markets reviewer [Sonnet]: notes on PJM RPM mechanics for Gate 14 (VRR curve parameters, Net CONE, ELCC
+  classes, BRA timing) as `docs/drafts/pjm-rpm-notes.md`, every number cited or marked "verify".
+- [ ] P9 Consulting reviewer [Sonnet]: outline of the Gate 15 storage value study (`docs/drafts/storage-study-outline.md`):
+  client questions, outputs, charts, sanity ranges.
+- [ ] P10 Data lead [Sonnet]: EIA-860/923 field mapping to data-schema.md (`docs/drafts/eia-mapping.md`), incl. the
+  estimation hierarchy for missing heat rates, min gen, ramp, outage rates.
+
 
 ## Next
 W5-fix1 (builder, Sonnet): price-setter UNEXPLAINED labelling (F1). W5 done 2026-11-25: formulation trace in
