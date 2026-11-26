@@ -70,7 +70,7 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
   `price_setter_summary` (W5 finding F1). Builder smoke tests only; do not edit verifier tests.
 - [x] W5-fix1-test Verifier [Sonnet], branch `gate-1`: from the spec, a fixture where the first matched class fails its
   price check; assert primary_class and summary show UNEXPLAINED (F1). Full pytest + CI green.
-- [ ] W5-spec1 Formulation lead [Opus], branch `gate-1`, spec only: §6.2 wording — infeasibility scaled vs unscaled
+- [~] W5-spec1 Formulation lead [Opus], branch `gate-1`, spec only: §6.2 wording — infeasibility scaled vs unscaled (claimed 2026-11-26T05:56Z)
   (text vs table) and the "RHS ratio / any finite bound" row; ratify the code's reading; fold in §5.2 "ANN ≥ I/n" only
   holds for PFF ≥ 1 (F2, F6). One DECISIONS entry.
 - [ ] W6 PM [Sonnet] + markets reviewer [Opus] + consulting reviewer [Opus] (2 subagents), branch `gate-1`: economic
