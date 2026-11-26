@@ -1,0 +1,2 @@
+source_id,vintage,file,url,sha256,bytes,auth_env,enabled,note
+atb,2024,ATBe.csv,https://oedi-data-lake.s3.amazonaws.com/ATB/electricity/csv/2024/ATBe.csv,unpinned,,,false,DRAFT (P4): NREL ATB 2024 electricity via OEDI; URL and CC BY 4.0 terms to verify; large file (~hundreds of MB): check artifact size before enabling

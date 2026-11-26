@@ -1,0 +1,2 @@
+source_id,vintage,file,url,sha256,bytes,auth_env,enabled,note
+eia860,2023,eia8602023.zip,https://www.eia.gov/electricity/data/eia860/xls/eia8602023.zip,unpinned,,,false,DRAFT (P4): disabled until Gate 11/16; URL pattern to verify; first dispatch with pin_mode=record yields the sha256 to commit here

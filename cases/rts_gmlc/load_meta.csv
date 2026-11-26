@@ -1,0 +1,4 @@
+zone,net_of_btm,year,source_id,vintage,retrieved,method,confidence,basis
+r1,False,2020,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,observed,high,"DAY_AHEAD_regional_Load.csv regional hourly load (MW, DA forecast, no scaling needed: series max equals area bus.csv MW Load sum); RTPV is modeled as generation so load is gross"
+r2,False,2020,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,observed,high,"DAY_AHEAD_regional_Load.csv regional hourly load (MW, DA forecast, no scaling needed: series max equals area bus.csv MW Load sum); RTPV is modeled as generation so load is gross"
+r3,False,2020,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,observed,high,"DAY_AHEAD_regional_Load.csv regional hourly load (MW, DA forecast, no scaling needed: series max equals area bus.csv MW Load sum); RTPV is modeled as generation so load is gross"

@@ -1,0 +1,4 @@
+zone_id,name,rto,source_id,vintage,retrieved,method,confidence,basis
+r1,RTS-GMLC region 1 (Area 1),RTS-GMLC,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,observed,high,published test-system value: bus.csv Area membership (3 areas = zones)
+r2,RTS-GMLC region 2 (Area 2),RTS-GMLC,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,observed,high,published test-system value: bus.csv Area membership (3 areas = zones)
+r3,RTS-GMLC region 3 (Area 3),RTS-GMLC,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,observed,high,published test-system value: bus.csv Area membership (3 areas = zones)

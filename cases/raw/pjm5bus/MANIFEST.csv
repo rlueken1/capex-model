@@ -1,0 +1,4 @@
+file,sha256,bytes,source_url,commit,role
+case5.m,ed9072089d080debde2aa029ed8a95491c311b08ff4f45ad7bf06882d86fe279,1921,https://raw.githubusercontent.com/MATPOWER/matpower/master/data/case5.m,b6c85b0323d20fb801cab3377c803a285d730847,primary
+LICENSE_MATPOWER,5d14c09b3e4f2adf62c0373e6320163697aa4603186f8925c07c6b84201e1750,2074,https://raw.githubusercontent.com/MATPOWER/matpower/master/LICENSE,b6c85b0323d20fb801cab3377c803a285d730847,license
+powermodels_case5.m,1415fed30ae24df9d1a56773d3106e0b9dcd0536803f1907bed77b86370e1ee5,2695,https://raw.githubusercontent.com/lanl-ansi/PowerModels.jl/master/test/data/matpower/case5.m,unpinned-master,crosscheck-only
