@@ -68,3 +68,8 @@
   reports/gate-1-review.md — both verdict yes, no blockers. Should-fix: M1 CAPACITY_RENT attribution to at-cap baseload,
   M2 non-unique x=0 rents unflagged, C1 rents units in schema, C2 assumptions-book header. 9-item owner decision list written.
   STATUS: AWAITING_OWNER_REVIEW. Tests: 438 passed / 0 failed locally. Needs owner: Gate 1 decisions 1–9.
+- 2026-11-26 P1 (data lead, main session, no subagents) on `prep`: cloned GridMod/RTS-GMLC at commit 3ece0d3 (209 files, 218 MB);
+  vendored 43 files / 9 MB unmodified in `cases/raw/rts_gmlc/` (SourceData, DA hourly 2020 series, PLEXOS DA allTX/noTX reference
+  solutions), `MANIFEST.csv` (sha256 of every upstream file, vendored flag), `PROVENANCE.md`; data-sources.md registry row updated.
+  Tests: 438 passed / 0 failed. Found: fingerprint breaks on untracked paths with spaces; sources.csv edit breaks case manifests (row deferred to P5).
+  Needs owner: RTS-GMLC licence unverified (no LICENSE file) — OK for internal test use? Next: P2.
