@@ -82,7 +82,7 @@ Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in ord
   typo 60·0.9 (M6). One DECISIONS entry.
 - [x] W6-fix1 Builder [Sonnet], branch `gate-1`: implement M1; flag x = 0 candidate rents `non-unique (bound)` (M2);
   assumptions-book header (run_id, fingerprint, base $ year, "toy case, illustrative only") (C2). Builder smoke tests only.
-- [ ] W6-spec2 Formulation lead [Opus], branch `gate-1`, spec only: resolve the conflict W6-fix1 found — gate-1.md §3 needs
+- [~] W6-spec2 Formulation lead [Opus], branch `gate-1`, spec only: resolve the conflict W6-fix1 found — gate-1.md §3 needs (claimed 2026-11-26T07:36Z)
   byte-identical canonical outputs across runs, but data-sources.md/§8.11 put the per-run random `run_id` in `assumptions.md`.
   Rec: canonical outputs = every output file except `run.json` and the `run_id` line of `assumptions.md`. One DECISIONS entry.
   (CI red on 4 fingerprint-determinism tests until W6-fix1-test; planned, not a regression.)
