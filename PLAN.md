@@ -77,7 +77,7 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
   sense of T1–T4 and audit readability; PM writes the 7-item owner decision list (gate-1.md §6); STATUS: AWAITING_OWNER_REVIEW.
 
 Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in order:
-- [ ] W6-spec1 Formulation lead [Opus], branch `gate-1`, spec only: §4 CAPACITY_RENT hour attributed to the INVESTMENT_MARGIN
+- [~] W6-spec1 (claimed 2026-11-26T06:55:54Z) Formulation lead [Opus], branch `gate-1`, spec only: §4 CAPACITY_RENT hour attributed to the INVESTMENT_MARGIN
   unit, else the highest-MC at-cap unit, full list in a separate column (M1); data-schema `rents` per-column units (C1); §10 T2a
   typo 60·0.9 (M6). One DECISIONS entry.
 - [ ] W6-fix1 Builder [Sonnet], branch `gate-1`: implement M1; flag x = 0 candidate rents `non-unique (bound)` (M2);
