@@ -1,0 +1,5 @@
+fuel_hub,dollar_year,price_basis,license_class,source_id,vintage,retrieved,method,confidence,basis
+rts_oil,2024,nominal_as_reported,verify,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,observed,medium,"published test-system value: gen.csv 'Fuel Price $/MMBTU' for Fuel=Oil (constant all year, identical for all units of the fuel); dollar_year assumed (A1)"
+rts_coal,2024,nominal_as_reported,verify,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,observed,medium,"published test-system value: gen.csv 'Fuel Price $/MMBTU' for Fuel=Coal (constant all year, identical for all units of the fuel); dollar_year assumed (A1)"
+rts_gas,2024,nominal_as_reported,verify,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,observed,medium,"published test-system value: gen.csv 'Fuel Price $/MMBTU' for Fuel=NG (constant all year, identical for all units of the fuel); dollar_year assumed (A1)"
+rts_nuclear,2024,nominal_as_reported,verify,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,observed,medium,"published test-system value: gen.csv 'Fuel Price $/MMBTU' for Fuel=Nuclear (constant all year, identical for all units of the fuel); dollar_year assumed (A1)"

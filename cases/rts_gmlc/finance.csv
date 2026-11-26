@@ -1,0 +1,2 @@
+finance_class,mode,wacc_real_frac,source_id,vintage,retrieved,method,confidence,basis
+rts_unused,simple_crf,0.07,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,low,"placeholder required by loader; no candidates in a fixed-fleet case, never used"

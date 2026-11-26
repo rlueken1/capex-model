@@ -1,0 +1,58 @@
+case_id: rts_gmlc
+description: RTS-GMLC fixed fleet, 3 zones (areas), full year 2020 as 122 weight-1
+  blocks of 72 h; Gate 4 dispatch check
+schema_version: S-0.1
+formulation_version: F-0.2
+base_dollar_year: 2024
+model_year: 2020
+dt_h: 1.0
+voll_usd_mwh: 10000
+voll_dollar_year: 2024
+finance_default: rts_unused
+seed: 0
+solver:
+  name: highs
+switches: {}
+tables:
+  periods:
+    file: periods.csv
+    sha256: 4ebc36301416c251009fcd2f1e80c0283849fe02b04e5c7ffaef1814a15d39d7
+  zones:
+    file: zones.csv
+    sha256: 84b30d637a84d17d4c5a35836048b707ef70637b53ed4061bdd160c0b27374a3
+  links:
+    file: links.csv
+    sha256: 987eabcf7edc37ba69d8284bf871aed1f2770f5d40402fcaaf156ed3553bd104
+  load:
+    file: load.csv
+    sha256: db53a915af248195b704e5887d7648b16b0e966517377a111f11f04b808511b4
+  load_meta:
+    file: load_meta.csv
+    sha256: 1852ee108918aca37d82a845774bdafe32065e91216bfddace5e5fd30dfedd4f
+  resources:
+    file: resources.csv
+    sha256: 09b7bb0b0bab6a6e47e1bd561ef4e4f3de25336b809fb55fc996528e69cefc1b
+  finance:
+    file: finance.csv
+    sha256: 57cd77ff2513287678d3223c7a413c3d22bdfc824a9d5e2705b10776b0b461d4
+  availability:
+    file: availability.csv.gz
+    sha256: 9211e3dc1ad8d1aee60000cd5b2695fc7998660baca62ac5ac88fdc9fb7fef75
+  availability_meta:
+    file: availability_meta.csv
+    sha256: de1435d4ed4acbc1b2736839cce67efa67bd81de1f89ac943ba793aed367f445
+  fuel_map:
+    file: fuel_map.csv
+    sha256: 31133261760d6d0afaab43e56e15eb538b0d2ead22327643481a4940d4a616d2
+  fuel_prices:
+    file: fuel_prices.csv
+    sha256: c40650c51cc4d4509eac5af50787a10ae07ce65b28ff848270ba0376c9269f02
+  fuel_prices_meta:
+    file: fuel_prices_meta.csv
+    sha256: 93d327f94a021cc417768ebea0596aaa6979b5ceb72378d43ae18f0ebc1ffa26
+  sources:
+    file: sources.csv
+    sha256: deda1d4cebfb75622a4fcf0b7b57d76154fc5d4da91fd8f3c0b74e3da241cad1
+  deflator:
+    file: ../../data/common/deflator.csv
+    sha256: c1fc4b6c9f000aa97d6821cf43f4d20daf61cadb31ab71239a911aa9733b153f

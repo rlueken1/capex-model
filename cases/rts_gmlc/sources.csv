@@ -1,0 +1,4 @@
+source_id,description
+toy_spec,hand-written toy cases of formulation section 10
+bea_gdpdef,"BEA GDP implicit price deflator, NIPA Table 1.1.9 (annual)"
+rts_gmlc,"RTS-GMLC test system (GridMod/NREL, github.com/GridMod/RTS-GMLC) at pinned commit 3ece0d3; internal test use only, licence unverified (DECISIONS 34); Barrows et al., IEEE Trans. Power Syst. 35(1), 2020"
