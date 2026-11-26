@@ -102,7 +102,7 @@ One per session, strictly in order; claim before work (CLAUDE.md).
   junit XML + log artifacts, runtime report, pytest-socket (no network in tests). Builder smoke checks only.
 - [x] G2-2 Builder [Sonnet]: CI criteria C5–C7 — `xfail_strict`, marker-reason checker script, health-run job over T1–T4 with
   output artifacts, two-job fingerprint comparison with different PYTHONHASHSEED.
-- [~] G2-2-fix Verifier [Sonnet]: `tests/draft/test_pjm5bus.py:118` is a strict xfail with no `Gate <n>`/`DECISIONS <n>` in its (claimed 2026-11-26T15:24Z)
+- [x] G2-2-fix Verifier [Sonnet]: `tests/draft/test_pjm5bus.py:118` is a strict xfail with no `Gate <n>`/`DECISIONS <n>` in its
   reason and drafts must be skips (C5) → make it a skip citing `Gate 3` (keep the 14,957.28 vs .29 note). CI `test` job is red on
   the C5 marker step until then (planned, not a regression). Run `scripts/check_markers.py` + full pytest; CI green.
 - [ ] G2-3 Builder [Sonnet]: data-download workflow D1–D8 end to end for `pjm5` (pinned MATPOWER case5.m) using the P4 draft;
@@ -142,7 +142,8 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
-G2-2-fix (verifier): one draft marker in tests/draft/test_pjm5bus.py fails the new C5 check; then G2-3.
+G2-3 (builder): data-download workflow D1–D8 end to end for `pjm5`.
+G2-2-fix done 2026-11-26: `tests/draft/test_pjm5bus.py` congestion-surplus marker is now `skip` citing `Gate 3` (14,957.28 vs .29 note kept; fix the value at Gate 3 approval). `check_markers.py` exit 0, `--self-test` exit 1; local 481 pass / 30 skip / 0 xfail / 0 fail.
 G2-2 done 2026-11-26 (d734cc5): `xfail_strict = true`; `scripts/check_markers.py` (ast; `--self-test` must exit 1) as a CI step; `health-run` matrix job (PYTHONHASHSEED 0/12345) runs T1, T2a–c, T3a–b, T4 via `python -m capex run` with `scripts/ci_health_run.py` (fails on health `fail` or UNEXPLAINED), uploads `health-seed-<seed>`; `compare` job runs `scripts/compare_runs.py` (fingerprints + canonical outputs byte-identical; `--numeric` = local-vs-CI obj/π rel 1e-9). Local: 481 pass / 29 skip / 1 xfail / 0 fail; 7/7 cases healthy and identical across seeds. Not yet proven on Actions.
 G2-2 (builder): CI criteria C5–C7 (xfail_strict, marker-reason checker, health-run job, two-job fingerprint comparison).
 G2-1 done 2026-11-26: ci.yml on ubuntu-24.04/Py 3.12, installs from exact-pinned `requirements-ci.txt` (numpy 2.5.3, scipy 1.18.1, pandas 3.0.5, highspy 1.16.0, pytest 9.1.1, pytest-socket 0.8.1) + `-e . --no-deps`; version block via `capex.audit.fingerprint.package_versions()` + HiGHS; `pytest -v --disable-socket --junitxml`, junit+log artifacts 30 d; wall time in step summary (warn >10 min); `contents: read`, no secrets. Local, network off: 481 pass / 29 skip / 1 xfail / 0 fail. Note: pyproject `test` extra lacks pytest-socket/pandas (CI uses the pins).

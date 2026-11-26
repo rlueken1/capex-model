@@ -153,3 +153,6 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - 2026-11-26 G2-2 (builder, Sonnet): CI C5–C7 — xfail_strict, scripts/check_markers.py (+ --self-test), health-run matrix job (2 PYTHONHASHSEEDs, T1–T4, artifacts), compare job (scripts/compare_runs.py, byte-identical canonical outputs; --numeric for local vs CI). Commit d734cc5.
   Tests: 481 pass / 29 skip / 1 xfail / 0 fail locally; health 7/7 pass; seed compare identical. Checker flags 1 verifier draft marker (tests/draft/test_pjm5bus.py:118, xfail without Gate ref) → new item G2-2-fix (verifier); CI test job red on C5 step until then (planned).
   Needs owner: nothing.
+- 2026-11-26 G2-2-fix (verifier): tests/draft/test_pjm5bus.py congestion-surplus marker changed from strict xfail to skip citing "Gate 3" (draft 14,957.28 vs independent 14,957.29 note kept for Gate 3 approval).
+  Tests: check_markers.py exit 0, --self-test exit 1; full pytest 481 pass / 30 skip / 0 xfail / 0 fail locally (network disabled). CI: see next gate-2 run.
+  Needs owner: nothing. Next: G2-3 (builder, data-download workflow for pjm5).

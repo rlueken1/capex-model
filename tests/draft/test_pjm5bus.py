@@ -115,8 +115,9 @@ def test_ref_only_de_binds_flow_e_to_d(base):
     assert base["flow"][5] == pytest.approx(-240.0, abs=1e-6)             # from D to E negative: E -> D
 
 
-@pytest.mark.xfail(strict=True, reason="gate-3.md draft value 14,957.28 disagrees with independent route: got 14,957.2901 "
-                   "(= 62.32204 x 240; off by 0.0101, just outside abs 0.01; likely rounding in the draft)")
+@pytest.mark.skip(reason="Gate 3: draft value 14,957.28 in gate-3.md disagrees with independent route: got 14,957.2901 "
+                  "(= 62.32204 x 240; off by 0.0101, just outside abs 0.01; likely rounding in the draft; fix to "
+                  "14,957.29 at Gate 3 approval)")
 def test_ref_congestion_surplus_published(base):
     rent = float(base["lmp"] @ (base["D"] - np.bincount(base["c"]["gbus"], base["g"], 5)))
     assert rent == pytest.approx(14957.28, abs=0.01)
