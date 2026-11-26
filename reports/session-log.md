@@ -104,3 +104,7 @@
 - DRAFT `docs/gates/gate-3.md`: pjm5 cases P5a–P5f, KVL/PTDF/LMP-decomposition/rent-identity checks, mutations M7–M10, work order incl. §7.4a completion (F-0.3).
 - Published 5-bus LMPs reproduced by an independent scipy DC-OPF; case inputs were written from memory → P3 must verify. No tests run (docs only).
 - Needs owner (at boundary): approve/amend both drafts; gate-3 dispatch tolerance 0.01 vs 0.1 MW.
+- 2026-11-26 P3 (data lead, Sonnet subagent) on `prep` (23d0d47): MATPOWER `data/case5.m` fetched from GitHub (HEAD b6c85b0, sha256
+  ed907208…), vendored in `cases/raw/pjm5bus/` with LICENSE, MANIFEST.csv, README provenance, parsed CSVs, PowerModels copy as cross-check only.
+  All gate-3.md draft inputs match; independent DC-OPF gives LMPs 16.98/26.38/30.00/39.94/10.00, cost 17,479.90. No model code; no tests run
+  (raw data only). Needs owner: case-file licence ("with permission", not BSD) — internal test use OK? rec yes.

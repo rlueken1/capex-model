@@ -102,7 +102,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   the pinned commit + file list if too large); add registry rows with provenance per docs/data-sources.md. No model code.
 - [x] P2 Formulation lead [Opus]: draft `docs/gates/gate-2.md` (CI + data-download workflow) and `docs/gates/gate-3.md`
   (PJM 5-bus: DC power flow per §7.4a, expected LMPs/congestion with sources and tolerances). Marked DRAFT for owner.
-- [~] P3 Data lead [Sonnet]: PJM 5-bus case data into `cases/raw/pjm5bus/` from a published source available offline or (claimed 2026-11-26T08:56:11Z)
+- [x] P3 Data lead [Sonnet]: PJM 5-bus case data into `cases/raw/pjm5bus/` from a published source available offline or
   on GitHub (e.g. a MATPOWER/PowerModels case file); provenance; note any source that needs owner download.
 - [ ] P4 Builder [Sonnet]: draft `.github/workflows/data-download.yml` (EIA-860/923, NREL ATB) as `workflow_dispatch`
   only, not scheduled; caches to artifacts; never commits raw data. Draft for Gate 2 review.
@@ -121,6 +121,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+P3 done 2026-11-26 on `prep` (23d0d47): MATPOWER `case5.m` vendored in `cases/raw/pjm5bus/` (sha256-pinned, MANIFEST, parsed CSVs); every gate-3.md draft input matches and an independent DC-OPF reproduces LMPs 16.98/26.38/30.00/39.94/10.00 (D-E binds at 240 MW). Case-file licence unverified (see Needs owner). Next prep: P4.
 P2 done 2026-11-26 on `prep` (07bd44a): DRAFT `docs/gates/gate-2.md` (CI C1–C9, data-download D1–D8, carried F3–F5 + P1 findings) and `docs/gates/gate-3.md` (pjm5 P5a–P5f; LMPs 16.98/26.38/30.00/39.94/10.00 reproduced by an independent scipy DC-OPF; inputs written from memory → P3 must verify vs MATPOWER case5). Next prep: P3 (P6 now unblocked).
 W7a done 2026-11-26: gate-1 is merge-ready (all W6 fixes done, CI run 58 green, 460 pass; one trivial CLAUDE.md conflict). Merge + Gate 1 DONE left to the owner (W7b) because the scheduled-run prompt forbids runs from merging to main or marking a gate done. STATUS: AWAITING_OWNER_REVIEW → runs take prep items (next: P2).
 W6-fix1-test done 2026-11-26: verifier tests for M1/M2/C2 + canonical-output determinism (DECISIONS 36) in `tests/test_reporting_w6.py`, `tests/test_health_fingerprint.py`; 460 pass / 0 fail; CI run 57 green. Next: W7 (PM) confirms CI green on final gate-1 commit, then merges gate-1 → main (pre-approved, DECISIONS 33 item 7).
@@ -138,6 +139,7 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
+- 2026-11-26 P3: MATPOWER's LICENSE excludes case files from BSD-3 (`case5.m` is "distributed with permission"). OK to use it as an internal test system (vendored, cited Li & Bo 2010 + MATPOWER, not in client deliverables) as with RTS-GMLC (DECISIONS 34)? rec yes.
 - 2026-11-26 W7a: gate-1 is merge-ready. The scheduled-task prompt says runs must never merge to main or mark a gate done, so W7's merge (pre-approved in DECISIONS 33 item 7) was not executed. Either (a) merge `gate-1` → `main` yourself (resolve CLAUDE.md by taking gate-1's version), mark Gate 1 DONE, create `gate-2`; or (b) amend the scheduled prompt to allow it and re-open W7b for a run. rec (a). Details: reports/gate-1-merge-readiness.md.
 - (answered 2026-11-26, DECISIONS 34: yes) 2026-11-26 P1: RTS-GMLC has no LICENSE file and no terms in README. OK to use it as an internal test system (vendored subset in repo, cited, not in client deliverables) until terms are confirmed? rec yes.
 - (answered 2026-11-26, DECISIONS 33: yes to all) 2026-11-26 W6: Gate 1 review — 9 yes/no decisions in reports/gate-1-review.md (all rec yes; merge after W6 fixes + green CI).
