@@ -31,6 +31,10 @@ jobs:
           print("HiGHS", highspy.Highs().version())
           print("OS", platform.platform())
           PY
+      - name: Check xfail/skip markers (C5)
+        run: |
+          python scripts/check_markers.py --self-test || test $? -eq 1
+          python scripts/check_markers.py
       - name: Test
         run: |
           mkdir -p reports-ci
@@ -51,3 +55,44 @@ jobs:
           elapsed=$(( $(date +%s) - CI_START ))
           echo "CI wall time: $((elapsed / 60)) min $((elapsed % 60)) s" >> "$GITHUB_STEP_SUMMARY"
           if [ "$elapsed" -gt 600 ]; then echo "::warning::CI wall time ${elapsed}s exceeds 600s budget"; fi
+  health-run:
+    # C6 + C7: T1-T4 through the CLI under two PYTHONHASHSEED values; `compare` checks the two outputs.
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: ["0", "12345"]
+    env:
+      PYTHONHASHSEED: ${{ matrix.seed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Install
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python -m pip install -e . --no-deps
+      - name: Health run (cases T1-T4)
+        run: python scripts/ci_health_run.py --out "$RUNNER_TEMP/health-out"
+      - name: Upload case outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-seed-${{ matrix.seed }}
+          path: ${{ runner.temp }}/health-out
+          retention-days: 30
+  compare:
+    needs: health-run
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Install
+        run: python -m pip install -r requirements-ci.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: health-seed-*
+          path: ${{ runner.temp }}/seeds
+      - name: Compare fingerprints and canonical outputs across seeds
+        run: python scripts/compare_runs.py "$RUNNER_TEMP/seeds/health-seed-0" "$RUNNER_TEMP/seeds/health-seed-12345"
