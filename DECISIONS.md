@@ -105,3 +105,14 @@
     reading in `conditioning.py` (`rhs_ratio`, `bound_max`); its SPEC-AMBIGUITY note can be dropped at the next code
     touch. (c) §5.2: the ANN ≥ I/n output check applies only when r ≥ 0 and PFF ≥ 1 (ATB-style PFF ≥ 1 for any nominal
     WACC ≥ 0); a directly supplied pff < 1 skips it, as `econ.py:annualize` does.
+
+2026-11-26 (owner, Gate 1 review — "yes to all" on reports/gate-1-review.md decisions 1–9, plus P1 licence question)
+33. Gate 1 review answered yes to all 9 items: (1) T1–T4 within tolerance; (2) all health checks pass, UNEXPLAINED = 0;
+    (3) fingerprint deterministic (environment-bound by design); (4) all audit mutations caught; (5) spec changes
+    F-0.2 amendments 1–2 / DECISIONS 30–32 accepted; (6) local log in place of CI accepted (moot, CI green);
+    (7) merge `gate-1` into `main` and mark Gate 1 DONE **after** item 8's fixes land and CI is green — this is the
+    owner's advance approval for that merge, executed by item W7; (8) close M1, M2, C1, C2 first via W6-spec1, W6-fix1,
+    W6-fix1-test; (9) carry later-gate findings (W5 F3–F5, F7, F8; markets M3–M5, M7; consulting C3–C8) into the draft
+    criteria of the gates named (P2 and later gate drafts).
+34. RTS-GMLC licence (P1): no LICENSE file upstream; owner approves use as an internal test system (subset vendored in
+    `cases/raw/rts_gmlc/`, cited) and never in client deliverables until terms are confirmed.

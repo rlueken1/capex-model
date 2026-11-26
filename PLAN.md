@@ -1,6 +1,6 @@
 # PLAN
 
-STATUS: AWAITING_OWNER_REVIEW
+STATUS: IN_PROGRESS (Gate 1 review answered yes to all, DECISIONS 33; closing W6 fixes, then W7 merge)
 CURRENT GATE: 1 (Toy model + audit layer), branch `gate-1`
 GATE 0: approved by owner 2026-11-24 (DECISIONS 26–30); merged into `main` 2026-11-24 on owner go-ahead
 
@@ -76,13 +76,16 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
 - [x] W6 PM [Sonnet] + markets reviewer [Opus] + consulting reviewer [Opus] (2 subagents), branch `gate-1`: economic
   sense of T1–T4 and audit readability; PM writes the 7-item owner decision list (gate-1.md §6); STATUS: AWAITING_OWNER_REVIEW.
 
-Proposed by W6 — start only if the owner answers Gate 1 review decision 8 = yes (reports/gate-1-review.md):
+Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in order:
 - [ ] W6-spec1 Formulation lead [Opus], branch `gate-1`, spec only: §4 CAPACITY_RENT hour attributed to the INVESTMENT_MARGIN
   unit, else the highest-MC at-cap unit, full list in a separate column (M1); data-schema `rents` per-column units (C1); §10 T2a
   typo 60·0.9 (M6). One DECISIONS entry.
 - [ ] W6-fix1 Builder [Sonnet], branch `gate-1`: implement M1; flag x = 0 candidate rents `non-unique (bound)` (M2);
   assumptions-book header (run_id, fingerprint, base $ year, "toy case, illustrative only") (C2). Builder smoke tests only.
 - [ ] W6-fix1-test Verifier [Sonnet], branch `gate-1`: tests for M1, M2, C2 from the amended spec; full pytest + CI green.
+- [ ] W7 PM [Sonnet], branch `gate-1`: confirm W6-spec1/fix1/fix1-test done and CI green on the final gate-1 commit; then
+  merge `gate-1` into `main` (owner pre-approved, DECISIONS 33 item 7), mark Gate 1 DONE, start `gate-2` from `gate-1`, and
+  set STATUS: AWAITING_OWNER_REVIEW until the PM scrum plans Gate 2 items. If CI is red, do not merge: add a fix item instead.
 
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
 Use only when STATUS is AWAITING_OWNER_REVIEW. One item per session, in order. Drafts and raw data only:
@@ -110,6 +113,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+Owner answered Gate 1 review 2026-11-26: yes to all 9 (DECISIONS 33) and RTS-GMLC internal use (DECISIONS 34). Next: W6-spec1 (Opus), W6-fix1, W6-fix1-test, then W7 merge. Prep lane pauses while STATUS is IN_PROGRESS.
 P1 done 2026-11-26 on `prep`: RTS-GMLC commit 3ece0d3, 43-file subset (9 MB) in `cases/raw/rts_gmlc/` incl. PLEXOS DA reference solutions; full MANIFEST.csv. Next prep: P2. Finding for Gate 2 list: fingerprint `git_state` splits untracked paths on whitespace (fails on paths with spaces); `data/common/sources.csv` is hashed by case manifests, so registry rows there need a re-hash at P5.
 AWAITING OWNER REVIEW of Gate 1 (reports/gate-1-review.md, 9-item decision list). Meanwhile runs take prep items P1… on `prep`.
 W6 done 2026-11-26: markets + consulting reviews (Opus) both yes, no blockers; 4 should-fix (M1, M2, C1, C2) → proposed W6-spec1/fix1/fix1-test if decision 8 = yes. 438 pass. W6 (PM + markets + consulting reviewers): economic sense, owner decision list, then STATUS: AWAITING_OWNER_REVIEW. W5-spec1 done 2026-11-26 (spec wording only, DECISIONS 32; 438 pass). W5-fix1-test done 2026-11-26 (9 verifier tests, 438 pass). W5-fix1 done 2026-11-26 (one-line fix in `record`). W5 done 2026-11-25: formulation trace in
@@ -120,8 +124,8 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
-- (open) 2026-11-26 P1: RTS-GMLC has no LICENSE file and no terms in README. OK to use it as an internal test system (vendored subset in repo, cited, not in client deliverables) until terms are confirmed? rec yes.
-- (open) 2026-11-26 W6: Gate 1 review — 9 yes/no decisions in reports/gate-1-review.md (all rec yes; merge after W6 fixes + green CI).
+- (answered 2026-11-26, DECISIONS 34: yes) 2026-11-26 P1: RTS-GMLC has no LICENSE file and no terms in README. OK to use it as an internal test system (vendored subset in repo, cited, not in client deliverables) until terms are confirmed? rec yes.
+- (answered 2026-11-26, DECISIONS 33: yes to all) 2026-11-26 W6: Gate 1 review — 9 yes/no decisions in reports/gate-1-review.md (all rec yes; merge after W6 fixes + green CI).
 - (answered 2026-11-24) — all Gate 0 review items 1–16; see DECISIONS.md 26–30.
 - (answered 2026-11-24) — merge `gate-0` into `main`: yes, done.
 - (answered) 2026-11-21 W2: Gate 0 review decision list (12 yes/no items) in reports/gate-0-review.md — for Monday review.
