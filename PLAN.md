@@ -68,7 +68,7 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
 - [x] W5-fix1 Builder [Sonnet], branch `gate-1`: price-setter (`audit/pricesetter.py:record`) — an hour whose first
   matched class fails its price check must get primary_class=UNEXPLAINED and count as UNEXPLAINED in
   `price_setter_summary` (W5 finding F1). Builder smoke tests only; do not edit verifier tests.
-- [ ] W5-fix1-test Verifier [Sonnet], branch `gate-1`: from the spec, a fixture where the first matched class fails its
+- [~] W5-fix1-test Verifier [Sonnet], branch `gate-1`: from the spec, a fixture where the first matched class fails its (claimed 2026-11-26T05:36Z)
   price check; assert primary_class and summary show UNEXPLAINED (F1). Full pytest + CI green.
 - [ ] W5-spec1 Formulation lead [Opus], branch `gate-1`, spec only: §6.2 wording — infeasibility scaled vs unscaled
   (text vs table) and the "RHS ratio / any finite bound" row; ratify the code's reading; fold in §5.2 "ANN ≥ I/n" only
