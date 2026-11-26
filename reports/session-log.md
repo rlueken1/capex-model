@@ -64,3 +64,7 @@
   infeasibilities are measured on the scaled LP and splits "RHS ratio / any finite bound" into RHS ratio + largest finite bound
   (absolute, scaled) — the code's reading ratified (F2); §5.2 ANN ≥ I/n check limited to PFF ≥ 1 (F6). DECISIONS 32. No code change.
   Tests: 438 passed / 0 failed locally. Needs owner: confirm DECISIONS 32 at Gate 1 review. Next: W6.
+- 2026-11-26 W6 (PM, main session; markets + consulting reviewers, Opus subagents) on `gate-1`: reviews added to
+  reports/gate-1-review.md — both verdict yes, no blockers. Should-fix: M1 CAPACITY_RENT attribution to at-cap baseload,
+  M2 non-unique x=0 rents unflagged, C1 rents units in schema, C2 assumptions-book header. 9-item owner decision list written.
+  STATUS: AWAITING_OWNER_REVIEW. Tests: 438 passed / 0 failed locally. Needs owner: Gate 1 decisions 1–9.

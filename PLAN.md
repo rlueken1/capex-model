@@ -1,6 +1,6 @@
 # PLAN
 
-STATUS: IN_PROGRESS
+STATUS: AWAITING_OWNER_REVIEW
 CURRENT GATE: 1 (Toy model + audit layer), branch `gate-1`
 GATE 0: approved by owner 2026-11-24 (DECISIONS 26–30); merged into `main` 2026-11-24 on owner go-ahead
 
@@ -73,8 +73,16 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
 - [x] W5-spec1 Formulation lead [Opus], branch `gate-1`, spec only: §6.2 wording — infeasibility scaled vs unscaled
   (text vs table) and the "RHS ratio / any finite bound" row; ratify the code's reading; fold in §5.2 "ANN ≥ I/n" only
   holds for PFF ≥ 1 (F2, F6). One DECISIONS entry.
-- [~] W6 PM [Sonnet] + markets reviewer [Opus] + consulting reviewer [Opus] (2 subagents), branch `gate-1`: economic (claimed 2026-11-26T06:16Z)
+- [x] W6 PM [Sonnet] + markets reviewer [Opus] + consulting reviewer [Opus] (2 subagents), branch `gate-1`: economic
   sense of T1–T4 and audit readability; PM writes the 7-item owner decision list (gate-1.md §6); STATUS: AWAITING_OWNER_REVIEW.
+
+Proposed by W6 — start only if the owner answers Gate 1 review decision 8 = yes (reports/gate-1-review.md):
+- [ ] W6-spec1 Formulation lead [Opus], branch `gate-1`, spec only: §4 CAPACITY_RENT hour attributed to the INVESTMENT_MARGIN
+  unit, else the highest-MC at-cap unit, full list in a separate column (M1); data-schema `rents` per-column units (C1); §10 T2a
+  typo 60·0.9 (M6). One DECISIONS entry.
+- [ ] W6-fix1 Builder [Sonnet], branch `gate-1`: implement M1; flag x = 0 candidate rents `non-unique (bound)` (M2);
+  assumptions-book header (run_id, fingerprint, base $ year, "toy case, illustrative only") (C2). Builder smoke tests only.
+- [ ] W6-fix1-test Verifier [Sonnet], branch `gate-1`: tests for M1, M2, C2 from the amended spec; full pytest + CI green.
 
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
 Use only when STATUS is AWAITING_OWNER_REVIEW. One item per session, in order. Drafts and raw data only:
@@ -102,7 +110,8 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
-W6 (PM + markets + consulting reviewers): economic sense, owner decision list, then STATUS: AWAITING_OWNER_REVIEW. W5-spec1 done 2026-11-26 (spec wording only, DECISIONS 32; 438 pass). W5-fix1-test done 2026-11-26 (9 verifier tests, 438 pass). W5-fix1 done 2026-11-26 (one-line fix in `record`). W5 done 2026-11-25: formulation trace in
+AWAITING OWNER REVIEW of Gate 1 (reports/gate-1-review.md, 9-item decision list). Meanwhile runs take prep items P1… on `prep`.
+W6 done 2026-11-26: markets + consulting reviews (Opus) both yes, no blockers; 4 should-fix (M1, M2, C1, C2) → proposed W6-spec1/fix1/fix1-test if decision 8 = yes. 438 pass. W6 (PM + markets + consulting reviewers): economic sense, owner decision list, then STATUS: AWAITING_OWNER_REVIEW. W5-spec1 done 2026-11-26 (spec wording only, DECISIONS 32; 438 pass). W5-fix1-test done 2026-11-26 (9 verifier tests, 438 pass). W5-fix1 done 2026-11-26 (one-line fix in `record`). W5 done 2026-11-25: formulation trace in
 reports/gate-1-review.md — code implements F-0.2 amendment 1 for the toy scope, no blockers; 2 should-fix (F1 code,
 F2 spec) → W5-fix1, W5-fix1-test, W5-spec1; then W6. Later-gate findings for the Gate 2 criteria list (P2 draft):
 F3 explicit zeros in A when availability 0 (`eliminate_zeros`), F4 zero-profit check skips xE for free-duration
@@ -110,6 +119,7 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
+- (open) 2026-11-26 W6: Gate 1 review — 9 yes/no decisions in reports/gate-1-review.md (all rec yes; merge after W6 fixes + green CI).
 - (answered 2026-11-24) — all Gate 0 review items 1–16; see DECISIONS.md 26–30.
 - (answered 2026-11-24) — merge `gate-0` into `main`: yes, done.
 - (answered) 2026-11-21 W2: Gate 0 review decision list (12 yes/no items) in reports/gate-0-review.md — for Monday review.

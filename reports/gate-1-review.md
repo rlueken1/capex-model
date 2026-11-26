@@ -143,7 +143,111 @@ VOLL, and it equals the scarcity rent for CAPACITY_RENT (T1 493.15, T3b 821.92 $
 (spec wording) are small and should close before sign-off; F3-F9 are deferred or notes.
 
 ## Markets and consulting review (W6)
-_Placeholder: markets reviewer (economic sense of T1-T4) and consulting reviewer (audit and assumptions-book readability)._
+W6, 2026-11-26. Both reviewers (Opus) read the spec, this file, the evidence and fresh solves of all 7 cases at HEAD
+(438 passed locally). No blockers from either. Should-fix: M1, M2, C1, C2 (see decision 8).
+
+### Markets reviewer (Opus)
+Read formulation §3, §4, §10, the W5 trace, evidence E2/E4 and the solved outputs of all 7 cases. I checked prices, rents, storage values, μ·f and class labels by hand against the case economics.
+
+| Case | Price story (obtained) | Rents / values | Class labels | Narrative |
+|---|---|---|---|---|
+| T1 | off 20; mid avg 20.822 (one hour 39.73, rest 20); peak avg 121.096 (one hour 573.15, rest 80) | Base 150,000 and Peaker 60,000 $/MW-yr, both = C^fix; Peaker earns 1.8 M$ net, all in the peak block | off MARGINAL_UNIT; mid/peak TIE_AT_BOUND + one CAPACITY_RENT/INVESTMENT_MARGIN hour each | holds: screening curve, peaker paid only via scarcity hours |
+| T2a | 20 / 60, G1/G2 marginal, battery price-taker | v 22.22 to 54, R^E 3,866.30, R^P 0 (energy-limited, one cycle per period); net 154,651.85 = R^E·E | MARGINAL_UNIT; storage ties only in `all_classes` | holds |
+| T2b | same prices | excess 3,465.19 $/MW-yr > 0, builds at bound, x_ub dual = value of more storage | same | holds |
+| T2c | 20 / 60 (unique) | x = 0; R^E printed 4,380 (degenerate, see M2) | same | holds |
+| T3a | 30; hour 48 = VOLL 1,000 (u = 20 MW) | G scarcity rent 118,016.67; Peaker reduced cost 40,500 | VOLL | holds: VOLL cheaper than peaker (166.7 h > 121.7 h) |
+| T3b | hour 48 = 921.92 < VOLL | Peaker rent = C^fix 100,000; residual 821.92 = scarcity rent | CAPACITY_RENT/INVESTMENT_MARGIN, interval [100, 1000] | holds |
+| T4 | A 20, B 50, two islands, link at F^+ | μ = 30 = π_B − π_A; μ·f·w·72 = 13.14 M$/yr; G_A earns 0 (congestion rent goes to the link, as FTR/ARR value would in PJM) | MARGINAL_UNIT per island, `CONGESTED` flag | holds |
+
+The dual signs and their meaning (π, ρ, v, μ, blackout rent) are right, and the revenue identities close. The scarcity rent sits where screening-curve theory puts it.
+
+**Findings**
+- **M1 (should-fix before sign-off, spec §4 + small code).** CAPACITY_RENT hours are split equally among *all* at-cap units with ρ > 0. In T3b, half of hour 48 is attributed to G (MC 30) and in T1 hour 61 half goes to Base (MC 20). On a PJM fleet in a scarcity hour, nearly every unit is at cap, so the M5 marginal-fuel shares would count nuclear and coal as price-setters. Fix: attribute the hour to the INVESTMENT_MARGIN unit(s), or else to the at-cap unit with the highest MC, and keep the full list in a separate column. This is a new rule, so it needs a DECISIONS line.
+- **M2 (should-fix, reporting only).** Rents of x = 0 candidates are not unique, and nothing in `rents.csv` or the health report says so. In T2c, `excess_rent` = −2,480 suggests storage needs a cost cut of 620 $/MWh-yr to build. The price-taker answer is 5,000 − 3,866.30 = 1,133.70. T3a's 40,500 is right only because of the vertex HiGHS returned (§4 notes presolve gives 0). Fix: flag at-zero rents as `non-unique (bound)`. Later, add a price-taker net-revenue column computed from π; that is what IMM net-revenue tables and M8.1 use.
+- **M3 (note, for the M5 definition at G12).** TIE_AT_BOUND means "price equals this unit's cost while it sits at its limit". The IMM does not count a unit at its limit as marginal. TIE_AT_BOUND and CAPACITY_RENT should therefore be reported as their own buckets in M5, not merged into fuel shares. They will recur in real cases, because the LP sizes capacity exactly to the peak hours.
+- **M4 (later-gate, G12/G13: benchmark against the right figure).** Capex-mode energy prices carry the whole capacity rent (missing money). PJM DA/RT LMPs do not, because most of that money is paid through RPM. Block LMP metrics M1.1/M1.2 from capex runs will read high in peak months until the RPM/reserve-margin constraint (G14) or ORDC (G7) moves that rent out of π. Fix: score M1 on backcast fixed-fleet runs, or compare energy + capacity revenue against LMP + RPM. Compare M5 against the IMM **real-time** marginal-unit table, because the DA table counts INC/DEC/UTC virtual bids as marginal.
+- **M5 (later-gate, taxonomy).** The class set is a sound base. Planned additions are RESERVE_ORDC (G7), LOSS_HURDLE (G8), UC/RAMP (G9) and POLICY (G10). Still missing:
+  - PJM shortage pricing, i.e. the ORDC penalty factors and the $1,000/$2,000 energy offer cap (VOLL 1,000–10,000 is a toy stand-in);
+  - DR and price-responsive demand as setter classes (M5 has a "storage/DR" group, but today the only demand-side class is VOLL);
+  - storage and x = 0 candidates as setters (W5 F7);
+  - LMP split into energy/congestion/loss components against a reference bus (G3/G8);
+  - an RTO aggregation rule across islands (load-weighted or hours basis).
+- **M6 (note, spec typo).** §10 T2a writes "v = 60/0.9 = 54". The correct expression is 60·0.9 = 54 (π = v/η^d). The code and the tests are right.
+- **M7 (note).** Hourly T1 prices (573.15 in one hour, 80 in the others) are degenerate vertex choices. Read as a price-duration curve, they would look like a 122-hour shortage event. DECISIONS 30 and benchmarks §2 already limit scoring to block averages before G7. Client-facing charts must say the same.
+
+No blockers.
+
+**Verdict: yes** — T1–T4 narratives economically sound.
+
+### Consulting reviewer (Opus)
+
+**Scope read.** All seven runs (T1, T3b, T4 in full; T2a-c, T3a skimmed): `health_report.md`, `assumptions.md`, `rents.csv`,
+`capacity.csv`, `objective.csv`, `annualization.csv`, `price_setter_summary.csv`, `zone_hourly.csv`, `run.json`.
+
+**What works.** Each run states one clear `Overall: pass` and records full reproducibility (`run.json`: git commit, solver and
+package versions, options, fingerprint). The dollar year is explicit (base 2024$, factor 1.0). Every input table shows
+`method=assumed, confidence=low`, which is the honest label for toys. Price-setter classes (MARGINAL_UNIT, TIE_AT_BOUND,
+CAPACITY_RENT) read as plain English, and their weighted hours sum to 8760. The numbers are stylised but not absurd. Energy
+prices are $20-60/MWh, with means of $35-42/MWh, close to recent PJM West Hub levels. Scarcity hours are $573 (T1) and
+$922/MWh (T3b), below VOLL. Peaker fixed cost is $60-150/kW-yr (T1 $60, T3b $100, T3a $150), the same order as a PJM CT's
+CONE. The base unit's $150/kW-yr is plausible. Storage fixed cost is $12-20k per unit-yr (T2b/c). That is low for real 4 h
+storage, which is fine for a toy as long as it is labelled stylised.
+
+**Findings**
+- **C1 should-fix before sign-off: column units are mislabelled in the schema.** `data-schema.md` l.230 says `rents` is
+  "$/yr unless noted". But `rent_pwr`, `rent_en`, `cfix` and `excess_rent` are per-unit values ($/MW-yr or $/MWh-yr), while
+  `fixed_cost` and `profit` are $/yr. For example, T2b `bat`: cfix 12,000 and fixed_cost 120,000. A reader would misread a
+  per-MW figure as a total. Fix: a doc-only line naming the units of each column. The column renames can wait (see C5).
+- **C2 should-fix before sign-off: the assumptions book has no run header and no "stylised" banner.** The spec
+  (`data-sources.md` §format 1) puts run_id, fingerprint, case and base year at the top. The stub has only the case name, so
+  a copied page cannot be traced to its run. Add 3 lines: run_id/fingerprint from `run.json`, base $ year, and "Toy case:
+  all inputs assumed; numbers are illustrative, not PJM estimates."
+- **C3 later-gate (Gate 2, first real data): the source table and capacity-share mix are missing.** Provenance is shown by
+  table only. There is no source_id, vintage, basis or share of MW (spec sections 2-3), so Q14 ("which inputs are
+  observed?") cannot be answered yet. This is acceptable for toys, and these sections should be in Gate 2's criteria.
+- **C4 later-gate (before the first client deliverable): the health report is written for modellers.** Check names
+  (`comp_slack`, `dual_sign`, `revenue_identity`) have no glossary. The `value` column mixes units. Conditioning rows show
+  only the warn threshold under `tolerance`. Add a one-line meaning per check, or a glossary in `docs/`.
+- **C5 later-gate (Gate 5, storage value): report storage value in client units.** Put units in every header
+  (`*_usd_yr`, `*_usd_mw_yr`), add $/kW-yr and $/kWh-yr columns and a revenue split by stream, and round values. Today the
+  outputs show solver noise such as `19.99999999999999` MW, profit `3.7e-09` and `8760.000000000002` h.
+- **C6 note:** `annualization` shows NaN in every I/r/n/CRF cell for `cfix_override` rows, which reads like missing data.
+  Print "n/a (override)" instead.
+- **C7 note:** `x_reduced_cost_usd_mw_yr` is -108,517 for existing `g` in T3b, and its sign convention is not explained.
+- **C8 note:** in the Counts table, `weight_sum_blocks 121.67` (8760/72) is unexplained, and integer counts print as
+  `1.000000`.
+
+**Verdict: yes** — audit and assumptions-book output readable enough for Gate 1 (C1, C2 are small doc/stub fixes).
+
 
 ## Owner decision list (W6)
-_Placeholder: PM writes the 7 items required by gate-1.md §6, format `N. <question>? **Recommendation: yes/no** - evidence: <link>. If no: <consequence>.`_
+PM (W6), 2026-11-26. Reviewer verdicts: verifier PASS (all rows), formulation lead yes, markets yes, consulting yes. No blockers.
+W5 should-fix items F1 (code + test) and F2/F6 (spec, DECISIONS 32) are closed. Four new should-fix items came up in W6 (M1, M2, C1, C2);
+the PM's recommendation is to close them as small items before the merge (decision 8), rather than hold the review.
+
+1. Are all T1–T4 within tolerance? **Recommendation: yes** — evidence: [gate-1-evidence.md §2](gate-1-evidence.md), `tests/test_known_answers.py`
+   (10/10); markets review confirms every narrative by hand. If no: name the case; it goes back to the verifier/formulation lead.
+2. Do all health checks pass with UNEXPLAINED = 0? **Recommendation: yes** — evidence: evidence §3–§4 (23/23 checks on all 7 cases,
+   0 warn/0 fail), F1 fixed and tested (W5-fix1, W5-fix1-test). If no: Gate 1 stays open on the failing check.
+3. Is the run fingerprint deterministic? **Recommendation: yes** — evidence: evidence §5, `test_health_fingerprint.py` (14), 2 processes.
+   Note: hashes are environment-bound (local ≠ CI) by design. If no: fingerprint redesign item before Gate 2.
+4. Were all audit mutations caught? **Recommendation: yes** — evidence: evidence §6, `test_health_mutations.py` (16), M4 via
+   `storage.soc_recompute` (DECISIONS 31a). If no: the uncaught mutation becomes a new health check.
+5. Do you accept the spec changes (F-0.2 amendments 1 and 2, DECISIONS 30, 31, 32)? **Recommendation: yes** — evidence: evidence §7;
+   DECISIONS 31 (SOC recompute check, storage setter cost, optional VRE fuel, T2c degenerate interval), 32 (§6.2/§5.2 wording).
+   If no: the spec is reverted per item and the affected tests re-done.
+6. Accept the local pytest log in place of CI? **Recommendation: yes (moot)** — evidence: CI #32 green at `a3182e4` (428 passed) and
+   local 438 passed at HEAD (W6 run). If no: wait for a green CI run on the final gate-1 commit before merging.
+7. Merge `gate-1` into `main` and mark Gate 1 DONE? **Recommendation: yes, after item 8's fixes land and CI is green** — evidence:
+   this file. If no: Gate 1 stays open; prep lane (P1–P10) continues meanwhile.
+8. Close the four W6 should-fix items before the merge? **Recommendation: yes** — evidence: markets M1, M2; consulting C1, C2 above.
+   Proposed items (one session each, branch `gate-1`): **W6-spec1** formulation lead [Opus], spec only: §4 rule that a CAPACITY_RENT
+   hour is attributed to the INVESTMENT_MARGIN unit (else the highest-MC at-cap unit), full list kept in a separate column (M1);
+   data-schema `rents` per-column units (C1); §10 T2a typo 60·0.9 (M6); one DECISIONS entry. **W6-fix1** builder [Sonnet]: implement
+   M1; flag rents of x = 0 candidates as `non-unique (bound)` (M2); assumptions-book header with run_id, fingerprint, base $ year and
+   a "toy case, illustrative only" banner (C2). **W6-fix1-test** verifier [Sonnet]: tests from the amended spec; CI green.
+   If no: M1/M2 move to the Gate 2 criteria list and C1/C2 to Gate 2 docs; merge can go ahead now.
+9. Carry the later-gate findings into the draft criteria of the gates named? **Recommendation: yes** — evidence: W5 F3–F5, F7, F8;
+   markets M3–M5, M7 (M5 bucket rules, capacity rent vs RPM in LMP benchmarks, real-time IMM table, missing setter classes);
+   consulting C3–C8 (source table, glossary, client units, rounding). If no: they stay as notes in this file only.
+
