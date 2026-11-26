@@ -104,7 +104,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   (PJM 5-bus: DC power flow per §7.4a, expected LMPs/congestion with sources and tolerances). Marked DRAFT for owner.
 - [x] P3 Data lead [Sonnet]: PJM 5-bus case data into `cases/raw/pjm5bus/` from a published source available offline or
   on GitHub (e.g. a MATPOWER/PowerModels case file); provenance; note any source that needs owner download.
-- [~] P4 Builder [Sonnet]: draft `.github/workflows/data-download.yml` (EIA-860/923, NREL ATB) as `workflow_dispatch` (claimed 2026-11-26T09:16Z)
+- [x] P4 Builder [Sonnet]: draft `.github/workflows/data-download.yml` (EIA-860/923, NREL ATB) as `workflow_dispatch`
   only, not scheduled; caches to artifacts; never commits raw data. Draft for Gate 2 review.
 - [ ] P5 Data lead [Sonnet]: convert the P1 RTS-GMLC raw data into the model's input schema (docs/data-schema.md) under
   `cases/rts_gmlc/` with provenance; loader smoke check only. Needs P1 done.
@@ -121,6 +121,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+P4 done 2026-11-26 on `prep` (707cee7): DRAFT `.github/workflows/data-download.yml` (dispatch only, `contents: read`, 90-day artifact), `data/manifests/{pjm5,eia860,eia923,atb}.csv`, `scripts/fetch_source.py` + `verify_artifact.py` (stdlib) + `fetch_artifact.md` (D8). pjm5 pinned+enabled; EIA/ATB declared, disabled, unpinned (`pin_mode=record` for first pin); EIA_API_KEY skip pattern. Local checks pass (fetch, repeat-hash, broken pin, unknown id, skips); not yet run on Actions. Gate 2 note: GitHub only dispatches a workflow whose file is on the default branch, so the D5/D3 evidence runs need it on `main` first. Next prep: P5.
 P3 done 2026-11-26 on `prep` (23d0d47): MATPOWER `case5.m` vendored in `cases/raw/pjm5bus/` (sha256-pinned, MANIFEST, parsed CSVs); every gate-3.md draft input matches and an independent DC-OPF reproduces LMPs 16.98/26.38/30.00/39.94/10.00 (D-E binds at 240 MW). Case-file licence unverified (see Needs owner). Next prep: P4.
 P2 done 2026-11-26 on `prep` (07bd44a): DRAFT `docs/gates/gate-2.md` (CI C1–C9, data-download D1–D8, carried F3–F5 + P1 findings) and `docs/gates/gate-3.md` (pjm5 P5a–P5f; LMPs 16.98/26.38/30.00/39.94/10.00 reproduced by an independent scipy DC-OPF; inputs written from memory → P3 must verify vs MATPOWER case5). Next prep: P3 (P6 now unblocked).
 W7a done 2026-11-26: gate-1 is merge-ready (all W6 fixes done, CI run 58 green, 460 pass; one trivial CLAUDE.md conflict). Merge + Gate 1 DONE left to the owner (W7b) because the scheduled-run prompt forbids runs from merging to main or marking a gate done. STATUS: AWAITING_OWNER_REVIEW → runs take prep items (next: P2).

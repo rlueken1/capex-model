@@ -108,3 +108,8 @@
   ed907208…), vendored in `cases/raw/pjm5bus/` with LICENSE, MANIFEST.csv, README provenance, parsed CSVs, PowerModels copy as cross-check only.
   All gate-3.md draft inputs match; independent DC-OPF gives LMPs 16.98/26.38/30.00/39.94/10.00, cost 17,479.90. No model code; no tests run
   (raw data only). Needs owner: case-file licence ("with permission", not BSD) — internal test use OK? rec yes.
+
+2026-11-26 09:20Z — P4 (builder role, prep lane; STATUS awaiting owner review). Branch `prep` 707cee7.
+Result: draft data-download workflow (workflow_dispatch only, read-only perms, artifact upload) + 4 manifests + fetch/verify scripts + D8 doc.
+Tests: no pytest change (no src/ edits); local script checks 6/6 as expected (pjm5 fetch+verify, same hashes twice, tampered file fails, broken pin fails & removes output, unknown source exit 2, disabled/missing-key skip).
+Owner: workflow can only be dispatched once its file is on `main` (Gate 2 evidence); EIA/ATB URLs still to verify.
