@@ -109,7 +109,7 @@ One per session, strictly in order; claim before work (CLAUDE.md).
   consumer-side verify script. EIA/ATB steps stay declared-but-disabled.
 - [x] G2-4 Builder [Sonnet]: carried code findings F3, F4, F5, P1-a (gate-2.md §4). No verifier tests here.
 - [x] G2-5 Verifier [Sonnet]: tests from the spec for F3, F4, F5, P1-a and for the C5 checker (a marker without a reason fails).
-- [ ] G2-6 Formulation lead [Opus]: P1-b decision (keep or exclude `sources.csv` from case manifests) + DECISIONS entry; refresh
+- [~] G2-6 Formulation lead [Opus]: P1-b decision (keep or exclude `sources.csv` from case manifests) + DECISIONS entry; refresh (claimed 2026-11-26T19:24Z)
   gate-2.md header to "approved".
 - [ ] G2-7 Verifier [Sonnet]: `reports/gate-2-evidence.md` (§5 parts 1–8). Trigger workflow_dispatch runs with `gh workflow run`
   if the session can; otherwise list the exact dispatches under "Needs owner".
