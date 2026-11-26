@@ -92,4 +92,4 @@
 2026-11-26 W6-fix1-test (verifier, Sonnet subagent; main session Opus) on `gate-1`.
 - New `tests/test_reporting_w6.py` (21 cases): M1 setter attribution + `rent_ids` (designed interior-build case, T3b closed form, degenerate highest-MC branch), M2 `rent_note` on x = 0 candidates, C2 assumptions header/banner, no `run_id` columns.
 - `tests/test_health_fingerprint.py`: byte-identity now on canonical outputs per §8.10 / DECISIONS 36 (assumptions.md minus its `- run_id:` line, checked equal to run.json).
-- Tests: 460 passed / 0 failed / 0 xfail locally; no spec-vs-code failures. Next: W7 merge (needs CI green). Nothing needs the owner.
+- Tests: 460 passed / 0 failed / 0 xfail locally; CI run 57 green on ca92d50; no spec-vs-code failures. Next: W7 merge. Nothing needs the owner.
