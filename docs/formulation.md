@@ -15,6 +15,9 @@ F-0.2 amendment 3 (W6-spec1, 2026-11-26, DECISIONS 35): reporting only — §4 `
 the `INVESTMENT_MARGIN` unit(s), else to the highest-MC unit in the rent set, with the full rent set in `rent_ids`;
 §8.5 rents of $x=0$ candidates flagged `non-unique (bound)`; §8.11 assumptions-book run header and toy banner;
 §10 T2a typo ($v = 60\cdot0.9$). LP, duals, price checks and thresholds unchanged.
+F-0.2 amendment 4 (W6-spec2, 2026-11-26, DECISIONS 36): reporting only — §8.10 defines **canonical outputs** (every
+output file except `run.json`, with the single `- run_id:` line of `assumptions.md` removed) as the object of the
+byte-identity check; output tables carry no `run_id` column. LP, fingerprint inputs and thresholds unchanged.
 Scope of authority: code in `src/capex/` implements this file. Any deviation changes this
 file in the same commit and is logged in `DECISIONS.md`. Constraint/variable labels in
 `code font` are the identifiers used in code, audit output and tests.
@@ -502,7 +505,12 @@ demand curve as stepped benefit segments with ELCC-accredited supply $\sum_r \te
 7. **Price-setter report** (§4) and `UNEXPLAINED` count; marginal fuel shares per zone.
 8. **Curtailment** and **unserved energy** by zone/period, weighted annual totals.
 9. **Conditioning report** (§6.2).
-10. **Run fingerprint**: SHA-256 over (canonical input tables: sorted, fixed float repr; config incl. all switches; formulation version string `F-x.y`; git commit + dirty-diff hash; solver name, version, all options; Python and package versions; clustering seed); stored with run id, timestamps, solve time, model size. Same fingerprint ⇒ bit-identical outputs expected.
+10. **Run fingerprint**: SHA-256 over (canonical input tables: sorted, fixed float repr; config incl. all switches; formulation version string `F-x.y`; git commit + dirty-diff hash; solver name, version, all options; Python and package versions; clustering seed); stored with run id, timestamps, solve time, model size. Same fingerprint ⇒ byte-identical **canonical outputs**
+    expected (amendment 4). Canonical outputs = every file written to `outputs/<run_id>/` except `run.json`, with
+    `assumptions.md` compared after deleting its one line that starts `- run_id: `. Per-run values (run_id,
+    timestamps, solve time) may appear only in those two places; every other file, including `health_report.md`,
+    `conditioning.json` and all tables, must be a pure function of the fingerprint inputs. Output tables do not
+    repeat `run_id` as a column; it is read from `run.json` or the directory name when runs are stacked.
 11. **Assumptions book** (from data layer): provenance mix by parameter, dollar-year conversions, annualization table.
    Starts with the run header of data-sources.md "Assumptions book format" item 1 (run_id and fingerprint equal to
    `run.json`, case, base dollar year); for a case with no input cell whose `method` is observed, derived or estimated,

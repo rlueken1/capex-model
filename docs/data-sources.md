@@ -98,7 +98,8 @@ Actions run or the owner before reliance. Terms below are my reading of the publ
 
 ## Assumptions book format (`outputs/<run_id>/assumptions.md`; machine form `assumptions_cells.parquet`)
 Generated from `resolved_provenance.parquet`, no hand editing. Sections:
-1. **Run header**: run_id, fingerprint (both equal to `run.json`), case, base dollar year, formulation/schema versions,
+1. **Run header**: run_id (one line `- run_id: <id>`, the only per-run line in the book; it is dropped from the
+   byte-identity comparison, formulation §8.10), fingerprint (both equal to `run.json`), case, base dollar year, formulation/schema versions,
    data vintages. If no input cell has `method` observed, derived or estimated, add the banner line "Toy case: all inputs
    assumed; numbers are illustrative, not PJM estimates." (formulation §8 item 11).
 2. **Provenance mix**: per parameter family (capacity, heat rate, VOM, FOM, capex, outage, fuel price, load, profiles)

@@ -217,7 +217,9 @@ Adders (delivery, basis, CO$_2$ via G10) are separate columns/tables, never fold
 | `benchmarks_*.parquet` | 4,12,14 | | observed DA/RT LMP (zone,date,hour), IMM marginal fuel shares, EIA-923 monthly gen, RPM prices, IMM storage revenue; P(meta) | scoreboard (`docs/benchmarks.md`); never enter the LP |
 
 ## 5. Outputs (`outputs/<run_id>/`) — all in I/O units, base 2024$, real; weights applied only where stated
-Every output table has `run_id`. Raw duals use the canonical convention (§1.3); economic quantities per §3.
+Every output table belongs to one run through its directory `outputs/<run_id>/`; tables do not repeat `run_id` as a
+column, so that canonical outputs are byte-identical across runs (formulation §8.10, amendment 4); a reader that stacks
+runs adds `run_id` from `run.json`. Raw duals use the canonical convention (§1.3); economic quantities per §3.
 
 | File | Gate | Key | Columns | Notes (audit §8) |
 |---|---|---|---|---|

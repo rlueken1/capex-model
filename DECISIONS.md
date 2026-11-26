@@ -127,3 +127,13 @@
     data-schema §5 `rents` names the unit of every column ($/yr totals vs $/MW-yr, $/MWh-yr per unit). (d) C2: assumptions
     book starts with run_id/fingerprint (= run.json), case, base $ year, and a "Toy case: all inputs assumed…" banner when
     no input cell is observed/derived/estimated (§8 item 11; data-sources.md). (e) M6: §10 T2a typo, v = 60·0.9 = 54.
+
+2026-11-26 (formulation lead, W6-spec2 — conflict found by W6-fix1; within DECISIONS 33 item 8 scope)
+36. F-0.2 amendment 4 (reporting only; LP, fingerprint inputs and thresholds unchanged; version stays F-0.2). Canonical
+    outputs, the object of gate-1.md §3 byte-identity, = every file in `outputs/<run_id>/` except `run.json`, with
+    `assumptions.md` compared after removing its single `- run_id: ` line (which must exist once and equal `run.json`).
+    Per-run values (run_id, timestamps, solve time) may appear only there; all other files are pure functions of the
+    fingerprint inputs. data-schema §5 "every output table has `run_id`" replaced: tables carry no `run_id` column (the
+    code already omits it); stacking readers take it from `run.json`. Reason: DECISIONS 35(d) put the random run_id in
+    the assumptions book, which made byte-identity impossible as worded. Rejected: a deterministic run_id (two runs
+    would share an id) and dropping run_id from the book (undoes C2). Verifier updates its test in W6-fix1-test.

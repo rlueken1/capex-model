@@ -83,3 +83,8 @@
 - M1: CAPACITY_RENT setters = rent-set units with interior build, else highest-MC; full set in new `rent_ids` column. M2: `rents.rent_note`. C2: assumptions-book run header + toy banner.
 - Tests: 435 passed / 4 failed — fingerprint determinism tests compare assumptions.md bytes, which now carries the random run_id (spec conflict, not a code bug).
 - Added W6-spec2 (formulation lead) to define canonical outputs; W6-fix1-test then updates the test. CI red until then (planned). Nothing needs the owner.
+
+2026-11-26 W6-spec2 (formulation lead, Opus, main session, no subagents) on `gate-1`.
+- F-0.2 amendment 4 / DECISIONS 36: canonical outputs = every output file except `run.json`; `assumptions.md` compared without its single `- run_id:` line.
+- data-schema §5: output tables carry no `run_id` column (matches code). gate-1.md §3, data-sources.md, formulation §8.10 amended.
+- Tests not run (spec only; CI still red on 4 determinism tests until W6-fix1-test, planned). Nothing needs the owner.
