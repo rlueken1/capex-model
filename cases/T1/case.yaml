@@ -36,4 +36,3 @@ tables:
     sha256: c1fc4b6c9f000aa97d6821cf43f4d20daf61cadb31ab71239a911aa9733b153f
   sources:
     file: ../../data/common/sources.csv
-    sha256: 7f41d6900d122b0d488f3db363e66adcdfbe78f8cdc5cc689cb13fa401f99529

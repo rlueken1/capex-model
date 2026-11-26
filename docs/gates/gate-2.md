@@ -49,7 +49,7 @@ DECISIONS entry naming the gate that needs it.
 | F4 | zero-profit check for free-duration candidate storage checks only $s_{xP}$ sign | fix + test with a free-duration candidate (both $s_{xP}$, $s_{xE}$ checked) |
 | F5 | `ScipyHighsSolver`: ranged row lands in both `le` and `ge`, ≤ dual overwritten | fix + adapter test with one ranged row binding at each end. **Needed before Gate 3** if the PTDF form writes flow limits as ranged rows |
 | P1-a | fingerprint `git_state` splits untracked paths on whitespace | fix (NUL-separated `git status -z`); test with a path containing a space |
-| P1-b | `data/common/sources.csv` is hashed by case manifests; registry edits re-hash every case | decision: keep (re-hash is the correct signal) or exclude from case manifests; DECISIONS entry either way |
+| P1-b | `data/common/sources.csv` is hashed by case manifests; registry edits re-hash every case | decision: keep (re-hash is the correct signal) or exclude from case manifests; DECISIONS entry either way. **Closed G2-6: exclude (DECISIONS 40)** — T1–T4 manifests list `sources` without `sha256`; registry content stays in the run fingerprint |
 
 ## 5. Evidence file `reports/gate-2-evidence.md`
 Links and excerpts: (1) the CI run URL on the final gate-2 commit with pass/fail counts and the version block (C3);
@@ -67,4 +67,4 @@ edited on a throwaway branch) showing failure (D3); (5) proof of C5 (a marker wi
   supported environment? (5) spec/DECISIONS changes accepted? (6) owner enables branch protection on `main` requiring
   the `ci` check (owner-only GitHub setting)? (7) merge `gate-2` to `main` and mark Gate 2 DONE?
 
-[P] = proposed number, owner to confirm.
+[P] = proposed number; confirmed when the owner approved these criteria (DECISIONS 38).

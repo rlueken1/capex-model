@@ -170,3 +170,8 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - Added `tests/test_gate2_findings.py` (27 cases: F3, F4, F5, P1-a) and `tests/test_check_markers.py` (19 cases: C5), written from gate-2.md §2/§4 and formulation.md.
 - Result: 46/46 pass on gate-2; 10 F3–F5/P1-a cases fail on the pre-fix commit (faaa9cd^), so the tests catch the original bugs.
 - Full suite 547 pass / 30 skip / 0 fail (network off); check_markers exit 0. Nothing needs the owner. Next: G2-6 (Opus).
+
+## 2026-11-26 — G2-6 (formulation lead, Opus, no subagents)
+- P1-b decided: exclude `data/common/sources.csv` from case-manifest sha256 pins (DECISIONS 40); registry still hashed in the run fingerprint; ids append-only.
+- Edited T1–T4 `case.yaml` (dropped the `sources` sha256), data-schema §5 + §6 rule 1, gate-2.md P1-b row + [P] note, rts_gmlc README follow-up.
+- Full suite 547 pass / 30 skip / 0 fail (network off); check_markers exit 0. Nothing needs the owner. Next: G2-7 (verifier).

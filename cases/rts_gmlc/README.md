@@ -16,8 +16,8 @@ dispatch check against the PLEXOS DA reference (`allTX` / `noTX`). **Licence:** 
 - **Zones** `r1,r2,r3` = RTS Areas 1-3 (bus.csv `Area`); generators are assigned through their bus.
 - **Case-local `sources.csv`.** `data/common/sources.csv` lacks an `rts_gmlc` row. Editing it would change the sha256 that
   the T1-T4 manifests pin, so this case points its `sources` table at a local copy (common rows + `rts_gmlc`).
-  `data/common/sources.csv` and all T* cases are untouched. Recommended follow-up (owner/orchestrator): append the
-  `rts_gmlc` row to the common file and re-hash `sources` in every T* `case.yaml` in one commit.
+  `data/common/sources.csv` and all T* cases are untouched. Follow-up at Gate 4 (DECISIONS 38, 40): append the
+  `rts_gmlc` row to the common file and point this case at it; no T* re-hash is needed since DECISIONS 40 (registry not pinned).
 - **Availability is `availability.csv.gz`.** 81 VRE series x 8784 h = 711,504 rows (20 MB as text); gzip (2.6 MB) is read
   natively by the loader's `pd.read_csv`. Not Parquet (loader reads CSV only).
 - **Sidecar files the loader ignores (not in manifest, not hashed):** `provenance_cells.csv` (387 per-cell overrides, the

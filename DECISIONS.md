@@ -152,3 +152,17 @@
 39. Owner answered yes to G2-3's question: `.github/workflows/data-download.yml` copied alone onto `main` (f123ad1) so GitHub
     can dispatch it (dispatch needs the file on the default branch). Dispatch-only, `contents: read`; a run with
     `--ref gate-2` uses gate-2's workflow and scripts. No other gate-2 work is on `main`; Gate 2 is not merged or done.
+
+2026-11-26 (formulation lead, G2-6 — P1-b, delegated by approved gate-2.md §4)
+40. P1-b: **exclude** the shared source registry `data/common/sources.csv` from per-file sha256 pinning in case manifests.
+    T1–T4 `case.yaml` list `sources` without `sha256`; every other table (incl. shared `deflator.csv`) stays pinned.
+    data-schema §5 and §6 rule 1 amended. Reason: the registry changes no number in the LP; it only gates provenance
+    (`source_id` must exist, data-schema §6 rule 7) and, later, licence checks. Pinning it made every registry append
+    (many coming at Gates 4, 16, 18) break every case until re-hashed — noise, not signal. Reproducibility is kept: the
+    run fingerprint already hashes the registry as a canonical input table (formulation §8.10), so a registry edit still
+    changes the fingerprint of every run that loads it. Rules: the registry is append-only for `source_id` (never delete
+    or rename an id a case cites); rows may gain columns/fields. Rejected: keep pinning (re-hash churn across all cases per
+    registry row); a case-local registry copy per case (drifts; the rts_gmlc copy is retired at Gate 4). Effect on
+    DECISIONS 38 (P5): at Gate 4 append the `rts_gmlc` row and point rts_gmlc at the common file; no T* re-hash needed.
+    Not an LP or formulation change (version stays F-0.2). T1–T4 fingerprints change once (manifest config component).
+    Local: 547 pass / 30 skip / 0 fail; check_markers exit 0.
