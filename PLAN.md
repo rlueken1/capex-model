@@ -113,7 +113,7 @@ One per session, strictly in order; claim before work (CLAUDE.md).
   gate-2.md header to "approved".
 - [x] G2-7 Verifier [Sonnet]: `reports/gate-2-evidence.md` (§5 parts 1–8). Done 2026-11-26: C1–C9 pass on CI #107; parts 3–4
   (Actions dispatches) blocked by V2-1 — `data-download.yml` is invalid YAML (line 79), so GitHub has no dispatch trigger.
-- [ ] G2-7a Builder [Sonnet]: fix V2-1 — line 79 of `.github/workflows/data-download.yml` as a block scalar (`run: |`); add a
+- [~] G2-7a (claimed 2026-11-26T21:24:03Z) Builder [Sonnet]: fix V2-1 — line 79 of `.github/workflows/data-download.yml` as a block scalar (`run: |`); add a
   `ci.yml` step that parses every `.github/workflows/*.yml` (PyYAML `safe_load`) and fails on error. No verifier tests here.
   Then copy **only** that fixed file onto `main` (commit "copy fixed data-download.yml to main (DECISIONS 41)"; owner-approved
   2026-11-26, DECISIONS 41 — the one exception to "never touch main"; no other file, no merge) and confirm the dispatch API accepts it.
