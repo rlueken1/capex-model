@@ -166,3 +166,8 @@
     DECISIONS 38 (P5): at Gate 4 append the `rts_gmlc` row and point rts_gmlc at the common file; no T* re-hash needed.
     Not an LP or formulation change (version stays F-0.2). T1–T4 fingerprints change once (manifest config component).
     Local: 547 pass / 30 skip / 0 fail; check_markers exit 0.
+
+2026-11-26 (owner, live reply to G2-7's question)
+41. Owner answered yes to G2-7's question (V2-1): once G2-7a fixes `.github/workflows/data-download.yml` on `gate-2`, the
+    run doing G2-7a copies that one file alone onto `main` (as DECISIONS 39), so G2-7b can dispatch it. Only that
+    file; no merge; Gate 2 stays not merged and not done.
