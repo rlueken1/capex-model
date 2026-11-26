@@ -1,7 +1,8 @@
 # PLAN
 
-STATUS: AWAITING_OWNER_REVIEW (W7a done: gate-1 merge-ready, CI green; the merge to `main` + Gate 1 DONE need you — see Needs owner)
-CURRENT GATE: 1 (Toy model + audit layer), branch `gate-1`
+STATUS: IN_PROGRESS
+CURRENT GATE: 2 (CI + data-download workflow), branch `gate-2`
+GATE 1: approved by owner 2026-11-26 (DECISIONS 33, 37); merged into `main` 2026-11-26 on owner instruction
 GATE 0: approved by owner 2026-11-24 (DECISIONS 26–30); merged into `main` 2026-11-24 on owner go-ahead
 
 ## Gates (each ends in owner sign-off; criteria in docs/gates/; rules in docs/gates/README.md)
@@ -92,8 +93,25 @@ Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in ord
   merge-readiness note `reports/gate-1-merge-readiness.md`. Done 2026-11-26: all done, CI run 58 green on 7c7837f, 460 pass
   locally; one trivial CLAUDE.md conflict vs `main` (take gate-1's version). Merge NOT done: the scheduled-run prompt says
   runs never merge to main or mark a gate done, which overrides DECISIONS 33 item 7 for unattended runs.
-- [ ] W7b OWNER ACTION (not claimable by runs): merge `gate-1` into `main`, mark Gate 1 DONE, create `gate-2` from `gate-1`
+- [x] W7b OWNER ACTION: merged `gate-1` into `main` 2026-11-26 (owner instruction); Gate 1 DONE; `gate-2` created from `main` with prep P1–P10 merged in
   (or tell runs they may, by changing the scheduled-task prompt). Then the PM scrum plans Gate 2 items.
+
+## Gate 2 work items — branch `gate-2` (criteria: docs/gates/gate-2.md, approved 2026-11-26, DECISIONS 38)
+One per session, strictly in order; claim before work (CLAUDE.md).
+- [ ] G2-1 Builder [Sonnet]: CI criteria C1–C4, C8–C9 — `requirements-ci.txt` (exact pins), `ubuntu-24.04`, version block,
+  junit XML + log artifacts, runtime report, pytest-socket (no network in tests). Builder smoke checks only.
+- [ ] G2-2 Builder [Sonnet]: CI criteria C5–C7 — `xfail_strict`, marker-reason checker script, health-run job over T1–T4 with
+  output artifacts, two-job fingerprint comparison with different PYTHONHASHSEED.
+- [ ] G2-3 Builder [Sonnet]: data-download workflow D1–D8 end to end for `pjm5` (pinned MATPOWER case5.m) using the P4 draft;
+  consumer-side verify script. EIA/ATB steps stay declared-but-disabled.
+- [ ] G2-4 Builder [Sonnet]: carried code findings F3, F4, F5, P1-a (gate-2.md §4). No verifier tests here.
+- [ ] G2-5 Verifier [Sonnet]: tests from the spec for F3, F4, F5, P1-a and for the C5 checker (a marker without a reason fails).
+- [ ] G2-6 Formulation lead [Opus]: P1-b decision (keep or exclude `sources.csv` from case manifests) + DECISIONS entry; refresh
+  gate-2.md header to "approved".
+- [ ] G2-7 Verifier [Sonnet]: `reports/gate-2-evidence.md` (§5 parts 1–8). Trigger workflow_dispatch runs with `gh workflow run`
+  if the session can; otherwise list the exact dispatches under "Needs owner".
+- [ ] G2-8 PM [Sonnet] + markets reviewer [Sonnet] (1 subagent): `reports/gate-2-review.md` pass/fail table and owner yes/no
+  list; STATUS: AWAITING_OWNER_REVIEW.
 
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
 Use when STATUS is AWAITING_OWNER_REVIEW, or when the next gate item is already claimed by another run (owner, 2026-11-26). One item per session, in order. Drafts and raw data only:
@@ -121,7 +139,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
-P10 done 2026-11-26 on `prep` (458d67e): DRAFT `docs/drafts/eia-mapping.md` (397 lines, 49 "(verify)", written offline from memory). 860/860M/923 + PUDL → schema mapping, PM/energy-source code maps, 923 heat-rate derivation + pitfalls, 4-level estimation hierarchy for heat rate/min gen/ramp/outage/start (CEMS, NEEDS, ATB, GADS, Kumar/Lew), back-test plan, provenance recording. 9 schema gaps listed (no tech/fuel vocab, no zone map/ba_code, no estimate registry, single heat_rate col, no capacity_basis, storage charge/discharge split…). All prep items P1–P10 done; runs now log "skipped: nothing claimable" until W7b.
+G2-1 (builder): CI pinning and artifacts per gate-2.md C1–C4, C8–C9.
 P9 done 2026-11-26 on `prep` (8c68935): DRAFT `docs/drafts/storage-study-outline.md` (258 lines, 8 sources, 25 "(verify)"). Revenue stack energy+reserves+capacity (ELCC×BRA) vs ATB annualized cost by 2/4/6/8 h; 4 h capacity ≈ $60–71/kW-yr at collared 2026/27–2028/29 BRAs, $119.5 uncollared sim (computed); perfect-foresight haircut; 6 owner decisions at end. Gaps: no PJM 2 h ELCC class; no public PJM arbitrage/reserve revenue ranges found (IMM SOM to read). Next prep: P10.
 P8 done 2026-11-26 on `prep` (6c1e9c7): DRAFT `docs/drafts/pjm-rpm-notes.md` (481 lines, 23 sources, 37 "(verify)"). 2028/29 BRA held (Jul 2026): $325.00 cap in every LDA, 6,831 MW short; 2029/30 BRA due Dec 2026 (cap $337.83/floor $181.91). Collar 2026/27–2029/30 (FERC ER26-1556); new VRR points 99/101.5/106% from 2028/29 (ER26-455); CT reference resource kept; ELCC class tables 2026/27–2028/29. Next prep: P9.
 P7 done 2026-11-26 on `prep` (d5eca74): DRAFT `docs/drafts/gate5-rep-periods-spec.md` (replacement §7.1–§7.2 + §8 additions) and `docs/gates/gate-5.md`. Ward hierarchical + medoid (deterministic, no seed); per-zone 72-h load/wind/solar/net-load + daily fuel features, z-scored, group-weighted; forced peak/net-peak/VRE-drought/fuel-spike/event blocks at weight 1; optional annual-total rescaling (default on); Kotzur superposition inter-period SOC; prices = dual/w_p, link-row dual = water value; 6 new health checks, M11–M15; toy T5 answers checked by an independent 8784-h LP. 10-item owner decision list at end of gate-5.md (incl. a test-only full-chronology expansion run on RTS-GMLC as an exception to DECISIONS 3). Next prep: P8.
@@ -146,12 +164,13 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
-- 2026-11-26 P10: EIA mapping draft (docs/drafts/eia-mapping.md §end) has 10 yes/no items, all rec yes — e.g. summer net capacity as k0_mw; PUDL preferred over raw EIA; hand-built PJM TO→zone map; 860 Minimum Load accepted only after CEMS cross-check; run pin_mode=record eia860/eia923 workflows to clear verify list. Also: prep list is exhausted — add prep items or do W7b.
-- 2026-11-26 P9: storage study outline (docs/drafts/storage-study-outline.md §end) has 6 yes/no items, all rec yes — e.g. headline = perfect-foresight value × haircut; capacity shown collar on and off; extend M8.1 to 2/4/6/8 h; 2 h ELCC assumed (no PJM class). Review at Gate 15.
-- 2026-11-26 P8: 2026/27–2028/29 BRAs all cleared at the collar cap, so M7.1 (≤$25 or ≤20%) would pass trivially. Use 2024/25 and 2025/26 as the pass/fail M7.1 years and report capped years only vs PJM's uncollared simulation + MW shortfall? rec yes. (Also: model year y ↔ delivery year June y–May y+1; details in docs/drafts/pjm-rpm-notes.md.)
-- 2026-11-26 P5: `data/common/sources.csv` lacks an `rts_gmlc` row; adding it changes the sha256 pinned in T1–T4 manifests. P5 uses a case-local sources copy. OK to append the row + re-hash T* manifests in one commit (at Gate 4)? rec yes. Also: heat-rate choice (secant incremental, no no-load) wants a DECISIONS entry at Gate 4.
-- 2026-11-26 P3: MATPOWER's LICENSE excludes case files from BSD-3 (`case5.m` is "distributed with permission"). OK to use it as an internal test system (vendored, cited Li & Bo 2010 + MATPOWER, not in client deliverables) as with RTS-GMLC (DECISIONS 34)? rec yes.
-- 2026-11-26 W7a: gate-1 is merge-ready. The scheduled-task prompt says runs must never merge to main or mark a gate done, so W7's merge (pre-approved in DECISIONS 33 item 7) was not executed. Either (a) merge `gate-1` → `main` yourself (resolve CLAUDE.md by taking gate-1's version), mark Gate 1 DONE, create `gate-2`; or (b) amend the scheduled prompt to allow it and re-open W7b for a run. rec (a). Details: reports/gate-1-merge-readiness.md.
+- (answered 2026-11-26, DECISIONS 37–38: yes to all) P3, P5, P8, P9, P10 items and W7a (owner: merge gate-1 now); Gate 2 criteria approved.
+- (answered 2026-11-26, yes) 2026-11-26 P10: EIA mapping draft (docs/drafts/eia-mapping.md §end) has 10 yes/no items, all rec yes — e.g. summer net capacity as k0_mw; PUDL preferred over raw EIA; hand-built PJM TO→zone map; 860 Minimum Load accepted only after CEMS cross-check; run pin_mode=record eia860/eia923 workflows to clear verify list. Also: prep list is exhausted — add prep items or do W7b.
+- (answered 2026-11-26, yes) 2026-11-26 P9: storage study outline (docs/drafts/storage-study-outline.md §end) has 6 yes/no items, all rec yes — e.g. headline = perfect-foresight value × haircut; capacity shown collar on and off; extend M8.1 to 2/4/6/8 h; 2 h ELCC assumed (no PJM class). Review at Gate 15.
+- (answered 2026-11-26, yes) 2026-11-26 P8: 2026/27–2028/29 BRAs all cleared at the collar cap, so M7.1 (≤$25 or ≤20%) would pass trivially. Use 2024/25 and 2025/26 as the pass/fail M7.1 years and report capped years only vs PJM's uncollared simulation + MW shortfall? rec yes. (Also: model year y ↔ delivery year June y–May y+1; details in docs/drafts/pjm-rpm-notes.md.)
+- (answered 2026-11-26, yes) 2026-11-26 P5: `data/common/sources.csv` lacks an `rts_gmlc` row; adding it changes the sha256 pinned in T1–T4 manifests. P5 uses a case-local sources copy. OK to append the row + re-hash T* manifests in one commit (at Gate 4)? rec yes. Also: heat-rate choice (secant incremental, no no-load) wants a DECISIONS entry at Gate 4.
+- (answered 2026-11-26, yes) 2026-11-26 P3: MATPOWER's LICENSE excludes case files from BSD-3 (`case5.m` is "distributed with permission"). OK to use it as an internal test system (vendored, cited Li & Bo 2010 + MATPOWER, not in client deliverables) as with RTS-GMLC (DECISIONS 34)? rec yes.
+- (answered 2026-11-26, yes) 2026-11-26 W7a: gate-1 is merge-ready. The scheduled-task prompt says runs must never merge to main or mark a gate done, so W7's merge (pre-approved in DECISIONS 33 item 7) was not executed. Either (a) merge `gate-1` → `main` yourself (resolve CLAUDE.md by taking gate-1's version), mark Gate 1 DONE, create `gate-2`; or (b) amend the scheduled prompt to allow it and re-open W7b for a run. rec (a). Details: reports/gate-1-merge-readiness.md.
 - (answered 2026-11-26, DECISIONS 34: yes) 2026-11-26 P1: RTS-GMLC has no LICENSE file and no terms in README. OK to use it as an internal test system (vendored subset in repo, cited, not in client deliverables) until terms are confirmed? rec yes.
 - (answered 2026-11-26, DECISIONS 33: yes to all) 2026-11-26 W6: Gate 1 review — 9 yes/no decisions in reports/gate-1-review.md (all rec yes; merge after W6 fixes + green CI).
 - (answered 2026-11-24) — all Gate 0 review items 1–16; see DECISIONS.md 26–30.

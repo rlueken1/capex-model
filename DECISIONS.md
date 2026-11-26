@@ -137,3 +137,13 @@
     code already omits it); stacking readers take it from `run.json`. Reason: DECISIONS 35(d) put the random run_id in
     the assumptions book, which made byte-identity impossible as worded. Rejected: a deterministic run_id (two runs
     would share an id) and dropping run_id from the book (undoes C2). Verifier updates its test in W6-fix1-test.
+
+2026-11-26 (owner)
+37. Gate 1 approved; owner instructed the merge of `gate-1` into `main` (done 2026-11-26; CLAUDE.md conflict resolved
+    with gate-1's version; 460 tests pass on main). `gate-2` created from `main`, prep branch P1–P10 merged into it.
+38. Owner answered yes to every open recommendation: P3 (MATPOWER case5.m used as an internal test system, vendored and
+    cited, not in client deliverables); P5 (append an `rts_gmlc` row to data/common/sources.csv and re-hash T1–T4
+    manifests in one commit at Gate 4; heat-rate choice gets its DECISIONS entry at Gate 4); P8 (M7.1 pass/fail years are
+    2024/25 and 2025/26; collar-capped years reported against PJM's uncollared simulation + MW shortfall); P9 (all 6
+    storage-study outline items, applied at Gate 15); P10 (all 10 EIA-mapping items); Gate 2 criteria
+    (docs/gates/gate-2.md) approved as drafted. Gate 3 and Gate 5 drafts stay DRAFT until their own boundary.

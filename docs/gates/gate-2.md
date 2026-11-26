@@ -1,6 +1,6 @@
 # Gate 2 — CI + data-download workflow: exit criteria
 
-Status: **DRAFT (prep item P2, 2026-11-26) — not approved. Owner approves (or amends) at the Gate 1 → Gate 2 boundary.**
+Status: **APPROVED by owner 2026-11-26 (DECISIONS 38).** Drafted in prep item P2.
 Criteria are frozen once approved (docs/gates/README.md). Branch `gate-2`, created from `gate-1` after the owner merges Gate 1.
 Spec: docs/formulation.md F-0.2 (amendments 1–4). No LP change in this gate (DECISIONS 26: simplest model first).
 
