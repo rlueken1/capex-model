@@ -31,6 +31,8 @@ jobs:
           print("HiGHS", highspy.Highs().version())
           print("OS", platform.platform())
           PY
+      - name: Parse workflow files
+        run: python scripts/check_workflows.py
       - name: Check xfail/skip markers (C5)
         run: |
           python scripts/check_markers.py --self-test || test $? -eq 1

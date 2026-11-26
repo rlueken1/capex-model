@@ -76,7 +76,8 @@ jobs:
         if: steps.fetch.outputs.fetched != 'true'
         env:
           SOURCE_ID: ${{ inputs.source_id }}
-        run: echo "data-download $SOURCE_ID: skipped (disabled or secret not set); nothing uploaded" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "data-download $SOURCE_ID: skipped (disabled or secret not set); nothing uploaded" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload artifact
         if: steps.fetch.outputs.fetched == 'true'
