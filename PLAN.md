@@ -111,7 +111,7 @@ One per session, strictly in order; claim before work (CLAUDE.md).
 - [x] G2-5 Verifier [Sonnet]: tests from the spec for F3, F4, F5, P1-a and for the C5 checker (a marker without a reason fails).
 - [x] G2-6 Formulation lead [Opus]: P1-b decision (keep or exclude `sources.csv` from case manifests) + DECISIONS entry; refresh
   gate-2.md header to "approved".
-- [ ] G2-7 Verifier [Sonnet]: `reports/gate-2-evidence.md` (§5 parts 1–8). Trigger workflow_dispatch runs with `gh workflow run`
+- [~] G2-7 Verifier [Sonnet]: `reports/gate-2-evidence.md` (§5 parts 1–8). Trigger workflow_dispatch runs with `gh workflow run` (claimed 2026-11-26T20:24:38Z)
   if the session can; otherwise list the exact dispatches under "Needs owner".
 - [ ] G2-8 PM [Sonnet] + markets reviewer [Sonnet] (1 subagent): `reports/gate-2-review.md` pass/fail table and owner yes/no
   list; STATUS: AWAITING_OWNER_REVIEW.
