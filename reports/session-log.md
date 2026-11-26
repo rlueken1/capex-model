@@ -187,3 +187,5 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 - NOT done: copy to `main` (DECISIONS 41) — push to main blocked in this unattended run; scheduled prompt says never on main. Owner action; G2-7b waits.
 
 2026-11-26T22:24Z skipped: nothing claimable — G2-7b blocked (fixed data-download.yml still not on `main`, owner action in Needs owner); all prep items P1–P10 done.
+
+2026-11-26T23:25Z skipped: nothing claimable — G2-7b still blocked (main data-download.yml unchanged at f123ad1; owner action in Needs owner); prep P1–P10 done.
