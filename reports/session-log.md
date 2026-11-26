@@ -73,3 +73,8 @@
   solutions), `MANIFEST.csv` (sha256 of every upstream file, vendored flag), `PROVENANCE.md`; data-sources.md registry row updated.
   Tests: 438 passed / 0 failed. Found: fingerprint breaks on untracked paths with spaces; sources.csv edit breaks case manifests (row deferred to P5).
   Needs owner: RTS-GMLC licence unverified (no LICENSE file) — OK for internal test use? Next: P2.
+
+2026-11-26 W6-spec1 (formulation lead, Opus, gate-1) — spec only, no code.
+- F-0.2 amendment 3 / DECISIONS 35: CAPACITY_RENT hours attributed to INVESTMENT_MARGIN units, else highest-MC rent-set unit; full set in `rent_ids` (M1).
+- `rents.rent_note` = `non-unique (bound)` for x = 0 candidates (M2); every `rents` column's unit named in data-schema §5 (C1); assumptions-book header + toy banner (C2); T2a typo 60·0.9 (M6).
+- Tests not run (no code change). Next: W6-fix1 builder. Nothing needs the owner.

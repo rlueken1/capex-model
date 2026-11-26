@@ -116,3 +116,14 @@
     criteria of the gates named (P2 and later gate drafts).
 34. RTS-GMLC licence (P1): no LICENSE file upstream; owner approves use as an internal test system (subset vendored in
     `cases/raw/rts_gmlc/`, cited) and never in client deliverables until terms are confirmed.
+
+2026-11-26 (formulation lead, W6-spec1 — spec from W6 findings M1, M2, M6, C1, C2; owner pre-approved by DECISIONS 33 item 8)
+35. F-0.2 amendment 3 (reporting only; LP, duals, price checks and thresholds unchanged; version stays F-0.2). (a) M1, new rule:
+    a `CAPACITY_RENT` hour's setters are the rent-set units (at cap, ρ > tol_π) with an interior build (`INVESTMENT_MARGIN`),
+    else the rent-set unit(s) with the highest MC (`DEGENERATE`); only setters share the hour in the summary; the full rent
+    set goes in new column `rent_ids`; `setter_cost` stays the interval lower end max MC at cap (formulation §4). Reason: on a
+    real fleet nearly every unit is at cap in scarcity hours, so equal splitting would credit nuclear/coal as price-setters.
+    (b) M2: `rents.rent_note` = `non-unique (bound)` for candidates with build_status `at_zero` (§8 item 5). (c) C1:
+    data-schema §5 `rents` names the unit of every column ($/yr totals vs $/MW-yr, $/MWh-yr per unit). (d) C2: assumptions
+    book starts with run_id/fingerprint (= run.json), case, base $ year, and a "Toy case: all inputs assumed…" banner when
+    no input cell is observed/derived/estimated (§8 item 11; data-sources.md). (e) M6: §10 T2a typo, v = 60·0.9 = 54.

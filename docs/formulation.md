@@ -11,6 +11,10 @@ zero storage capacity (§3 check 7, T2c in §10). The LP itself is unchanged, so
 F-0.2 amendment 2 (W5-spec1, 2026-11-26, DECISIONS 32): wording only — §6.2 states that infeasibilities are
 measured on the scaled LP and splits the "RHS ratio / any finite bound" row into a ratio metric and a magnitude
 metric (the code's reading, ratified); §5.2 `ANN ≥ I/n` check limited to PFF ≥ 1. LP and thresholds unchanged.
+F-0.2 amendment 3 (W6-spec1, 2026-11-26, DECISIONS 35): reporting only — §4 `CAPACITY_RENT` hours are attributed to
+the `INVESTMENT_MARGIN` unit(s), else to the highest-MC unit in the rent set, with the full rent set in `rent_ids`;
+§8.5 rents of $x=0$ candidates flagged `non-unique (bound)`; §8.11 assumptions-book run header and toy banner;
+§10 T2a typo ($v = 60\cdot0.9$). LP, duals, price checks and thresholds unchanged.
 Scope of authority: code in `src/capex/` implements this file. Any deviation changes this
 file in the same commit and is logged in `DECISIONS.md`. Constraint/variable labels in
 `code font` are the identifiers used in code, audit output and tests.
@@ -258,10 +262,19 @@ match is recorded, the first class matched is the *primary* class:
 | `TIE_AT_BOUND` | $r$ at a bound with $\lvert MC_r-\pi\rvert\le tol_\pi$ | (same) |
 | `CAPACITY_RENT` | none of the above; every resource in the island with $MC<\pi - tol_\pi$ is at cap; at least one resource at cap with $\rho>tol_\pi$ | $\max MC_{\text{at cap}} - tol_\pi \le \pi \le \min(\text{VOLL}, \min MC_{\text{with room}}) + tol_\pi$ |
 
-`CAPACITY_RENT` is attributed to the at-cap resources with $\rho>0$; sub-tag
-`INVESTMENT_MARGIN` if any of them has an interior build ($0<x<X^{max}$; the price recovers
-its capex, cf. T1, T3b), else `DEGENERATE` (price is not unique: any value in the check
-interval is optimal; reported with the interval). Units attributed outside zone $z$ get
+`CAPACITY_RENT` attribution (amendment 3). Let the **rent set** $S$ be the at-cap resources in
+the island with $\rho>tol_\pi$; it is reported in full in column `rent_ids` (sorted ids; empty
+for every other class). The **setters** (`setter_ids`, and the hour's attribution in the
+summary) are a subset of $S$:
+1. if some $r\in S$ has an interior build ($0<x_r<X^{max}_r$, i.e. `build_status` = `interior`),
+   the setters are all such $r$; sub-tag `INVESTMENT_MARGIN` (the price recovers their capex,
+   cf. T1, T3b);
+2. else the setter is the $r\in S$ with the largest $MC_r$ (all $r\in S$ with
+   $MC_r \ge \max_S MC - tol_\pi$ on a tie); sub-tag `DEGENERATE` (price is not unique: any
+   value in the check interval is optimal; reported with the interval).
+Reason: on a real fleet almost every unit is at cap in a scarcity hour, so attributing the hour
+to all of $S$ would count nuclear and coal as price-setters in the marginal-fuel shares. The
+class's condition and price check are unchanged. Units attributed outside zone $z$ get
 the flag `IMPORT` plus the list of binding links on the island boundary (`CONGESTED`).
 
 **Step 2 — unexplained.** If no class matches, or the matched class fails its price check,
@@ -273,9 +286,11 @@ cost term of the class's price check, so `residual` is within $tol_\pi$ of 0 for
 `BLACKOUT` and `CAPACITY_RENT`: `MARGINAL_UNIT`/`TIE_AT_BOUND` $MC_r$; `STORAGE_DIS` $VOM_r + v_{r,p,t}/\eta^d_r$
 (not $VOM_r$ alone); `STORAGE_CH` $\eta^c_r v_{r,p,t}$; `VOLL` VOLL; `BLACKOUT` VOLL (residual $=\mu^{use}\ge0$);
 `CAPACITY_RENT` the interval's lower end $\max MC_{\text{at cap}}$ (residual = scarcity rent), with the interval
-reported in `price_lo`/`price_hi`. Several setters: mean of their costs. Aggregate: share of
+reported in `price_lo`/`price_hi` (this does not change with the setter subset). Several setters (other
+classes): mean of their costs. Further column `rent_ids` (the `CAPACITY_RENT` rent set $S$, else empty). Aggregate: share of
 weighted hours ($\sum w_p$) by marginal fuel/tech per zone — the IMM comparison metric.
-Ties between several marginal units split the hour equally among them.
+Ties between several marginal units split the hour equally among them; a `CAPACITY_RENT` hour is split
+equally among its setters only (not among all of `rent_ids`).
 
 Later classes (inserted before `CAPACITY_RENT`, by gate): `RESERVE_ORDC` (G7: price includes
 reserve shadow price via headroom coupling), `LOSS_HURDLE` (G8: island test becomes
@@ -479,6 +494,9 @@ demand curve as stepped benefit segments with ELCC-accredited supply $\sum_r \te
 3. **Binding-constraint report**: per label family, count/share of binding rows (slack $\le tol$) weighted by $w_p$; list of binding bounds (`x_ub`, `flow_*`, `use_ub`).
 4. **Objective decomposition**: $Z^{inv}$ by resource, $Z^{var}$ by resource and fuel, $Z^{use}$ by zone, $Z^0$; must sum to $Z$ within $10^{-9}$ relative.
 5. **Revenue/rent table** per resource: energy revenue, variable cost, rents $R$, $C^{fix}$, profit; zero-profit flags (§3 check 5–6).
+   Column units in data-schema §5 (`rents`). Column `rent_note` = `non-unique (bound)` for every candidate with
+   `build_status` = `at_zero` (amendment 3): its column is at the lower bound, so $R$, $R^P$, $R^E$ and `excess_rent`
+   are one vertex of a dual interval (cf. T2c, T3a) and must not be read as the cost cut needed to build; empty otherwise.
 6. **Storage**: SOC trajectories, cyclic closure residual, **SOC-row recomputation residual** from case data
    (§3 check 8, health check `storage.soc_recompute`), `simul_chdis` hours, water values.
 7. **Price-setter report** (§4) and `UNEXPLAINED` count; marginal fuel shares per zone.
@@ -486,6 +504,10 @@ demand curve as stepped benefit segments with ELCC-accredited supply $\sum_r \te
 9. **Conditioning report** (§6.2).
 10. **Run fingerprint**: SHA-256 over (canonical input tables: sorted, fixed float repr; config incl. all switches; formulation version string `F-x.y`; git commit + dirty-diff hash; solver name, version, all options; Python and package versions; clustering seed); stored with run id, timestamps, solve time, model size. Same fingerprint ⇒ bit-identical outputs expected.
 11. **Assumptions book** (from data layer): provenance mix by parameter, dollar-year conversions, annualization table.
+   Starts with the run header of data-sources.md "Assumptions book format" item 1 (run_id and fingerprint equal to
+   `run.json`, case, base dollar year); for a case with no input cell whose `method` is observed, derived or estimated,
+   the header adds the banner line "Toy case: all inputs assumed; numbers are illustrative, not PJM estimates."
+   (amendment 3).
 
 ---
 
@@ -523,7 +545,7 @@ Existing: G1 100 MW $MC=20$; G2 200 MW $MC=60$. Demand $t=1..36$: 50 MW, $t=37..
 Storage $\eta^c=\eta^d=0.9$, $VOM=0$, duration 4 h.
 - **T2a** existing storage $P^0=10$ MW, $E^0=40$ MWh. Prices 20 / 60 (G1 / G2 marginal). Per period: charge
   $40/0.9 = 44.4\overline4$ MWh, discharge $36$ MWh (hourly schedule not unique). Water value $v = 20/0.9 = 22.2\overline2$ during
-  charging, $v = 60/0.9 = 54$ during discharging; $R^E = w(54-22.2\overline2) = 3\,866.30$ $/MWh-yr, $R^P = 0$.
+  charging, $v = 60\cdot0.9 = 54$ during discharging ($\pi = v/\eta^d$); $R^E = w(54-22.2\overline2) = 3\,866.30$ $/MWh-yr, $R^P = 0$.
   Net revenue $= w(60\cdot36-20\cdot44.4\overline4) = 154\,651.85$ $/yr $= R^E E^0$. $Z = 26\,125\,348.15$ $ (vs 26 280 000 without storage).
 - **T2b** candidate storage, $C^P=0$, $C^E=3\,000$, $\underline\delta=\overline\delta=4$, $X^{P,max}=10$, $X^{E,max}=40$: builds 10 MW/40 MWh
   (at bound); combined excess rent $(R^P+4R^E)-(C^P+4C^E) = 4(3\,866.30-3\,000)=3\,465.19$ $/MW-yr $\ge 0$; $Z=26\,280\,000-154\,651.85+120\,000 = 26\,245\,348.15$.
