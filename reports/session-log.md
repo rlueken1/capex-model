@@ -121,3 +121,9 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
   only (src not read). Independent scipy DC-OPF self-checks: 21 pass, 1 strict xfail (gate-3.md surplus 14,957.28 vs 14,957.29, rounding).
   Model-facing P5a–P5f, §4 health checks, M7–M10: 29 skipped until Gate 3; 12 SPEC-GAP notes for Gate 3 W-spec.
   Tests: full suite 459 passed / 29 skipped / 1 xfailed / 0 failed. Needs owner: nothing new (fix 14,957.29 when approving gate-3.md).
+
+## 2026-11-26 — P7 (prep, formulation lead [Opus])
+- Item: Gate 5 representative-period spec draft. Result: `docs/drafts/gate5-rep-periods-spec.md` + DRAFT `docs/gates/gate-5.md` on `prep` (d5eca74).
+- Choices: Ward + medoid (no seed, byte-deterministic), forced extreme blocks at weight 1, annual-total rescaling switch, Kotzur superposition SOC linking.
+- Tests: none run (spec only); toy T5 expected values cross-checked with an independent scipy LP.
+- Owner: 10 yes/no items at end of gate-5.md, notably a test-only full-chronology expansion run on RTS-GMLC (exception to DECISIONS 3). Next prep: P8.
