@@ -108,7 +108,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   only, not scheduled; caches to artifacts; never commits raw data. Draft for Gate 2 review.
 - [x] P5 Data lead [Sonnet]: convert the P1 RTS-GMLC raw data into the model's input schema (docs/data-schema.md) under
   `cases/rts_gmlc/` with provenance; loader smoke check only. Needs P1 done.
-- [ ] P6 Verifier [Sonnet]: draft `tests/draft/test_pjm5bus.py` from the P2 Gate 3 draft (expected LMPs/congestion),
+- [~] P6 Verifier [Sonnet]: draft `tests/draft/test_pjm5bus.py` from the P2 Gate 3 draft (expected LMPs/congestion), (claimed 2026-11-26T09:56:23Z)
   marked skip until Gate 3. Needs P2 done.
 - [ ] P7 Formulation lead [Opus]: detail §7.1 representative-period selection (clustering features incl. daily fuel
   price, forced peak/scarcity/extreme periods, weights, inter-period SOC linking) into a Gate 5 spec draft.
