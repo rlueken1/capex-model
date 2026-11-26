@@ -80,7 +80,7 @@ Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in ord
 - [x] W6-spec1 Formulation lead [Opus], branch `gate-1`, spec only: §4 CAPACITY_RENT hour attributed to the INVESTMENT_MARGIN
   unit, else the highest-MC at-cap unit, full list in a separate column (M1); data-schema `rents` per-column units (C1); §10 T2a
   typo 60·0.9 (M6). One DECISIONS entry.
-- [ ] W6-fix1 Builder [Sonnet], branch `gate-1`: implement M1; flag x = 0 candidate rents `non-unique (bound)` (M2);
+- [~] W6-fix1 Builder [Sonnet], branch `gate-1`: implement M1; flag x = 0 candidate rents `non-unique (bound)` (M2); (claimed 2026-11-26T07:17:27Z)
   assumptions-book header (run_id, fingerprint, base $ year, "toy case, illustrative only") (C2). Builder smoke tests only.
 - [ ] W6-fix1-test Verifier [Sonnet], branch `gate-1`: tests for M1, M2, C2 from the amended spec; full pytest + CI green.
 - [ ] W7 PM [Sonnet], branch `gate-1`: confirm W6-spec1/fix1/fix1-test done and CI green on the final gate-1 commit; then
