@@ -100,8 +100,8 @@ Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in ord
 One per session, strictly in order; claim before work (CLAUDE.md).
 - [x] G2-1 Builder [Sonnet]: CI criteria C1–C4, C8–C9 — `requirements-ci.txt` (exact pins), `ubuntu-24.04`, version block,
   junit XML + log artifacts, runtime report, pytest-socket (no network in tests). Builder smoke checks only.
-- [ ] G2-2 Builder [Sonnet]: CI criteria C5–C7 — `xfail_strict`, marker-reason checker script, health-run job over T1–T4 with
-  output artifacts, two-job fingerprint comparison with different PYTHONHASHSEED.
+- [~] G2-2 Builder [Sonnet]: CI criteria C5–C7 — `xfail_strict`, marker-reason checker script, health-run job over T1–T4 with
+  output artifacts, two-job fingerprint comparison with different PYTHONHASHSEED. (claimed 2026-11-26T14:24:11Z)
 - [ ] G2-3 Builder [Sonnet]: data-download workflow D1–D8 end to end for `pjm5` (pinned MATPOWER case5.m) using the P4 draft;
   consumer-side verify script. EIA/ATB steps stay declared-but-disabled.
 - [ ] G2-4 Builder [Sonnet]: carried code findings F3, F4, F5, P1-a (gate-2.md §4). No verifier tests here.
