@@ -322,17 +322,17 @@ def cs_and_signs(sv):
         d_lo = act[i] - rlo[i] if np.isfinite(rlo[i]) else np.inf
         d_hi = rhi[i] - act[i] if np.isfinite(rhi[i]) else np.inf
         if y[i] > 0:
-            cs = max(cs, abs(y[i]) * d_lo)
+            cs = max(cs, abs(y[i]) * d_lo) if np.isfinite(rlo[i]) else cs   # CS only vs a finite side;
             viol = max(viol, y[i] if not np.isfinite(rlo[i]) else 0.0)
         elif y[i] < 0:
-            cs = max(cs, abs(y[i]) * d_hi)
+            cs = max(cs, abs(y[i]) * d_hi) if np.isfinite(rhi[i]) else cs   # dual on an infinite side -> viol
             viol = max(viol, -y[i] if not np.isfinite(rhi[i]) else 0.0)
     for j in range(len(s)):
         if s[j] > 0:
-            cs = max(cs, s[j] * (x[j] - clo[j]))
+            cs = max(cs, s[j] * (x[j] - clo[j])) if np.isfinite(clo[j]) else cs
             viol = max(viol, s[j] if not np.isfinite(clo[j]) else 0.0)
         elif s[j] < 0:
-            cs = max(cs, -s[j] * (chi[j] - x[j]) if np.isfinite(chi[j]) else abs(s[j]))
+            cs = max(cs, -s[j] * (chi[j] - x[j])) if np.isfinite(chi[j]) else cs
             viol = max(viol, -s[j] if not np.isfinite(chi[j]) else 0.0)
     # dual objective: sum_i b_i y_i + sum_j bound_j s_j with b/bound the side the dual prices
     dual = 0.0

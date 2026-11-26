@@ -82,7 +82,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 ## Next
 W4c (verifier, Sonnet): full pytest run + CI; `reports/gate-1-evidence.md` (all 8 parts of gate-1.md §5) and the
-pass/fail table in `reports/gate-1-review.md`. W4b-v done 2026-11-26 (427 pass / 0 fail / 0 xfail locally).
+pass/fail table in `reports/gate-1-review.md`. W4b-v done 2026-11-26 (428 pass / 0 fail / 0 xfail locally; CI-only cs=inf helper bug fixed).
 Then W5 → W6.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 

@@ -40,5 +40,6 @@
   Note for W5: builder smoke tests import helpers from tests/healthlib.py (verifier file) — harmless, but W5 may ask for separation.
   Needs owner: nothing. Next: W4b-v.
 - 2026-11-26 W4b-v (verifier, Sonnet subagent; main session re-ran pytest) on `gate-1`: from amended spec (DECISIONS 31) — removed 2 strict xfails now passing (STORAGE_DIS setter_cost = VOM + v/η^d with residual check; VRE without fuel → MC 0); replaced T2c xfails with `test_t2c_combined_rent_inside_degenerate_interval` (R^P+4R^E ∈ [15,465.19, 20,000], scaled + unscaled; 1e-2 slack on the 2-dp lower bound); added direct `storage.soc_recompute` tests (6 toys pass; η swap on S2asym/T2asym and σ dropped on an S2 σ=0.02 variant fail).
-  Tests: 427 pass / 0 fail / 0 xfail / 0 XPASS locally (~29 s). No xfail markers left in tests/. CI: see push.
+  CI run 30 then failed 2 random seeds (7, 9; not touched by this item): test helper `cs_and_signs` multiplied a ~1e-16 noise dual by an infinite slack → cs = inf. Verifier fixed the helper per formulation §1.3 (CS only against a finite side; a dual on an infinite side counts as a sign violation) — thresholds unchanged — plus a synthetic unit test.
+  Tests: 428 pass / 0 fail / 0 xfail / 0 XPASS locally (~30 s). No xfail markers left in tests/. CI: see run after commit 2.
   Needs owner: nothing. Next: W4c.

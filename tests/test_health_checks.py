@@ -585,3 +585,22 @@ def test_soc_recompute_check_fails_when_sigma_ignored_in_lp(monkeypatch, tmp_pat
     sv, h = solve_audit(case_dir)
     assert soc_residual(sv) > 1e-3, "vacuity guard"
     assert _soc_row(h)["status"] == "fail"
+
+
+# ================================================================== helper unit test: cs_and_signs on infinite sides
+def test_cs_and_signs_noise_dual_on_infinite_side_is_sign_violation_not_inf_cs():
+    """Formulation 1.3: CS is defined only against a finite side. A tiny dual on an infinite side (solver noise) is a
+    sign violation (reported in `viol`), never |y| * inf = inf in the CS term. Thresholds are untouched."""
+    from types import SimpleNamespace as NS
+    inf = np.inf
+    # 2 rows: row0 is <= only (rlo=-inf), row1 is >= only (rhi=+inf); 2 cols: col0 has no lower, col1 no upper bound.
+    lp = NS(a=sp.csr_matrix(np.eye(2)), c=np.zeros(2), row_lo=np.array([-inf, 1.0]), row_hi=np.array([5.0, inf]),
+            col_lo=np.array([-inf, 0.0]), col_hi=np.array([10.0, inf]))
+    sol = NS(x=np.array([1.0, 1.0]), row_dual=np.array([1e-16, -1e-16]), col_dual=np.array([1e-16, -1e-16]),
+             row_activity=np.array([1.0, 1.0]))
+    cs, viol, gap = cs_and_signs(NS(lp=lp, sol=sol))
+    assert np.isfinite(cs) and cs <= 1e-8
+    assert 0.0 < viol <= 1e-9
+    # a genuine sign violation of size 1e-3 on an infinite side must still be reported in viol
+    sol.row_dual = np.array([1e-3, 0.0])
+    assert cs_and_signs(NS(lp=lp, sol=sol))[1] >= 1e-3 - 1e-15
