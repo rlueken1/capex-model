@@ -150,3 +150,6 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - ci.yml: push all branches + PR into main; ubuntu-24.04, Py 3.12; exact pins in new requirements-ci.txt; version block (C3); pytest -v --disable-socket --junitxml + log artifacts 30 d (C4, C9); wall-time summary, warn >10 min (C8).
 - Local fresh 3.12 venv, network disabled: 481 pass / 29 skip / 1 xfail / 0 fail. CI result on GitHub: see next run on gate-2.
 - Nothing needs the owner. Next: G2-2.
+- 2026-11-26 G2-2 (builder, Sonnet): CI C5–C7 — xfail_strict, scripts/check_markers.py (+ --self-test), health-run matrix job (2 PYTHONHASHSEEDs, T1–T4, artifacts), compare job (scripts/compare_runs.py, byte-identical canonical outputs; --numeric for local vs CI). Commit d734cc5.
+  Tests: 481 pass / 29 skip / 1 xfail / 0 fail locally; health 7/7 pass; seed compare identical. Checker flags 1 verifier draft marker (tests/draft/test_pjm5bus.py:118, xfail without Gate ref) → new item G2-2-fix (verifier); CI test job red on C5 step until then (planned).
+  Needs owner: nothing.

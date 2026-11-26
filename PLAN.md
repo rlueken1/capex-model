@@ -100,8 +100,11 @@ Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in ord
 One per session, strictly in order; claim before work (CLAUDE.md).
 - [x] G2-1 Builder [Sonnet]: CI criteria C1–C4, C8–C9 — `requirements-ci.txt` (exact pins), `ubuntu-24.04`, version block,
   junit XML + log artifacts, runtime report, pytest-socket (no network in tests). Builder smoke checks only.
-- [~] G2-2 Builder [Sonnet]: CI criteria C5–C7 — `xfail_strict`, marker-reason checker script, health-run job over T1–T4 with
-  output artifacts, two-job fingerprint comparison with different PYTHONHASHSEED. (claimed 2026-11-26T14:24:11Z)
+- [x] G2-2 Builder [Sonnet]: CI criteria C5–C7 — `xfail_strict`, marker-reason checker script, health-run job over T1–T4 with
+  output artifacts, two-job fingerprint comparison with different PYTHONHASHSEED.
+- [ ] G2-2-fix Verifier [Sonnet]: `tests/draft/test_pjm5bus.py:118` is a strict xfail with no `Gate <n>`/`DECISIONS <n>` in its
+  reason and drafts must be skips (C5) → make it a skip citing `Gate 3` (keep the 14,957.28 vs .29 note). CI `test` job is red on
+  the C5 marker step until then (planned, not a regression). Run `scripts/check_markers.py` + full pytest; CI green.
 - [ ] G2-3 Builder [Sonnet]: data-download workflow D1–D8 end to end for `pjm5` (pinned MATPOWER case5.m) using the P4 draft;
   consumer-side verify script. EIA/ATB steps stay declared-but-disabled.
 - [ ] G2-4 Builder [Sonnet]: carried code findings F3, F4, F5, P1-a (gate-2.md §4). No verifier tests here.
@@ -139,6 +142,8 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+G2-2-fix (verifier): one draft marker in tests/draft/test_pjm5bus.py fails the new C5 check; then G2-3.
+G2-2 done 2026-11-26 (d734cc5): `xfail_strict = true`; `scripts/check_markers.py` (ast; `--self-test` must exit 1) as a CI step; `health-run` matrix job (PYTHONHASHSEED 0/12345) runs T1, T2a–c, T3a–b, T4 via `python -m capex run` with `scripts/ci_health_run.py` (fails on health `fail` or UNEXPLAINED), uploads `health-seed-<seed>`; `compare` job runs `scripts/compare_runs.py` (fingerprints + canonical outputs byte-identical; `--numeric` = local-vs-CI obj/π rel 1e-9). Local: 481 pass / 29 skip / 1 xfail / 0 fail; 7/7 cases healthy and identical across seeds. Not yet proven on Actions.
 G2-2 (builder): CI criteria C5–C7 (xfail_strict, marker-reason checker, health-run job, two-job fingerprint comparison).
 G2-1 done 2026-11-26: ci.yml on ubuntu-24.04/Py 3.12, installs from exact-pinned `requirements-ci.txt` (numpy 2.5.3, scipy 1.18.1, pandas 3.0.5, highspy 1.16.0, pytest 9.1.1, pytest-socket 0.8.1) + `-e . --no-deps`; version block via `capex.audit.fingerprint.package_versions()` + HiGHS; `pytest -v --disable-socket --junitxml`, junit+log artifacts 30 d; wall time in step summary (warn >10 min); `contents: read`, no secrets. Local, network off: 481 pass / 29 skip / 1 xfail / 0 fail. Note: pyproject `test` extra lacks pytest-socket/pandas (CI uses the pins).
 P9 done 2026-11-26 on `prep` (8c68935): DRAFT `docs/drafts/storage-study-outline.md` (258 lines, 8 sources, 25 "(verify)"). Revenue stack energy+reserves+capacity (ELCC×BRA) vs ATB annualized cost by 2/4/6/8 h; 4 h capacity ≈ $60–71/kW-yr at collared 2026/27–2028/29 BRAs, $119.5 uncollared sim (computed); perfect-foresight haircut; 6 owner decisions at end. Gaps: no PJM 2 h ELCC class; no public PJM arbitrage/reserve revenue ranges found (IMM SOM to read). Next prep: P10.
