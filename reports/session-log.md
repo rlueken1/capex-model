@@ -189,3 +189,4 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 2026-11-26T22:24Z skipped: nothing claimable — G2-7b blocked (fixed data-download.yml still not on `main`, owner action in Needs owner); all prep items P1–P10 done.
 
 2026-11-26T23:25Z skipped: nothing claimable — G2-7b still blocked (main data-download.yml unchanged at f123ad1; owner action in Needs owner); prep P1–P10 done.
+2026-11-26T23:30Z live session (owner): copied fixed data-download.yml to `main` (9671c02, DECISIONS 41); workflow `data-download` registered/active. G2-7b unblocked.
