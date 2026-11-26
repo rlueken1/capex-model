@@ -116,7 +116,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   classes, BRA timing) as `docs/drafts/pjm-rpm-notes.md`, every number cited or marked "verify".
 - [x] P9 Consulting reviewer [Sonnet]: outline of the Gate 15 storage value study (`docs/drafts/storage-study-outline.md`):
   client questions, outputs, charts, sanity ranges.
-- [ ] P10 Data lead [Sonnet]: EIA-860/923 field mapping to data-schema.md (`docs/drafts/eia-mapping.md`), incl. the
+- [~] P10 Data lead [Sonnet]: EIA-860/923 field mapping to data-schema.md (`docs/drafts/eia-mapping.md`), incl. the (claimed 2026-11-26T11:15Z)
   estimation hierarchy for missing heat rates, min gen, ramp, outage rates.
 
 
