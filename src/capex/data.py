@@ -416,15 +416,15 @@ def build_gen(res: pd.DataFrame, factors: np.ndarray, ann: pd.DataFrame, tables:
     vom = np.nan_to_num(_num(sub, "vom_usd_mwh")) * f
     hr = np.nan_to_num(_num(sub, "heat_rate_mmbtu_mwh"))
     override = _num(sub, "mc_override_usd_mwh") * f
+    fuel = sub["fuel"].fillna("none").to_numpy() if "fuel" in sub.columns else np.full(len(sub), "none")
     mc = np.zeros((len(sub), len(periods), T))
-    for i, row in sub.iterrows():
+    for i in range(len(sub)):
         if pd.notna(override[i]):
             mc[i] = override[i]
         else:
-            fuel_cost = phi[fuel_map[row["fuel"]]] * hr[i] if row["fuel"] in fuel_map else 0.0
+            fuel_cost = phi[fuel_map[fuel[i]]] * hr[i] if fuel[i] in fuel_map else 0.0
             mc[i] = fuel_cost + vom[i]
     ids = list(sub["resource_id"])
-    fuel = sub["fuel"].fillna("none").to_numpy() if "fuel" in sub.columns else np.full(len(sub), "none")
     k0 = np.nan_to_num(_num(sub, "k0_mw"))
     xmax = _num0(sub, "xmax_mw")
     fom0 = np.nan_to_num(_num(sub, "fom_usd_mw_yr")) * f * k0

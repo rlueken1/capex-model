@@ -174,6 +174,13 @@ class _Ctx:
                 "tech": np.full(n_z, "unserved"), "fuel": np.full(n_z, "none"),
                 "cost": np.full((n_z, n_p, n_t), case.voll)}
 
+    def _storage_costs(self, name: str, members: np.ndarray, p: int, t: int) -> list[float]:
+        """Section 4 Outputs: STORAGE_DIS cost VOM + v/eta_d, STORAGE_CH cost eta_c v (v = water value)."""
+        st, v = self.sv.case.storage, self.eco.v[members, p, t]
+        if name == "STORAGE_DIS":
+            return list(st.vom[members] + v / st.eta_d[members])
+        return list(st.eta_c[members] * v)
+
     def record(self, z: int, p: int, t: int) -> tuple[dict, list[tuple]]:
         """Table row and (zone, tech, fuel, class, hours) pieces for the summary, for one zone-hour."""
         case, price = self.sv.case, self.eco.pi[z, p, t]
@@ -207,6 +214,8 @@ class _Ctx:
             flags.append("CONGESTED")
         if self.touching_bad[z, :, p, t].any():
             flags.append("LINK_INCONSISTENT")
+        if explained and cls.kind == "storage":
+            costs = self._storage_costs(cls.name, members, p, t)
         cost = float(np.mean(costs)) if costs else np.nan
         all_classes = [PRIMARY_NAME.get(c.name, c.name) + (":BLACKOUT" if c.name == "VOLL_BLACKOUT" else "")
                        for c, m in zip(self.classes, matched) if m]

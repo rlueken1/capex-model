@@ -55,7 +55,7 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
   gate-1.md §3; (b) confirm §4 STORAGE_DIS residual = π−VOM−v/η_d; (c) data-schema §3: `fuel` optional for VRE
   (zero-fuel when no `mc_override`); (d) T2c: x^E=0 duals are degenerate → gate-1.md §2/§3 test T2c unscaling on
   primal + π only and "rent ≤ cost". One DECISIONS entry (31). Deliverable: spec diff + DECISIONS 31.
-- [ ] W4b-fix2 Builder [Sonnet], branch `gate-1`: implement W4b-fix1 (a)–(c) in `capex.audit` / loader; builder smoke
+- [x] W4b-fix2 Builder [Sonnet], branch `gate-1`: implement W4b-fix1 (a)–(c) in `capex.audit` / loader; builder smoke
   tests only; do not edit verifier tests. Done when the M4 mutation test passes and the STORAGE_DIS and VRE xfails
   XPASS. Expect CI red on strict XPASS until W4b-v (planned, not a failure).
 - [ ] W4b-v Verifier [Sonnet], branch `gate-1`: from the amended spec only — remove fixed xfail markers; rewrite T2c
@@ -69,10 +69,11 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
   sense of T1–T4 and audit readability; PM writes the 7-item owner decision list (gate-1.md §6); STATUS: AWAITING_OWNER_REVIEW.
 
 ## Next
-W4b-fix2 (builder, Sonnet): implement DECISIONS 31 (a)–(c) — `storage.soc_recompute` health check from case-data η/σ
-(formulation §3 check 8), per-class `setter_cost` (§4 Outputs; STORAGE_DIS = VOM + v/η^d), VRE loads without `fuel`
-(MC = 0). W4b-fix1 done 2026-11-25 (spec amendment 1, DECISIONS 31).
-Then W4b-v (verifier; T2c tests to the interval [15,465.19, 20,000] in formulation §10) → W4c → W5 → W6. CI on `gate-1` stays red (run 22) until W4b-v, by design.
+W4b-v (verifier, Sonnet): from the amended spec only — remove the 2 strict xfail markers that now XPASS
+(`test_storage_setter_cost_and_residual_columns_consistent_with_section_4`, `test_vre_without_mc_override_or_fuel_column_loads`);
+rewrite the 2 T2c xfails to the interval [15,465.19, 20,000] (formulation §10); add a direct positive/negative test of
+`storage.soc_recompute`. CI must go green. W4b-fix2 done 2026-11-26 (415 pass / 2 strict XPASS / 2 xfail; M4 caught).
+Then W4c → W5 → W6.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner

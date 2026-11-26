@@ -28,6 +28,7 @@ class Audit:
     rents: pd.DataFrame
     storage: economics.StorageReport
     storage_rc_residual: float
+    soc_residual: float
     curtail_unserved: dict[str, pd.DataFrame]
     price_setter: PriceSetter | None      # None when the solution has no valid basis
 
@@ -40,6 +41,7 @@ def run_audit(sv: Solved) -> Audit:
         binding=duals.binding_report(sv), binding_bounds=duals.binding_bounds(sv),
         objective=economics.objective_decomposition(sv), rents=economics.rent_table(sv, eco),
         storage=economics.storage_report(sv, eco), storage_rc_residual=economics.storage_reduced_cost_residual(sv, eco),
+        soc_residual=economics.soc_recompute_residual(sv),
         curtail_unserved=economics.curtailment_unserved(sv),
         price_setter=price_setter(sv, eco) if sv.sol.basis_valid else None)
 
@@ -107,6 +109,8 @@ def health_checks(sv: Solved, audit: Audit) -> pd.DataFrame:
         _check("decomposition", "decomposition", _decomposition_gap(sv, audit), tol.decomposition_rel,
                f"Z total {sv.z_total:.6f} incl. Z0 {sv.z0:.6f}"),
         _check("storage.closure", "storage", closure, 1e-6, "cyclic energy closure, MWh"),
+        _check("storage.soc_recompute", "storage", audit.soc_residual, 1e-6,
+               "st_soc residual recomputed from case eta_c, eta_d, sigma, MWh"),
         _info("storage.simul_chdis", "storage", n_simul, "hours with simultaneous charge and discharge (not an error)"),
         _check("basis_valid", "price_setter", float(not sv.sol.basis_valid), 0, "basic solution required (section 4)"),
         *_price_setter_checks(sv, audit), *_conditioning_checks(audit)]

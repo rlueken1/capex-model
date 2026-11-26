@@ -141,6 +141,17 @@ def storage_report(sv: Solved, eco: Economics) -> StorageReport:
     return StorageReport(hourly=hourly, closure=closure)
 
 
+def soc_recompute_residual(sv: Solved) -> float:
+    """Max |e_t - (1-sigma) e_t- - eta_c c_t + d_t/eta_d| in MWh from case data and the primal (section 3 check 8)."""
+    st = sv.case.storage
+    if not len(st.ids):
+        return 0.0
+    sig, eta_c, eta_d = (a[:, None, None] for a in (st.sigma, st.eta_c, st.eta_d))
+    e = sv.var("soc")
+    resid = e - (1 - sig) * np.roll(e, 1, axis=2) - eta_c * sv.var("ch") + sv.var("dis") / eta_d
+    return float(np.abs(resid).max())
+
+
 def curtailment_unserved(sv: Solved) -> dict[str, pd.DataFrame]:
     """Curtailment (VRE) and unserved energy, weighted annual MWh (hook 8)."""
     case, gen, wt = sv.case, sv.case.gen, sv.case.w[None, :, None]
