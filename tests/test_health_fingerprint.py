@@ -1,12 +1,12 @@
 """Verifier tests: gate-1.md section 3 row "Run fingerprint determinism" (formulation 8.10) and DECISIONS 20.
 
 Rules under test:
-  same inputs / config / commit / solver options -> identical SHA-256 and byte-identical canonical outputs across
+  same inputs / config / commit / solver options -> identical SHA-256 and byte-identical canonical outputs (formulation 8.10 / DECISIONS 36) across
   3 in-process runs and 2 separate processes with different PYTHONHASHSEED; changing any input float by 1e-12, any
   switch, any solver option, the formulation version or a dirty-tree diff changes the fingerprint; a conditioning
   `fail` marks the fingerprint invalid.
-`run.json` carries run_id / timestamp / solve time by design and is excluded from the byte comparison (its
-fingerprint fields are compared separately).
+Canonical outputs = every file except `run.json`, with `assumptions.md` compared after removing its single
+`- run_id: ` line. `run.json` fingerprint fields are compared separately.
 """
 from __future__ import annotations
 
@@ -27,15 +27,30 @@ from healthlib import CASES, W1, REPO, Spec, st, th, write_case
 import numpy as np
 
 
-def _outputs(d: Path) -> dict[str, bytes]:
-    return {p.name: p.read_bytes() for p in sorted(d.iterdir()) if p.name != "run.json"}
+def _canonical(d: Path) -> dict[str, bytes]:
+    """Canonical outputs (formulation 8.10, DECISIONS 36): every file except `run.json`; `assumptions.md` with its single
+    `- run_id: ` line removed (that line must exist exactly once and equal run.json's run_id)."""
+    import json
+    run_id = json.loads((d / "run.json").read_text())["run_id"]
+    out = {}
+    for p in sorted(d.iterdir()):
+        if p.name == "run.json":
+            continue
+        data = p.read_bytes()
+        if p.name == "assumptions.md":
+            lines = data.decode().split("\n")
+            ids = [l for l in lines if l.startswith("- run_id: ")]
+            assert ids == [f"- run_id: {run_id}"], f"assumptions.md needs exactly one run_id line equal to run.json: {ids}"
+            data = "\n".join(l for l in lines if not l.startswith("- run_id: ")).encode()
+        out[p.name] = data
+    return out
 
 
 def _assert_same_outputs(a: Path, b: Path):
-    oa, ob = _outputs(a), _outputs(b)
+    oa, ob = _canonical(a), _canonical(b)
     assert oa.keys() == ob.keys()
     diff = [k for k in oa if oa[k] != ob[k]]
-    assert not diff, f"outputs differ byte-wise: {diff}"
+    assert not diff, f"canonical outputs differ byte-wise: {diff}"
 
 
 def _copy_case(src: Path, dst: Path, mutate=None) -> Path:

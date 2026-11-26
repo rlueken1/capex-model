@@ -88,3 +88,8 @@
 - F-0.2 amendment 4 / DECISIONS 36: canonical outputs = every output file except `run.json`; `assumptions.md` compared without its single `- run_id:` line.
 - data-schema §5: output tables carry no `run_id` column (matches code). gate-1.md §3, data-sources.md, formulation §8.10 amended.
 - Tests not run (spec only; CI still red on 4 determinism tests until W6-fix1-test, planned). Nothing needs the owner.
+
+2026-11-26 W6-fix1-test (verifier, Sonnet subagent; main session Opus) on `gate-1`.
+- New `tests/test_reporting_w6.py` (21 cases): M1 setter attribution + `rent_ids` (designed interior-build case, T3b closed form, degenerate highest-MC branch), M2 `rent_note` on x = 0 candidates, C2 assumptions header/banner, no `run_id` columns.
+- `tests/test_health_fingerprint.py`: byte-identity now on canonical outputs per §8.10 / DECISIONS 36 (assumptions.md minus its `- run_id:` line, checked equal to run.json).
+- Tests: 460 passed / 0 failed / 0 xfail locally; no spec-vs-code failures. Next: W7 merge (needs CI green). Nothing needs the owner.
