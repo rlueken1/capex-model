@@ -98,7 +98,7 @@ Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in ord
 
 ## Gate 2 work items — branch `gate-2` (criteria: docs/gates/gate-2.md, approved 2026-11-26, DECISIONS 38)
 One per session, strictly in order; claim before work (CLAUDE.md).
-- [ ] G2-1 Builder [Sonnet]: CI criteria C1–C4, C8–C9 — `requirements-ci.txt` (exact pins), `ubuntu-24.04`, version block,
+- [~] G2-1 Builder [Sonnet]: (claimed 2026-11-26T13:24:49Z) CI criteria C1–C4, C8–C9 — `requirements-ci.txt` (exact pins), `ubuntu-24.04`, version block,
   junit XML + log artifacts, runtime report, pytest-socket (no network in tests). Builder smoke checks only.
 - [ ] G2-2 Builder [Sonnet]: CI criteria C5–C7 — `xfail_strict`, marker-reason checker script, health-run job over T1–T4 with
   output artifacts, two-job fingerprint comparison with different PYTHONHASHSEED.
