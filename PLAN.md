@@ -98,7 +98,7 @@ Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in ord
 
 ## Gate 2 work items — branch `gate-2` (criteria: docs/gates/gate-2.md, approved 2026-11-26, DECISIONS 38)
 One per session, strictly in order; claim before work (CLAUDE.md).
-- [~] G2-1 Builder [Sonnet]: (claimed 2026-11-26T13:24:49Z) CI criteria C1–C4, C8–C9 — `requirements-ci.txt` (exact pins), `ubuntu-24.04`, version block,
+- [x] G2-1 Builder [Sonnet]: CI criteria C1–C4, C8–C9 — `requirements-ci.txt` (exact pins), `ubuntu-24.04`, version block,
   junit XML + log artifacts, runtime report, pytest-socket (no network in tests). Builder smoke checks only.
 - [ ] G2-2 Builder [Sonnet]: CI criteria C5–C7 — `xfail_strict`, marker-reason checker script, health-run job over T1–T4 with
   output artifacts, two-job fingerprint comparison with different PYTHONHASHSEED.
@@ -139,7 +139,8 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
-G2-1 (builder): CI pinning and artifacts per gate-2.md C1–C4, C8–C9.
+G2-2 (builder): CI criteria C5–C7 (xfail_strict, marker-reason checker, health-run job, two-job fingerprint comparison).
+G2-1 done 2026-11-26: ci.yml on ubuntu-24.04/Py 3.12, installs from exact-pinned `requirements-ci.txt` (numpy 2.5.3, scipy 1.18.1, pandas 3.0.5, highspy 1.16.0, pytest 9.1.1, pytest-socket 0.8.1) + `-e . --no-deps`; version block via `capex.audit.fingerprint.package_versions()` + HiGHS; `pytest -v --disable-socket --junitxml`, junit+log artifacts 30 d; wall time in step summary (warn >10 min); `contents: read`, no secrets. Local, network off: 481 pass / 29 skip / 1 xfail / 0 fail. Note: pyproject `test` extra lacks pytest-socket/pandas (CI uses the pins).
 P9 done 2026-11-26 on `prep` (8c68935): DRAFT `docs/drafts/storage-study-outline.md` (258 lines, 8 sources, 25 "(verify)"). Revenue stack energy+reserves+capacity (ELCC×BRA) vs ATB annualized cost by 2/4/6/8 h; 4 h capacity ≈ $60–71/kW-yr at collared 2026/27–2028/29 BRAs, $119.5 uncollared sim (computed); perfect-foresight haircut; 6 owner decisions at end. Gaps: no PJM 2 h ELCC class; no public PJM arbitrage/reserve revenue ranges found (IMM SOM to read). Next prep: P10.
 P8 done 2026-11-26 on `prep` (6c1e9c7): DRAFT `docs/drafts/pjm-rpm-notes.md` (481 lines, 23 sources, 37 "(verify)"). 2028/29 BRA held (Jul 2026): $325.00 cap in every LDA, 6,831 MW short; 2029/30 BRA due Dec 2026 (cap $337.83/floor $181.91). Collar 2026/27–2029/30 (FERC ER26-1556); new VRR points 99/101.5/106% from 2028/29 (ER26-455); CT reference resource kept; ELCC class tables 2026/27–2028/29. Next prep: P9.
 P7 done 2026-11-26 on `prep` (d5eca74): DRAFT `docs/drafts/gate5-rep-periods-spec.md` (replacement §7.1–§7.2 + §8 additions) and `docs/gates/gate-5.md`. Ward hierarchical + medoid (deterministic, no seed); per-zone 72-h load/wind/solar/net-load + daily fuel features, z-scored, group-weighted; forced peak/net-peak/VRE-drought/fuel-spike/event blocks at weight 1; optional annual-total rescaling (default on); Kotzur superposition inter-period SOC; prices = dual/w_p, link-row dual = water value; 6 new health checks, M11–M15; toy T5 answers checked by an independent 8784-h LP. 10-item owner decision list at end of gate-5.md (incl. a test-only full-chronology expansion run on RTS-GMLC as an exception to DECISIONS 3). Next prep: P8.

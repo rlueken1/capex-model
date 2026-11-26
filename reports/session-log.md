@@ -145,3 +145,8 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - 9 schema gaps found. Owner: 10 yes/no items (Needs owner). Prep list now exhausted; runs will skip until W7b.
 
 2026-11-26T11:35Z — skipped: nothing claimable (AWAITING_OWNER_REVIEW; W7b owner-only; prep P1–P10 done)
+
+2026-11-26 — G2-1 (builder, Sonnet), branch `gate-2`
+- ci.yml: push all branches + PR into main; ubuntu-24.04, Py 3.12; exact pins in new requirements-ci.txt; version block (C3); pytest -v --disable-socket --junitxml + log artifacts 30 d (C4, C9); wall-time summary, warn >10 min (C8).
+- Local fresh 3.12 venv, network disabled: 481 pass / 29 skip / 1 xfail / 0 fail. CI result on GitHub: see next run on gate-2.
+- Nothing needs the owner. Next: G2-2.
