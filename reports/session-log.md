@@ -159,3 +159,4 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - 2026-11-26 G2-3 (builder, Sonnet): data-download workflow gate-grade for pjm5 (D1–D8): ubuntu-24.04, step-summary provenance, skip note; verify_artifact `--against`/`--summary`; new scripts/fetch_artifact.py consumer; tests/builder/test_data_download_smoke.py (16).
   Tests: 497 pass / 30 skip / 0 fail locally (network disabled); check_markers clean. Live pjm5 fetch from workspace matched both pinned hashes. Not yet run on Actions.
   Needs owner: data-download.yml must be on `main` before any dispatch (G2-7 evidence) — copy the file to main? rec yes. Next: G2-4.
+- 2026-11-26 owner (live): yes to copying data-download.yml onto main → done (main f123ad1, DECISIONS 39). G2-7 can now dispatch with --ref gate-2.

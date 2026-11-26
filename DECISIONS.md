@@ -147,3 +147,8 @@
     2024/25 and 2025/26; collar-capped years reported against PJM's uncollared simulation + MW shortfall); P9 (all 6
     storage-study outline items, applied at Gate 15); P10 (all 10 EIA-mapping items); Gate 2 criteria
     (docs/gates/gate-2.md) approved as drafted. Gate 3 and Gate 5 drafts stay DRAFT until their own boundary.
+
+2026-11-26 (owner)
+39. Owner answered yes to G2-3's question: `.github/workflows/data-download.yml` copied alone onto `main` (f123ad1) so GitHub
+    can dispatch it (dispatch needs the file on the default branch). Dispatch-only, `contents: read`; a run with
+    `--ref gate-2` uses gate-2's workflow and scripts. No other gate-2 work is on `main`; Gate 2 is not merged or done.
