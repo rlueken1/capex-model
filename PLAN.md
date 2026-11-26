@@ -58,7 +58,7 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
 - [x] W4b-fix2 Builder [Sonnet], branch `gate-1`: implement W4b-fix1 (a)–(c) in `capex.audit` / loader; builder smoke
   tests only; do not edit verifier tests. Done when the M4 mutation test passes and the STORAGE_DIS and VRE xfails
   XPASS. Expect CI red on strict XPASS until W4b-v (planned, not a failure).
-- [ ] W4b-v Verifier [Sonnet], branch `gate-1`: from the amended spec only — remove fixed xfail markers; rewrite T2c
+- [x] W4b-v Verifier [Sonnet], branch `gate-1`: from the amended spec only — remove fixed xfail markers; rewrite T2c
   tests to gate-1.md as amended; add a direct test of the new SOC check (positive + negative case). Full pytest +
   CI must be green (0 fail, 0 xfail left without a DECISIONS reference).
 - [ ] W4c Verifier [Sonnet], branch `gate-1`: full pytest run + CI; `reports/gate-1-evidence.md` (all 8 parts of
@@ -81,11 +81,9 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   only, not scheduled; caches to artifacts; never commits raw data. Draft for Gate 2 review.
 
 ## Next
-W4b-v (verifier, Sonnet): from the amended spec only — remove the 2 strict xfail markers that now XPASS
-(`test_storage_setter_cost_and_residual_columns_consistent_with_section_4`, `test_vre_without_mc_override_or_fuel_column_loads`);
-rewrite the 2 T2c xfails to the interval [15,465.19, 20,000] (formulation §10); add a direct positive/negative test of
-`storage.soc_recompute`. CI must go green. W4b-fix2 done 2026-11-26 (415 pass / 2 strict XPASS / 2 xfail; M4 caught).
-Then W4c → W5 → W6.
+W4c (verifier, Sonnet): full pytest run + CI; `reports/gate-1-evidence.md` (all 8 parts of gate-1.md §5) and the
+pass/fail table in `reports/gate-1-review.md`. W4b-v done 2026-11-26 (427 pass / 0 fail / 0 xfail locally).
+Then W5 → W6.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner

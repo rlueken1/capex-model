@@ -20,7 +20,7 @@ from capex.model import LP
 from capex.solver import HighsSolver, make_solver
 from healthlib import (CANON_CASES, CASES, W1, Spec, cs_and_signs, failing, independent_balance,
                        non_pass, price_setter_violations, rent_violations, soc_residual, solve_audit,
-                       stationarity_residual, st, th, write_case)
+                       stationarity_residual, st, th, toy_spec, write_case)
 
 import scipy.sparse as sp
 
@@ -180,41 +180,25 @@ def test_dual_unscaling_primal_and_prices(name):
     _compare(e1.pi, e0.pi, 1e-5, "pi")
     _compare(e1.rho, e0.rho, 1e-5, "rho")
     _compare(e1.rho_p, e0.rho_p, 1e-5, "rho^P")
-    if name != "T2c":      # T2c: storage not built, energy-side duals are degenerate (see the xfail below)
+    if name != "T2c":      # T2c: x^E = 0, storage duals dual-degenerate (formulation 3 check 7, DECISIONS 31)
         _compare(e1.rho_e, e0.rho_e, 1e-5, "rho^E")
         _compare(e1.v, e0.v, 1e-5, "water value v")
     if name in ("T4",):
         _compare(e1.mu_link, e0.mu_link, 1e-5, "mu")
 
 
-@pytest.mark.xfail(strict=True, reason="SPEC-OR-CODE: T2c has x^E = 0 so rho^E and v are dual-degenerate (scaled run "
-                   "R^E=4380, unscaled R^E=5000); gate-1 'economic duals rel 1e-5' cannot hold for degenerate duals")
-def test_dual_unscaling_t2c_energy_side_duals():
-    s1, h1, s0, h0 = _unscaling("T2c")
-    _compare(h1.audit.economics.rho_e, h0.audit.economics.rho_e, 1e-5, "rho^E (T2c)")
-    _compare(h1.audit.economics.v, h0.audit.economics.v, 1e-5, "v (T2c)")
-
-
 @pytest.mark.parametrize("scaling", [None, Scaling.off()], ids=["scaled", "unscaled"])
-def test_t2c_rent_en_degeneracy_note(scaling):
-    """W4a note: T2c has x = 0 and dual-degenerate R^E (4380 scaled vs 5000 unscaled). The robust spec rule is
-    formulation 3.5 'at x = 0: R <= C^fix' (combined (R^P + 4 R^E) <= C^P + 4 C^E = 20000), valid for BOTH values."""
+def test_t2c_combined_rent_inside_degenerate_interval(scaling):
+    """gate-1 section 2 T2c / formulation 10: x = 0, storage duals dual-degenerate, combined rent R^P + 4 R^E lies in
+    [15,465.19, 20,000] (rent <= cost, not <). Interval is the spec's; no slack beyond float noise (1e-6 USD)."""
     sv, h = solve_audit(CASES / "T2c", scaling=scaling)
     assert float(sv.var("xP").max()) <= 1e-6 and float(sv.var("xE").max()) <= 1e-6
-    rents = h.audit.rents.set_index("resource_id").loc["bat"]
-    rp, re_ = float(rents["rent_pwr"]), float(rents["rent_en"])
+    r = h.audit.rents.set_index("resource_id").loc["bat"]
+    rp, re_ = float(r["rent_pwr"]), float(r["rent_en"])
     assert rp >= -1e-9 and re_ >= -1e-9
-    assert rp + 4 * re_ <= 4 * 5000.0 * (1 + 1e-6), f"combined rent {rp + 4 * re_} exceeds cost 20000"
+    comb = rp + 4 * re_
+    assert 15465.19 - 1e-2 <= comb <= 20000.0 + 1e-6, f"combined rent {comb} outside [15465.19, 20000]"
     assert rent_violations(sv) == []
-
-
-@pytest.mark.xfail(strict=True, reason="SPEC-OR-CODE: gate-1 section 2 says T2c 'combined rent < cost' but the dual-degenerate "
-                   "R^E can equal C^E exactly (unscaled run: 4 x 5000 = 20000); formulation 3.5 says <= at x = 0")
-def test_t2c_combined_rent_strictly_below_cost_is_scaling_independent():
-    for sc in (None, Scaling.off()):
-        sv, h = solve_audit(CASES / "T2c", scaling=sc)
-        r = h.audit.rents.set_index("resource_id").loc["bat"]
-        assert float(r["rent_pwr"]) + 4 * float(r["rent_en"]) < 20000.0 * (1 - 1e-9)
 
 
 # ================================================================== row 7: objective decomposition
@@ -319,14 +303,23 @@ def test_price_setter_unexplained_zero_and_checks(canon, name):
     assert np.allclose(zh["lmp_usd_mwh"], zh["price"], atol=1e-9)
 
 
-@pytest.mark.xfail(strict=True, reason="SPEC-OR-CODE: storage price-setter rows report setter_cost = VOM and residual = pi - VOM "
-                   "(24.69 in S2 t=72) although section 4 checks |pi - VOM - v/eta_d| (resp. |pi - eta_c v|); gate-1 says 'price "
-                   "within tol_pi of setter cost'")
 def test_storage_setter_cost_and_residual_columns_consistent_with_section_4(canon):
     ps = canon("S2").tables["price_setter"]
     row = ps[ps["primary_class"] == "STORAGE_DIS"]
     assert len(row) == 1
-    assert abs(float(row["residual"].iloc[0])) <= 0.01
+    # formulation 4 Outputs / DECISIONS 31(b): STORAGE_DIS setter_cost = VOM + v/eta_d, residual = pi - setter_cost
+    c = canon("S2")
+    stg = c.sv.case.storage
+    r = row.iloc[0]
+    wv = c.tables["storage"]
+    v = float(wv.loc[wv["t"] == int(r["t"]), "water_value_usd_mwh"].iloc[0])   # independent source of v
+    assert abs(float(r["setter_cost"]) - (float(stg.vom[0]) + v / float(stg.eta_d[0]))) <= 1e-6
+    assert abs(float(r["residual"]) - (float(r["price"]) - float(r["setter_cost"]))) <= 1e-9
+    assert abs(float(r["residual"])) <= max(0.01, 1e-5 * abs(float(r["price"])))
+    assert abs(float(r["price"]) - 20.0 / (0.9 * 0.9)) <= 1e-4          # MC/(eta_c eta_d) = 24.691
+    ch = ps[ps["all_classes"].fillna("").str.contains("STORAGE_CH")]
+    for rr in ch.itertuples():                                           # STORAGE_CH tie: setter_cost = eta_c v
+        assert abs(float(rr.price) - 20.0) <= 1e-4
 
 
 @pytest.mark.parametrize("name", ALL)
@@ -513,3 +506,82 @@ def test_storage_soc_consistency_recomputed_from_case_data(canon, name):
     c = canon(name)
     assert soc_residual(c.sv) <= 1e-6
     assert float(c.tables["storage_closure"]["closure_residual_mwh"].abs().max()) <= 1e-6
+
+
+# ================================================================== check 8: storage.soc_recompute (formulation 3 check 8)
+def _soc_row(h):
+    ck = h.checks.set_index("check_id")
+    assert "storage.soc_recompute" in ck.index, "check must be produced on every solve with storage"
+    return ck.loc["storage.soc_recompute"]
+
+
+@pytest.mark.parametrize("name", ["S1", "S2", "S2asym", "T2asym", "T2a", "T2b"])
+def test_soc_recompute_check_passes_on_correct_storage_solves(canon, name):
+    c = canon(name)
+    row = _soc_row(c.health)
+    assert row["status"] == "pass"
+    assert float(row["value"]) <= 1e-6 and float(row["tolerance"]) <= 1e-6
+    assert soc_residual(c.sv) <= 1e-6                      # verifier-side recomputation agrees
+
+
+def test_soc_recompute_check_absent_or_trivial_without_storage(canon):
+    ck = canon("T1").health.checks.set_index("check_id")
+    if "storage.soc_recompute" in ck.index:
+        assert ck.loc["storage.soc_recompute", "status"] == "pass"
+
+
+def _swap_eta_build(case, scaling, orig):
+    lp = orig(case, scaling) if scaling is not None else orig(case)
+    a = lp.a.tolil()
+    stg, rb, ch, dis = case.storage, lp.rows["st_soc"], lp.cols["ch"], lp.cols["dis"]
+    for s_ in range(len(stg.ids)):
+        for p in range(len(case.periods)):
+            for t in range(72):
+                r = rb.idx(s_, p, t)
+                a[r, ch.idx(s_, p, t)] = -stg.eta_d[s_]
+                a[r, dis.idx(s_, p, t)] = 1.0 / stg.eta_c[s_]
+    return dataclasses.replace(lp, a=a.tocsr())
+
+
+def _sigma_build(case, scaling, orig):
+    """Drop the self-discharge term sigma from the cyclic SOC link (coefficient on e_{t-} becomes -1)."""
+    lp = orig(case, scaling) if scaling is not None else orig(case)
+    a = lp.a.tolil()
+    rb, soc = lp.rows["st_soc"], lp.cols["soc"]
+    for s_ in range(len(case.storage.ids)):
+        for p in range(len(case.periods)):
+            for t in range(72):
+                a[rb.idx(s_, p, t), soc.idx(s_, p, (t - 1) % 72)] = -1.0
+    return dataclasses.replace(lp, a=a.tocsr())
+
+
+@pytest.mark.parametrize("toy", ["S2asym", "T2asym"])
+def test_soc_recompute_check_fails_when_eta_swapped_in_lp(monkeypatch, toy, tmp_path):
+    """Audit mutation M4 (eta_c <-> eta_d in st_soc, eta_c != eta_d): the check named in gate-1 section 3 must fail."""
+    case_dir = write_case(toy_spec(toy), tmp_path, case_id=toy)
+    ctrl_sv, ctrl_h = solve_audit(case_dir)
+    assert _soc_row(ctrl_h)["status"] == "pass"
+    import capex.run as run_mod
+    real = run_mod.build_lp
+    monkeypatch.setattr(run_mod, "build_lp", lambda case, scaling=None: _swap_eta_build(case, scaling, real))
+    sv, h = solve_audit(case_dir)
+    assert soc_residual(sv) > 1e-3, "vacuity guard: mutation must break the case-data SOC dynamics"
+    row = _soc_row(h)
+    assert row["status"] == "fail" and float(row["value"]) > 1e-3
+    assert h.status == "fail"
+
+
+def test_soc_recompute_check_fails_when_sigma_ignored_in_lp(monkeypatch, tmp_path):
+    """A wrong self-discharge coefficient in st_soc (case sigma = 0.02 > 0) must also be caught by the case-data recompute."""
+    spec = toy_spec("S2asym")
+    spec.resources[-1] = st("bat", "A", p0=20, e0=40, eta_c=0.95, eta_d=0.80, sigma=0.02)
+    case_dir = write_case(spec, tmp_path, case_id="S2sig")
+    sv0, h0 = solve_audit(case_dir)
+    assert float(sv0.case.storage.sigma.max()) == pytest.approx(0.02)
+    assert _soc_row(h0)["status"] == "pass" and soc_residual(sv0) <= 1e-6
+    import capex.run as run_mod
+    real = run_mod.build_lp
+    monkeypatch.setattr(run_mod, "build_lp", lambda case, scaling=None: _sigma_build(case, scaling, real))
+    sv, h = solve_audit(case_dir)
+    assert soc_residual(sv) > 1e-3, "vacuity guard"
+    assert _soc_row(h)["status"] == "fail"

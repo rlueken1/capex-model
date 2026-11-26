@@ -39,3 +39,6 @@
   Tests: 415 pass / 2 fail (strict XPASS, expected: STORAGE_DIS setter columns, VRE no-fuel loader) / 2 xfail (T2c degenerate duals). M4 now caught (4/4). CI red by design until W4b-v.
   Note for W5: builder smoke tests import helpers from tests/healthlib.py (verifier file) — harmless, but W5 may ask for separation.
   Needs owner: nothing. Next: W4b-v.
+- 2026-11-26 W4b-v (verifier, Sonnet subagent; main session re-ran pytest) on `gate-1`: from amended spec (DECISIONS 31) — removed 2 strict xfails now passing (STORAGE_DIS setter_cost = VOM + v/η^d with residual check; VRE without fuel → MC 0); replaced T2c xfails with `test_t2c_combined_rent_inside_degenerate_interval` (R^P+4R^E ∈ [15,465.19, 20,000], scaled + unscaled; 1e-2 slack on the 2-dp lower bound); added direct `storage.soc_recompute` tests (6 toys pass; η swap on S2asym/T2asym and σ dropped on an S2 σ=0.02 variant fail).
+  Tests: 427 pass / 0 fail / 0 xfail / 0 XPASS locally (~29 s). No xfail markers left in tests/. CI: see push.
+  Needs owner: nothing. Next: W4c.

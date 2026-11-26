@@ -86,7 +86,7 @@ def test_random_instance_matches_independent_linprog(solved, seed):
 def test_random_instance_unscaled_solve_agrees(solved, seed):
     """Dual unscaling on random instances: primal objective rel 1e-6, energy prices pi and generator rents rho rel 1e-5.
     Storage duals (v, rho^P, rho^E) are excluded: they are dual-degenerate whenever a storage idles or sits at a bound
-    (see the T2c xfail in test_health_checks.py)."""
+    (formulation 3 check 7; T2c in test_health_checks.py)."""
     spec, d, sv, h = solved(seed)
     sv0, h0 = solve_audit(d, scaling=Scaling.off())
     assert abs(sv.z_total - sv0.z_total) <= 1e-6 * abs(sv.z_total)
@@ -95,9 +95,6 @@ def test_random_instance_unscaled_solve_agrees(solved, seed):
     assert np.all(np.abs(e.rho - e0.rho) <= np.maximum(1e-6, 1e-5 * np.abs(e0.rho))), "rho differs between scalings"
 
 
-@pytest.mark.xfail(strict=True, reason="SPEC-OR-CODE: loader raises KeyError('fuel') for a VRE row with neither mc_override nor "
-                   "a `fuel` column; data-schema 3.x marks mc_override optional for VRE and `fuel` only required for TH w/ fuel "
-                   "(zero-cost VRE is the section 6.1(e) default)")
 def test_vre_without_mc_override_or_fuel_column_loads(tmp_path):
     prof = np.full((1, 72), 0.5)
     spec = Spec(["A"], [W1], np.full((1, 1, 72), 60.0),
