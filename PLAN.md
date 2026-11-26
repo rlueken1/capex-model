@@ -114,13 +114,14 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   price, forced peak/scarcity/extreme periods, weights, inter-period SOC linking) into a Gate 5 spec draft.
 - [x] P8 Markets reviewer [Sonnet]: notes on PJM RPM mechanics for Gate 14 (VRR curve parameters, Net CONE, ELCC
   classes, BRA timing) as `docs/drafts/pjm-rpm-notes.md`, every number cited or marked "verify".
-- [~] P9 Consulting reviewer [Sonnet]: outline of the Gate 15 storage value study (`docs/drafts/storage-study-outline.md`): (claimed 2026-11-26T10:55Z)
+- [x] P9 Consulting reviewer [Sonnet]: outline of the Gate 15 storage value study (`docs/drafts/storage-study-outline.md`):
   client questions, outputs, charts, sanity ranges.
 - [ ] P10 Data lead [Sonnet]: EIA-860/923 field mapping to data-schema.md (`docs/drafts/eia-mapping.md`), incl. the
   estimation hierarchy for missing heat rates, min gen, ramp, outage rates.
 
 
 ## Next
+P9 done 2026-11-26 on `prep` (8c68935): DRAFT `docs/drafts/storage-study-outline.md` (258 lines, 8 sources, 25 "(verify)"). Revenue stack energy+reserves+capacity (ELCC×BRA) vs ATB annualized cost by 2/4/6/8 h; 4 h capacity ≈ $60–71/kW-yr at collared 2026/27–2028/29 BRAs, $119.5 uncollared sim (computed); perfect-foresight haircut; 6 owner decisions at end. Gaps: no PJM 2 h ELCC class; no public PJM arbitrage/reserve revenue ranges found (IMM SOM to read). Next prep: P10.
 P8 done 2026-11-26 on `prep` (6c1e9c7): DRAFT `docs/drafts/pjm-rpm-notes.md` (481 lines, 23 sources, 37 "(verify)"). 2028/29 BRA held (Jul 2026): $325.00 cap in every LDA, 6,831 MW short; 2029/30 BRA due Dec 2026 (cap $337.83/floor $181.91). Collar 2026/27–2029/30 (FERC ER26-1556); new VRR points 99/101.5/106% from 2028/29 (ER26-455); CT reference resource kept; ELCC class tables 2026/27–2028/29. Next prep: P9.
 P7 done 2026-11-26 on `prep` (d5eca74): DRAFT `docs/drafts/gate5-rep-periods-spec.md` (replacement §7.1–§7.2 + §8 additions) and `docs/gates/gate-5.md`. Ward hierarchical + medoid (deterministic, no seed); per-zone 72-h load/wind/solar/net-load + daily fuel features, z-scored, group-weighted; forced peak/net-peak/VRE-drought/fuel-spike/event blocks at weight 1; optional annual-total rescaling (default on); Kotzur superposition inter-period SOC; prices = dual/w_p, link-row dual = water value; 6 new health checks, M11–M15; toy T5 answers checked by an independent 8784-h LP. 10-item owner decision list at end of gate-5.md (incl. a test-only full-chronology expansion run on RTS-GMLC as an exception to DECISIONS 3). Next prep: P8.
 P6 done 2026-11-26 on `prep` (5fd6057): DRAFT `tests/draft/test_pjm5bus.py` + README. Independent scipy DC-OPF (angle + PTDF, any reference bus) reproduces gate-3.md §2 (LMPs, dispatch, cost, only D–E binding, μ≈62.32, decomposition, rent identity, KVL): 21 pass now; 1 strict xfail — draft surplus 14,957.28 should read 14,957.29 (= 62.32204×240; fix in gate-3.md at approval). P5a–P5f, §4 checks, M7–M10: 29 skipped until Gate 3, with 12 SPEC-GAP notes for W-spec (config keys, output columns, μ sign, check ids, α output, mutation hooks). Full suite 459 pass / 29 skip / 1 xfail. Next prep: P7.
@@ -144,6 +145,7 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
+- 2026-11-26 P9: storage study outline (docs/drafts/storage-study-outline.md §end) has 6 yes/no items, all rec yes — e.g. headline = perfect-foresight value × haircut; capacity shown collar on and off; extend M8.1 to 2/4/6/8 h; 2 h ELCC assumed (no PJM class). Review at Gate 15.
 - 2026-11-26 P8: 2026/27–2028/29 BRAs all cleared at the collar cap, so M7.1 (≤$25 or ≤20%) would pass trivially. Use 2024/25 and 2025/26 as the pass/fail M7.1 years and report capped years only vs PJM's uncollared simulation + MW shortfall? rec yes. (Also: model year y ↔ delivery year June y–May y+1; details in docs/drafts/pjm-rpm-notes.md.)
 - 2026-11-26 P5: `data/common/sources.csv` lacks an `rts_gmlc` row; adding it changes the sha256 pinned in T1–T4 manifests. P5 uses a case-local sources copy. OK to append the row + re-hash T* manifests in one commit (at Gate 4)? rec yes. Also: heat-rate choice (secant incremental, no no-load) wants a DECISIONS entry at Gate 4.
 - 2026-11-26 P3: MATPOWER's LICENSE excludes case files from BSD-3 (`case5.m` is "distributed with permission"). OK to use it as an internal test system (vendored, cited Li & Bo 2010 + MATPOWER, not in client deliverables) as with RTS-GMLC (DECISIONS 34)? rec yes.

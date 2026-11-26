@@ -133,3 +133,8 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - Findings: 2026/27–2028/29 BRAs cleared at the collar cap everywhere; 2029/30 BRA due Dec 2026; new VRR curve from 2028/29; ELCC class ratings tabulated.
 - Tests: none (notes only; no code). IMM State of the Market not yet consulted.
 - Owner: new Needs-owner item — use 2024/25 + 2025/26 as M7.1 pass/fail years (capped years report-only); rec yes. Next prep: P9.
+
+2026-11-26 10:55Z — P9 (consulting reviewer, Sonnet), branch `prep` 8c68935
+- DRAFT docs/drafts/storage-study-outline.md: questions, design, revenue stack, 6–10 charts, sanity ranges, validation, 6 owner decisions.
+- 258 lines, 8 sources, 25 "(verify)"; no code changed, no tests run (docs only).
+- Gaps: PJM has no 2 h storage ELCC class; no public arbitrage/reserve revenue ranges found. Owner: 6 yes/no items (Needs owner).
