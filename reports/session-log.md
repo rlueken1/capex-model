@@ -43,3 +43,7 @@
   CI run 30 then failed 2 random seeds (7, 9; not touched by this item): test helper `cs_and_signs` multiplied a ~1e-16 noise dual by an infinite slack → cs = inf. Verifier fixed the helper per formulation §1.3 (CS only against a finite side; a dual on an infinite side counts as a sign violation) — thresholds unchanged — plus a synthetic unit test.
   Tests: 428 pass / 0 fail / 0 xfail / 0 XPASS locally (~30 s). No xfail markers left in tests/. CI run 31 green.
   Needs owner: nothing. Next: W4c.
+- 2026-11-26 W4c (verifier, Sonnet subagent; main session re-ran pytest) on `gate-1`: wrote reports/gate-1-evidence.md (gate-1.md §5 parts 1–8, from CLI runs of T1–T4 + test suite), reports/gate-1-review.md (verifier pass/fail table; W5/W6 sections left as placeholders), and §5(1) artifacts gate-1-pytest.log + gate-1-junit.xml. All rows PASS or N-A (scoreboard/ledger start Gate 5); no failures, so no DECISIONS entry. Fingerprints identical across 2 processes for all 7 cases.
+  Tests: 428 pass / 0 fail / 0 xfail locally (~29 s); CI #32 green (428, 21 s) on a3182e4 (same code).
+  Notes for W5/W6: fingerprint is environment-bound (local ≠ CI hash); builder smoke tests import tests/healthlib.py; gate-1.md still says CI comes in Gate 2 though CI is live.
+  Needs owner: nothing. Next: W5.

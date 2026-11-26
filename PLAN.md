@@ -61,7 +61,7 @@ Gate 1 items — start only after owner sign-off on Gate 0 (each one session, br
 - [x] W4b-v Verifier [Sonnet], branch `gate-1`: from the amended spec only — remove fixed xfail markers; rewrite T2c
   tests to gate-1.md as amended; add a direct test of the new SOC check (positive + negative case). Full pytest +
   CI must be green (0 fail, 0 xfail left without a DECISIONS reference).
-- [ ] W4c Verifier [Sonnet], branch `gate-1`: full pytest run + CI; `reports/gate-1-evidence.md` (all 8 parts of
+- [x] W4c Verifier [Sonnet], branch `gate-1`: full pytest run + CI; `reports/gate-1-evidence.md` (all 8 parts of
   gate-1.md §5) and pass/fail table in `reports/gate-1-review.md`. Failures → spec-or-code decision in DECISIONS, never tolerance edits.
 - [ ] W5 Formulation lead [Opus], branch `gate-1`: line-by-line code-vs-spec trace (§2–§6), dual conventions,
   price-setter logic; section in gate-1-review.md. Any builder fix found here becomes its own item.
@@ -81,9 +81,9 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   only, not scheduled; caches to artifacts; never commits raw data. Draft for Gate 2 review.
 
 ## Next
-W4c (verifier, Sonnet): full pytest run + CI; `reports/gate-1-evidence.md` (all 8 parts of gate-1.md §5) and the
-pass/fail table in `reports/gate-1-review.md`. W4b-v done 2026-11-26 (428 pass / 0 fail / 0 xfail locally; CI-only cs=inf helper bug fixed).
-Then W5 → W6.
+W5 (formulation lead, Opus): line-by-line code-vs-spec trace (§2–§6), dual conventions, price-setter logic; section
+in reports/gate-1-review.md. W4c done 2026-11-26: reports/gate-1-evidence.md (all 8 §5 parts) + verifier pass/fail
+table in reports/gate-1-review.md — every row PASS or N-A, no failures; 428 pass locally, CI #32 green. Then W6.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
