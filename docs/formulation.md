@@ -8,6 +8,9 @@ DC power-flow option sketched for Gate 3 (§7.4a).
 F-0.2 amendment 1 (W4b-fix1, 2026-11-25, DECISIONS 31): SOC-row recomputation health check (§3 check 8, §8.6);
 storage price-setter `setter_cost`/`residual` defined per class (§4 Outputs); dual-degenerate storage duals at
 zero storage capacity (§3 check 7, T2c in §10). The LP itself is unchanged, so the version string stays `F-0.2`.
+F-0.2 amendment 2 (W5-spec1, 2026-11-26, DECISIONS 32): wording only — §6.2 states that infeasibilities are
+measured on the scaled LP and splits the "RHS ratio / any finite bound" row into a ratio metric and a magnitude
+metric (the code's reading, ratified); §5.2 `ANN ≥ I/n` check limited to PFF ≥ 1. LP and thresholds unchanged.
 Scope of authority: code in `src/capex/` implements this file. Any deviation changes this
 file in the same commit and is logged in `DECISIONS.md`. Constraint/variable labels in
 `code font` are the identifiers used in code, audit output and tests.
@@ -318,7 +321,10 @@ $T$ = combined federal+state tax rate, $m_k$ = MACRS depreciation shares for cla
 half-year convention tables, $M+1$ entries), $i$ = nominal WACC $= f_d\, i_d (1-T) + (1-f_d)\, i_e$; the real WACC for the CRF is
 $r = (1+i)/(1+\pi^e)-1$ (Fisher, §5.1). If a class supplies `pff` directly, that value is used and recorded
 as `method=assumed`. Both modes are tested; toys use `cfix_override` so neither affects T1–T4. Edge cases: $|r| < 10^{-9}$ uses the $r=0$ branch; require
-$n \ge 1$, $r > -1$, $\phi_k\ge0$; raise otherwise. Output is checked: $\text{ANN}\ge I/n$ for $r\ge0$.
+$n \ge 1$, $r > -1$, $\phi_k\ge0$; raise otherwise. Output is checked: $\text{ANN}\ge I/n$ when $r\ge0$ **and** $\text{PFF}\ge1$ (then $\kappa\ge1$ and
+$\text{CRF}\ge1/n$, so the bound holds). The `atb_pff` formula gives $\text{PFF}\ge1$ whenever $\text{PVD}\le1$, i.e. for any
+nominal WACC $i\ge0$; only a directly supplied `pff` < 1 (`method=assumed`) can fall below it, and then the check is
+skipped, not failed (DECISIONS 32).
 
 Use: $C^{fix}_r = \text{ANN}(I_r) + FOM_r$ (FOM added *after* annualization, never annualized);
 storage $C^P_r = \text{ANN}(I^P_r)+FOM^P_r$, $C^E_r = \text{ANN}(I^E_r)+FOM^E_r$; transmission
@@ -355,16 +361,23 @@ objective (and later the price-setter check), never a row. (e) Zero-cost VRE is 
 ### 6.2 Conditioning check (`capex.audit.conditioning`, every solve)
 Reports on the scaled LP: rows, cols, nnz; min/max $|a_{ij}|$ over nonzeros and ratio;
 min/max nonzero $|c_j|$, $|b_i|$, finite $|\text{bounds}|$ and ratios; count of coefficients below
-$10^{-6}$; after solve: max primal and dual infeasibility (unscaled), max `bal` residual,
-solver status, iteration count, whether crossover ran.
+$10^{-6}$; after solve: max primal and dual infeasibility (scaled: the units the solver's tolerances act on),
+max `bal` residual (unscaled MW), solver status, iteration count, whether crossover ran.
 | Metric | Warn | Fail |
 |---|---|---|
 | matrix ratio $\max|a|/\min|a|$ | $>10^6$ | $>10^9$ |
 | objective ratio | $>10^8$ | $>10^{11}$ |
-| RHS ratio / any finite bound | $>10^6$ / $>10^5$ | $>10^9$ / $>10^7$ |
+| RHS ratio $\max|b|/\min|b|$ (nonzero finite row bounds) | $>10^6$ | $>10^9$ |
+| largest finite variable bound $\max|l_j|,|u_j|$ (absolute, scaled units) | $>10^5$ | $>10^7$ |
 | max primal or dual infeasibility (scaled) | $>10^{-7}$ | $>10^{-5}$ |
 | max `bal` residual (unscaled MW; Gate 1 toys require $\le10^{-6}$, §3) | $>10^{-3}$ | $>10^{-1}$ |
 A **fail** marks the run invalid in the fingerprint; a warn is listed in the health report.
+Definitions (DECISIONS 32). Ratios and minima use nonzero finite magnitudes only; $\pm\infty$ bounds are skipped. The bound
+metric is a magnitude, not a ratio: it flags big-M-style bounds (rule (c)); the smallest nonzero bound is reported only.
+Primal infeasibility = max violation of scaled row and column bounds; dual infeasibility = max of the scaled stationarity
+residual $|c - A^\top y - s|$ and any dual-sign violation. Scaled is used because the solver's feasibility tolerances
+($10^{-7}$) act there; the unscaled physical check is the `bal` residual row. Note: a $10^{9}$ MW bound is $10^{6}$ scaled
+and only warns; rule (c) still forbids it, and the builder must not rely on this check to catch it.
 
 ---
 

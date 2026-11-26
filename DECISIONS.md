@@ -95,3 +95,13 @@
     VRE without `mc_override` has MC = 0 (data-schema §3.3, §6 rule 5). (d) T2c: storage duals at zero capacity are
     dual-degenerate; proven interval R^P+4R^E ∈ [15,465.19, 20,000] (§10); T2c tests assert the interval (rent ≤ cost,
     not <) and compare primal, π, generator ρ across scalings, not v/ρ^P/ρ^E. A degeneracy fact, not a tolerance edit.
+
+2026-11-26 (formulation lead, W5-spec1 — spec wording from W5 findings F2, F6; owner confirms at Gate 1 review)
+32. F-0.2 amendment 2 (wording only; LP, thresholds and code unchanged; version string stays F-0.2). (a) §6.2: primal
+    and dual infeasibility are measured on the **scaled** LP (the solver's tolerances act there; `bal` gives the
+    unscaled MW check). The text said "unscaled", the table "(scaled)"; the table and the code were right. (b) §6.2 row
+    "RHS ratio / any finite bound" split into two metrics: RHS ratio max|b|/min|b| over nonzero finite row bounds
+    (warn 1e6, fail 1e9) and largest finite variable bound, absolute in scaled units (warn 1e5, fail 1e7). This is the
+    reading in `conditioning.py` (`rhs_ratio`, `bound_max`); its SPEC-AMBIGUITY note can be dropped at the next code
+    touch. (c) §5.2: the ANN ≥ I/n output check applies only when r ≥ 0 and PFF ≥ 1 (ATB-style PFF ≥ 1 for any nominal
+    WACC ≥ 0); a directly supplied pff < 1 skips it, as `econ.py:annualize` does.

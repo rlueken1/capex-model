@@ -60,3 +60,7 @@
   written from formulation §4 Step 2 / gate-1 §3 (builder tests not read). Perturbs π by +5 $/MWh in up to 3 MARGINAL_UNIT hours of T1/S1/S2:
   asserts primary_class=UNEXPLAINED, summary moves exactly those weighted hours from MARGINAL_UNIT to UNEXPLAINED, zone totals = Σw·72; control has 0 UNEXPLAINED.
   Tests: 438 passed / 0 failed / 0 xfail locally. Mutation check (price check ignored in `record`) → 6/9 new tests fail as intended (3 controls pass). Needs owner: nothing. Next: W5-spec1.
+- 2026-11-26 W5-spec1 (formulation lead, Opus, main session, no subagents) on `gate-1`: spec wording only. formulation §6.2 now says
+  infeasibilities are measured on the scaled LP and splits "RHS ratio / any finite bound" into RHS ratio + largest finite bound
+  (absolute, scaled) — the code's reading ratified (F2); §5.2 ANN ≥ I/n check limited to PFF ≥ 1 (F6). DECISIONS 32. No code change.
+  Tests: 438 passed / 0 failed locally. Needs owner: confirm DECISIONS 32 at Gate 1 review. Next: W6.
