@@ -106,7 +106,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   on GitHub (e.g. a MATPOWER/PowerModels case file); provenance; note any source that needs owner download.
 - [x] P4 Builder [Sonnet]: draft `.github/workflows/data-download.yml` (EIA-860/923, NREL ATB) as `workflow_dispatch`
   only, not scheduled; caches to artifacts; never commits raw data. Draft for Gate 2 review.
-- [~] P5 (claimed 2026-11-26T09:36Z) Data lead [Sonnet]: convert the P1 RTS-GMLC raw data into the model's input schema (docs/data-schema.md) under
+- [x] P5 Data lead [Sonnet]: convert the P1 RTS-GMLC raw data into the model's input schema (docs/data-schema.md) under
   `cases/rts_gmlc/` with provenance; loader smoke check only. Needs P1 done.
 - [ ] P6 Verifier [Sonnet]: draft `tests/draft/test_pjm5bus.py` from the P2 Gate 3 draft (expected LMPs/congestion),
   marked skip until Gate 3. Needs P2 done.
@@ -121,6 +121,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+P5 done 2026-11-26 on `prep` (0386daa): `cases/rts_gmlc/` (3 zones, 4 links, 155 resources: 73 TH/81 VRE/1 ST; 14,549.8 MW = gen.csv), 8784 h as 122 consecutive 72-h blocks (loader fixes T=72), gzipped availability, per-cell provenance + assumptions register; `scripts/convert_rts_gmlc.py` regenerates byte-identically. Loader validates; 438 pass; not solved. Choices for Gate 4: heat rate = secant incremental PMin→PMax (no no-load term), hydro/RTPV as curtailable VRE, CSP as VRE capped at 200 MW, thermal availability 1.0 (FOR kept as x_ cols), link ratings = summed Cont Rating; PLEXOS reference covers only 336 h. Next prep: P6.
 P4 done 2026-11-26 on `prep` (707cee7): DRAFT `.github/workflows/data-download.yml` (dispatch only, `contents: read`, 90-day artifact), `data/manifests/{pjm5,eia860,eia923,atb}.csv`, `scripts/fetch_source.py` + `verify_artifact.py` (stdlib) + `fetch_artifact.md` (D8). pjm5 pinned+enabled; EIA/ATB declared, disabled, unpinned (`pin_mode=record` for first pin); EIA_API_KEY skip pattern. Local checks pass (fetch, repeat-hash, broken pin, unknown id, skips); not yet run on Actions. Gate 2 note: GitHub only dispatches a workflow whose file is on the default branch, so the D5/D3 evidence runs need it on `main` first. Next prep: P5.
 P3 done 2026-11-26 on `prep` (23d0d47): MATPOWER `case5.m` vendored in `cases/raw/pjm5bus/` (sha256-pinned, MANIFEST, parsed CSVs); every gate-3.md draft input matches and an independent DC-OPF reproduces LMPs 16.98/26.38/30.00/39.94/10.00 (D-E binds at 240 MW). Case-file licence unverified (see Needs owner). Next prep: P4.
 P2 done 2026-11-26 on `prep` (07bd44a): DRAFT `docs/gates/gate-2.md` (CI C1–C9, data-download D1–D8, carried F3–F5 + P1 findings) and `docs/gates/gate-3.md` (pjm5 P5a–P5f; LMPs 16.98/26.38/30.00/39.94/10.00 reproduced by an independent scipy DC-OPF; inputs written from memory → P3 must verify vs MATPOWER case5). Next prep: P3 (P6 now unblocked).
@@ -140,6 +141,7 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
+- 2026-11-26 P5: `data/common/sources.csv` lacks an `rts_gmlc` row; adding it changes the sha256 pinned in T1–T4 manifests. P5 uses a case-local sources copy. OK to append the row + re-hash T* manifests in one commit (at Gate 4)? rec yes. Also: heat-rate choice (secant incremental, no no-load) wants a DECISIONS entry at Gate 4.
 - 2026-11-26 P3: MATPOWER's LICENSE excludes case files from BSD-3 (`case5.m` is "distributed with permission"). OK to use it as an internal test system (vendored, cited Li & Bo 2010 + MATPOWER, not in client deliverables) as with RTS-GMLC (DECISIONS 34)? rec yes.
 - 2026-11-26 W7a: gate-1 is merge-ready. The scheduled-task prompt says runs must never merge to main or mark a gate done, so W7's merge (pre-approved in DECISIONS 33 item 7) was not executed. Either (a) merge `gate-1` → `main` yourself (resolve CLAUDE.md by taking gate-1's version), mark Gate 1 DONE, create `gate-2`; or (b) amend the scheduled prompt to allow it and re-open W7b for a run. rec (a). Details: reports/gate-1-merge-readiness.md.
 - (answered 2026-11-26, DECISIONS 34: yes) 2026-11-26 P1: RTS-GMLC has no LICENSE file and no terms in README. OK to use it as an internal test system (vendored subset in repo, cited, not in client deliverables) until terms are confirmed? rec yes.

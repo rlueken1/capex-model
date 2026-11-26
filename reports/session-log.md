@@ -113,3 +113,7 @@
 Result: draft data-download workflow (workflow_dispatch only, read-only perms, artifact upload) + 4 manifests + fetch/verify scripts + D8 doc.
 Tests: no pytest change (no src/ edits); local script checks 6/6 as expected (pjm5 fetch+verify, same hashes twice, tampered file fails, broken pin fails & removes output, unknown source exit 2, disabled/missing-key skip).
 Owner: workflow can only be dispatched once its file is on `main` (Gate 2 evidence); EIA/ATB URLs still to verify.
+
+- 2026-11-26 P5 (data lead, Sonnet, branch `prep` 0386daa): RTS-GMLC → `cases/rts_gmlc/` in model input schema with provenance; conversion script reproducible.
+  155 resources, 3 zones, 4 links, 8784 h as 122×72-h blocks; capacity matches gen.csv. Loader smoke ok (not solved); pytest 438 pass.
+  Needs owner: `rts_gmlc` row in common sources.csv requires re-hashing T1–T4 manifests (rec yes, at Gate 4).
