@@ -105,7 +105,7 @@ One per session, strictly in order; claim before work (CLAUDE.md).
 - [x] G2-2-fix Verifier [Sonnet]: `tests/draft/test_pjm5bus.py:118` is a strict xfail with no `Gate <n>`/`DECISIONS <n>` in its
   reason and drafts must be skips (C5) → make it a skip citing `Gate 3` (keep the 14,957.28 vs .29 note). CI `test` job is red on
   the C5 marker step until then (planned, not a regression). Run `scripts/check_markers.py` + full pytest; CI green.
-- [ ] G2-3 Builder [Sonnet]: data-download workflow D1–D8 end to end for `pjm5` (pinned MATPOWER case5.m) using the P4 draft;
+- [~] G2-3 Builder [Sonnet] (claimed 2026-11-26T16:23:56Z): data-download workflow D1–D8 end to end for `pjm5` (pinned MATPOWER case5.m) using the P4 draft;
   consumer-side verify script. EIA/ATB steps stay declared-but-disabled.
 - [ ] G2-4 Builder [Sonnet]: carried code findings F3, F4, F5, P1-a (gate-2.md §4). No verifier tests here.
 - [ ] G2-5 Verifier [Sonnet]: tests from the spec for F3, F4, F5, P1-a and for the C5 checker (a marker without a reason fails).
