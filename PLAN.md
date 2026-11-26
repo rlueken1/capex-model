@@ -88,7 +88,7 @@ Owner answered decision 8 = yes on 2026-11-26 (DECISIONS 33) — do these in ord
   (CI red on 4 fingerprint-determinism tests until W6-fix1-test; planned, not a regression.)
 - [x] W6-fix1-test Verifier [Sonnet], branch `gate-1`: tests for M1, M2, C2 from the amended spec; update the byte-identity
   test to canonical outputs per formulation §8.10 (amendment 4, DECISIONS 36); full pytest + CI green.
-- [ ] W7 PM [Sonnet], branch `gate-1`: confirm W6-spec1/fix1/fix1-test done and CI green on the final gate-1 commit; then
+- [~] W7 PM [Sonnet], branch `gate-1`: confirm W6-spec1/fix1/fix1-test done and CI green on the final gate-1 commit; then (claimed 2026-11-26T08:16Z)
   merge `gate-1` into `main` (owner pre-approved, DECISIONS 33 item 7), mark Gate 1 DONE, start `gate-2` from `gate-1`, and
   set STATUS: AWAITING_OWNER_REVIEW until the PM scrum plans Gate 2 items. If CI is red, do not merge: add a fix item instead.
 
