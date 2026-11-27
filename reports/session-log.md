@@ -312,3 +312,9 @@ Next: P12 (gate-4.md draft).
 - Load-share method confirmed by KCL against PLEXOS (9e-12 MW); participation factors themselves not vendored.
 - Tests: 671 pass / 0 fail locally; verifier masked the registry hash in the pjm5 golden fingerprint compare (DECISIONS 40), 14 failures fixed.
 - RTS cases need G4-4 loader support for F-0.4 before they load. Nothing new for the owner.
+
+## 2026-11-27 — G4-3 (gate-4, verifier Sonnet)
+- Item: Gate 4 verifier tests from spec — H1a–H1e, S2a–S2c, A1, U1, B1, N1, M13–M16, §5 harness (F0…U0) with independent scipy route; no capex code touched.
+- Tests: 732 pass / 69 strict xfail (need G4-4) / 5 skip (full-window, CAPEX_GATE4_FULL=1) / 0 fail; check_markers ok.
+- F0 passes (4.1e-4 MW); C0/C2 live. Independent LP predicts C1 7.1% (>5%) and G1 coal/gas-CC ~±9 pp (>3 pp): UC gap, owner call at G4-8.
+- 8 SPEC-GAPs listed in tests/test_gate4_known_answers.py docstring for G4-4/G4-7.
