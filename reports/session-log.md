@@ -254,3 +254,8 @@ Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
 - Spec F-0.3 amendment 2 + DECISIONS 51; new items G3-6-fix1 (docs), fix2 (builder), fix3 (verifier) before G3-7.
 - Tests: 637 pass / 0 fail locally (no src/tests changes).
 - Owner: 3 yes/no questions (strict switch keys, fingerprint bump to F-0.3, carry list) in Needs owner.
+
+- 2026-11-27 12:3x UTC — G3-6-fix1 (formulation lead, done in-session, no subagents), branch `gate-3`.
+  `docs/data-schema.md` aligned with formulation F-0.3 amendment 2 / DECISIONS 51: switches key rule (+`scaling`),
+  tolerances key rule, `formulation_version` case vs code (run.json vs fingerprint), price_setter list cells + island_id.
+  Docs only; local pytest 637 pass / 0 fail. Nothing for the owner. Next: G3-6-fix2 (builder).

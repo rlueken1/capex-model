@@ -6,6 +6,8 @@ Gate column = first gate that needs the table (G1 full detail; G3+ sketched: col
 renamed or re-unit'd without bumping S-x.y and the loader).
 G3-1 (DECISIONS 48, formulation F-0.3): `links.csv` network fields, `tx.*` switches, `dcpf` outputs and validation added.
 All additive (no rename, no unit change), so the schema string stays `S-0.1`.
+G3-6-fix1 (DECISIONS 51, formulation F-0.3 amendment 2): `switches`/`tolerances` key rules, `formulation_version`
+(case vs code), `price_setter` list cells and `island_id` aligned with the formulation. Rules/wording only; `S-0.1` stays.
 
 ## 0. Global conventions
 - **Formats.** CSV (UTF-8, header row, `.` decimal, ISO-8601 dates, empty = null) for G1–G4 and any table
@@ -50,17 +52,17 @@ All additive (no rename, no unit change), so the schema string stays `S-0.1`.
 |---|---|---|
 | `case_id`, `description` | str | label |
 | `schema_version` | str | `S-0.1`; loader refuses mismatch |
-| `formulation_version` | str | `F-0.2` or `F-0.3` (loader accepts both; `tx.model: dcpf` requires `F-0.3`, formulation §7.4a.9); the code's version goes into the fingerprint (§8.10) |
+| `formulation_version` | str | `F-0.2` or `F-0.3` (loader accepts both; `tx.model: dcpf` requires `F-0.3`, formulation §7.4a.9). This declared value is what `run.json` `formulation_version` reports; the fingerprint carries the **code's** version `capex.FORMULATION_VERSION` (`F-0.3` from Gate 3), not this field (formulation §8.10, F-0.3 amendment 2) |
 | `base_dollar_year` | int | $B$ (2024) |
 | `model_year` | int | $y$; fixes $D_y$ (365/366) |
 | `dt_h` | float | must be 1.0 (asserted, §1.1) |
 | `zones` / tables | list / map | `tables:` maps each logical table to a file with `sha256` (feeds fingerprint). Exception: the shared source registry `sources` (`data/common/sources.csv`) is listed **without** `sha256` (DECISIONS 40); its content still enters the run fingerprint as a canonical input table (formulation §8.10) |
-| `switches` | map | all ablation keys: `ts.mode`, `ts.n_periods`, `ts.features.*`, `ts.forced.*`, `storage.inter_period`, `reserves.enabled`, `reserves.ordc`, `tx.model` (`transport` default \| `dcpf`), `tx.dcpf_form` (`angle` default \| `ptdf`), `tx.ref_bus` (zone id or list, ≤ 1 per island; formulation §7.4a.1), `tx.losses/hurdle/expansion/interfaces`, `uc.*`, `policy.*`, `build.limits`, `retire.economic`, `calib.adders`, `deflate.monthly`; absent = default-off |
+| `switches` | map | all ablation keys: `ts.mode`, `ts.n_periods`, `ts.features.*`, `ts.forced.*`, `storage.inter_period`, `reserves.enabled`, `reserves.ordc`, `tx.model` (`transport` default \| `dcpf`), `tx.dcpf_form` (`angle` default \| `ptdf`), `tx.ref_bus` (zone id or list, ≤ 1 per island; formulation §7.4a.1), `tx.losses/hurdle/expansion/interfaces`, `uc.*`, `policy.*`, `build.limits`, `retire.economic`, `calib.adders`, `deflate.monthly`, `scaling` (bool, default true = formulation §6.1 scaling on); absent = default-off. **Keys (F-0.3 amendment 2, formulation §7.4a.1):** a key the code does not implement is a load error (`DataError` naming the key) whatever its value, including the keys reserved above for later gates (`tx.losses`, `reserves.enabled`, …), which become valid in their own gate. Implemented at Gate 3: `tx.model`, `tx.dcpf_form`, `tx.ref_bus`, `scaling`. `tx.ref_bus` must be a string or a list of strings (else `DataError`) |
 | `voll_usd_mwh` | float | VOLL ($Z^{use}$, §2.3); G7+: backstop only (DECISIONS 24) |
 | `finance_default` | str | `finance_class` used when a resource gives none |
 | `solver` | map | name, options (algorithm, tolerances, crossover=true); all in fingerprint |
 | `seed` | int | clustering seed (G5) |
-| `tolerances` | map | `tol_q_mw`, `tol_pi_usd_mwh`, etc. (§4); under `dcpf` also `kvl_residual_mw`, `lmp_decomposition_usd_mwh`, `line_dual_usd_mwh`, `loop_alpha` (1e-6 each), `congestion_rent_rel` (1e-7) (formulation §7.4a.6) |
+| `tolerances` | map | `tol_q_mw`, `tol_pi_usd_mwh`, etc. (§4); under `dcpf` also `kvl_residual_mw`, `lmp_decomposition_usd_mwh`, `line_dual_usd_mwh`, `loop_alpha` (1e-6 each), `congestion_rent_rel` (1e-7) (formulation §7.4a.6). A key that is not a field of the run's tolerance set (Gate 1 keys; plus the §7.4a.6 keys only under `dcpf`) is a load error (`DataError`), never a Python `TypeError` (F-0.3 amendment 2) |
 
 ### 1.2 `scenarios.csv` — G4 (single-scenario cases omit it)
 | Column | Type | Meaning |
@@ -229,7 +231,7 @@ runs adds `run_id` from `run.json`. Raw duals use the canonical convention (§1.
 
 | File | Gate | Key | Columns | Notes (audit §8) |
 |---|---|---|---|---|
-| `run.json` | 1 | – | `run_id`, `fingerprint` (SHA-256), `case_id`, `scenario_id`, `formulation_version`, `schema_version`, `git_commit`, `dirty_diff_hash`, `solver`, `solver_version`, `solver_options`, python/package versions, `seed`, timestamps, `solve_time_s`, `rows`, `cols`, `nnz`, `status`, `valid` (false if any conditioning fail), `crossover_ran` | §8.10; same fingerprint => identical outputs |
+| `run.json` | 1 | – | `run_id`, `fingerprint` (SHA-256), `case_id`, `scenario_id`, `formulation_version` (the case's declared `case.yaml` value; the fingerprint hashes the code's `capex.FORMULATION_VERSION` instead, F-0.3 amendment 2), `schema_version`, `git_commit`, `dirty_diff_hash`, `solver`, `solver_version`, `solver_options`, python/package versions, `seed`, timestamps, `solve_time_s`, `rows`, `cols`, `nnz`, `status`, `valid` (false if any conditioning fail), `crossover_ran` | §8.10; same fingerprint => identical outputs |
 | `dispatch.parquet` | 1 | `resource_id,period_id,t` | `g_mw`, `curtail_mw`, `charge_mw`, `discharge_mw`, `soc_mwh` (unserved energy is in `zone_hourly`) | primal; $w_p$ in `weights` join |
 | `zone_hourly.parquet` | 1 | `zone,period_id,t` | `demand_mw`, `unserved_mw`, `lmp_usd_mwh` ($\pi=y/w_p$), `bal_residual_mw`, `weight_hours` | prices & balance check |
 | `flows.parquet` | 1 | `link_id,period_id,t` | `flow_mw`, `congestion_rent_usd_mwh` ($\mu$), `at_bound` | under `dcpf`: same columns; $\mu=-s_f/w$, signed, $\mu f\ge0$ (formulation §7.4a.5) |
@@ -240,7 +242,7 @@ runs adds `run_id` from `run.json`. Raw duals use the canonical convention (§1.
 | `capacity.parquet` | 1 | `resource_id` | `existing_mw`, `new_mw`, `existing_mwh`, `new_mwh`, `at_xmax`, `x_reduced_cost_usd_mw_yr` | $x,x^P,x^E$ |
 | `duals_raw.parquet` | 1 | `label,index` | `dual` (canonical), `slack`, `basis_status`, `weight` | all row families + `x_ub`, `flow_*`, `use_ub` bounds |
 | `rents.parquet` | 1 | `resource_id` | `kind` (generator tech kind, or `ST` for storage); **\$/yr:** `energy_revenue`, `variable_cost`, `fixed_cost` (total fixed cost of built + existing capacity), `profit`, `revenue_identity_residual`; **\$/MW-yr (per unit of capacity):** `rent_cap_usd_mw_yr` ($R$, generators), `rent_pwr` ($R^P$), `cfix` (generators $C^{fix}$; storage $C^P+\delta C^E$ with $\delta$ the fixed duration, $\delta=0$ if duration is free), `excess_rent` (rent − `cfix`, candidates only); **\$/MWh-yr:** `rent_en` ($R^E$); **flags:** `build_status` (`at_zero`/`interior`/`at_max`/`existing`), `zero_profit_ok`, `rent_note` (`non-unique (bound)` for candidates at `at_zero`, else empty) | §8.5, checks §3.5–3.6. Per-unit and total columns differ by the capacity: e.g. T2b `bat` `cfix` 12,000 \$/MW-yr vs `fixed_cost` 120,000 \$/yr (C1) |
-| `price_setter.parquet` | 1 | `zone,period_id,t` | `primary_class`, `all_classes`, `setter_ids`, `setter_tech`, `setter_fuel`, `setter_zone`, `price`, `setter_cost`, `residual`, `island_id`, `binding_links`, `flags` (`IMPORT`,`CONGESTED`,`INVESTMENT_MARGIN`,`DEGENERATE`,`UNEXPLAINED`), `price_lo`, `price_hi`, `rent_ids` (`CAPACITY_RENT` rent set; `setter_ids` holds only the attributed subset) | §4 |
+| `price_setter.parquet` | 1 | `zone,period_id,t` | `primary_class`, `all_classes`, `setter_ids`, `setter_tech`, `setter_fuel`, `setter_zone`, `price`, `setter_cost`, `residual`, `island_id`, `binding_links`, `flags` (`IMPORT`,`CONGESTED`,`INVESTMENT_MARGIN`,`DEGENERATE`,`UNEXPLAINED`), `price_lo`, `price_hi`, `rent_ids` (`CAPACITY_RENT` rent set; `setter_ids` holds only the attributed subset). **List cells** (formulation §4 "List cells", F-0.3 amendment 2): items joined by `,` with no spaces; `setter_ids` in the class pool's row order (generators or storage in `resources.csv` order, unserved energy as `unserved:<zone>` in `zones.csv` order; `CONGESTION_LOOP`: by bus in `zones.csv` order, by id within a bus = `price_setter_loop` row order) — not sorted; `setter_tech`, `setter_fuel`, `setter_zone`, `rent_ids` distinct values sorted lexicographically; `binding_links` in `links.csv` row order; `all_classes` in evaluation order, total blackout `VOLL:BLACKOUT`; `flags` in the order `UNEXPLAINED`, then `DEGENERATE` or `INVESTMENT_MARGIN`, `BLACKOUT`, `IMPORT`, `CONGESTED`, `LINK_INCONSISTENT`. `island_id` integer: under `transport` the 0-based price-island label of the hour (connected component, per hour); under `dcpf` the $k$ of electrical island `i`$k$ (formulation §7.4a.2) | §4 |
 | `price_setter_summary.parquet` | 1 | `zone,tech,fuel,class` | `share_weighted_hours`, `weighted_hours` | IMM comparison metric |
 | `objective.parquet` | 1 | `component,id` | `component` (`Z_inv`,`Z_var`,`Z_use`,`Z0`), `id` (resource/zone/fuel), `value_usd_yr`; plus `total` row | sums to $Z$ within 1e-9 rel. |
 | `annualization.parquet` | 1 | `resource_id` | `I`, `dollar_year_in`, `deflator_factor`, `r`, `n`, `kappa`, `pff`, `crf`, `ann`, `fom`, `cfix` | §5.2 print |
@@ -283,7 +285,8 @@ Errors abort the run before the LP is built; warnings go to `health.parquet`. ID
    [0.02, 0.95]; weights with >30% in forced periods.
 10. **Scenario:** overrides target existing cells and types stay valid (re-run 1–9 after applying).
 11. **Network (G3, formulation §7.4a):** `tx.model` in {`transport`,`dcpf`}, `tx.dcpf_form` in {`angle`,`ptdf`}, every
-    `tx.ref_bus` entry is a zone id and at most one per island. Under `dcpf` (errors): every link has `reactance_pu > 0`
+    `tx.ref_bus` entry is a zone id and at most one per island; `switches` keys only from the implemented set and
+    `tolerances` keys only from the run's tolerance set (§1.1 `case.yaml` rows; unknown key = `DataError`, F-0.3 amendment 2). Under `dcpf` (errors): every link has `reactance_pu > 0`
     and `base_mva > 0`; `ntc_fwd_mw == ntc_rev_mw` (both blank or equal; symmetric rating); a rating of 0 is an error
     (delete the row to open a line); `formulation_version: F-0.3`. Under `dcpf` (warn): $b_l > 10^{6}$ MW/rad
     (`reactance_pu` tiny vs base) or $\max b/\min b > 10^{4}$ (conditioning, §6.2). Under `transport`: `reactance_pu`,
