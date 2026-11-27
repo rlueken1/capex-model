@@ -11,8 +11,8 @@ jobs:
     steps:
       - name: Record start time
         run: echo "CI_START=$(date +%s)" >> "$GITHUB_ENV"
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
       - name: Install
         run: |
@@ -44,7 +44,7 @@ jobs:
           pytest -v --disable-socket --junitxml=reports-ci/junit.xml 2>&1 | tee reports-ci/pytest.log
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports
           path: |
@@ -67,8 +67,8 @@ jobs:
     env:
       PYTHONHASHSEED: ${{ matrix.seed }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
       - name: Install
         run: |
@@ -78,7 +78,7 @@ jobs:
         run: python scripts/ci_health_run.py --out "$RUNNER_TEMP/health-out"
       - name: Upload case outputs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: health-seed-${{ matrix.seed }}
           path: ${{ runner.temp }}/health-out
@@ -87,12 +87,12 @@ jobs:
     needs: health-run
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
       - name: Install
         run: python -m pip install -r requirements-ci.txt
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: health-seed-*
           path: ${{ runner.temp }}/seeds

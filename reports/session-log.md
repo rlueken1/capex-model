@@ -222,3 +222,8 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 - pjm5: LMPs 16.98/26.38/30.00/39.94/10.00, D–E binding at 240 MW (μ −62.32); health pass.
 - Tests: 628 pass / 0 fail (44 former strict xfails now pass, markers removed by verifier); check_markers exit 0.
 - Open (non-blocking, for G3-5/G3-6): F-0.2 fingerprint constant; §7.4a.6 non-toy warn/fail split missing; pjm5 sources.csv/periods.csv provenance columns thin.
+
+2026-11-27 06:3x UTC — G3-4 (builder, Sonnet) on `gate-3`.
+K1: verify_artifact.py --print + workflow step prints provenance.json and per-file sha256 to the job log. K3: Actions bumped to checkout@v6, setup-python@v6, upload-artifact@v7, download-artifact@v8.
+Tests: check_workflows ok; local suite 614 pass / 14 fail, identical with change stashed (sandbox package fingerprint vs golden) — CI decides.
+Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
