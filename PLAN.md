@@ -1,7 +1,7 @@
 # PLAN
 
-STATUS: AWAITING_OWNER_REVIEW
-CURRENT GATE: 4 (RTS-GMLC) — criteria not yet drafted: prep P11 then P12 (`docs/gates/gate-4.md`, incl. DECISIONS 54(10) notes), then owner approval; until then runs take prep items
+STATUS: IN_PROGRESS
+CURRENT GATE: 4 (RTS-GMLC fixed-fleet dispatch vs PLEXOS) — criteria approved 2026-11-27 (DECISIONS 55), branch `gate-4`
 GATE 3: approved by owner 2026-11-27 (DECISIONS 54); merged into `main` 2026-11-27 (8ba64d2) on owner instruction (live session)
 GATE 2: approved by owner 2026-11-27 (DECISIONS 42); merged into `main` 2026-11-27 on owner instruction (live session)
 GATE 1: approved by owner 2026-11-26 (DECISIONS 33, 37); merged into `main` 2026-11-26 on owner instruction
@@ -154,6 +154,22 @@ One per session, strictly in order; claim before work (CLAUDE.md). Default netwo
 - [x] G3-7 PM [Sonnet] + markets reviewer [Opus] (1 subagent): `reports/gate-3-review.md` pass/fail table and owner yes/no list;
   STATUS: AWAITING_OWNER_REVIEW.
 
+## Gate 4 work items — branch `gate-4` (criteria: docs/gates/gate-4.md, approved 2026-11-27, DECISIONS 55)
+One per session, in order (gate-4.md §10; builder ≠ verifier).
+- [ ] G4-1 Formulation lead [Opus]: W-spec S1–S5 into formulation.md (F-0.4), data-schema, benchmarks §6; DECISIONS
+  entries (S1–S4 and the heat-rate choice).
+- [ ] G4-2 Data lead [Sonnet]: K4–K6. Converter variants `rts_gmlc_px`, `rts_gmlc_px_cp`, `rts_gmlc_nodal`(`_px`) (73 buses,
+  branch x/Cont Rating, DC1 `dc` ±100, load = area series × bus.csv `MW Load` share — check vs PLEXOS participation).
+  Sets `audit_profile: standard`; provenance on every new value.
+- [ ] G4-3 Verifier [Sonnet]: tests §4 (H1–N1, M13–M16) and the §5 comparison harness (F0/C0 route from case CSVs +
+  reference tables), from the spec, before the code exists (strict xfail).
+- [ ] G4-4 Builder [Sonnet]: S1–S4 in `src/capex/`, performance-ledger writer. No judging tests.
+- [ ] G4-5 Builder [Sonnet]: Actions job for R4-F/R4-NF (separate from CI, 30-min limit, artifact upload); CI runs window cases.
+- [ ] G4-6 Verifier [Sonnet]: runs everything, writes the evidence file and the ledger rows.
+- [ ] G4-7 Formulation lead [Opus]: code-vs-spec trace `reports/gate-4-spec-trace.md` (incl. the A1–A10 check).
+- [ ] G4-8 PM + markets reviewer [Opus]: `reports/gate-4-review.md` with the UC/reserve gap narrative (C1, G1, L1, U0)
+  and the decision list; STATUS → AWAITING_OWNER_REVIEW.
+
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
 Use when STATUS is AWAITING_OWNER_REVIEW, or when the next gate item is already claimed by another run (owner, 2026-11-26). One item per session, in order. Drafts and raw data only:
 no changes to `src/capex/`, no gate branch edits except ticking these boxes and the session log.
@@ -188,6 +204,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+Gate 4 criteria APPROVED 2026-11-27 (owner "Approve all", DECISIONS 55; O1–O7 yes). Branch `gate-4` created from `gate-3` with `docs/gates/gate-4.md` and `docs/drafts/architecture-spec.md` from `prep`. Next: G4-1 (formulation lead, Opus: S1–S5 into formulation.md, F-0.4). P11 O1–O6 still open.
 P12 done 2026-11-27 on `prep` (012008b, formulation lead Opus): DRAFT `docs/gates/gate-4.md` — PLEXOS reference is a 336-h window (Jul 5–18 2020, allTX/noTX, p063–p067), no full year; PLEXOS dispatch must be feasible in our LP (our cost = lower bound); cost gap ≤5% [P], tech mix ≤3 pp (nuclear ≤0.5 pp), USE = 0; LMPs reported not judged (UC/reserve gaps). Spec F-0.4 proposals S1 controllable HVDC 113–316 block (`tx.dc_links`, `links.link_type`), S2 storage in congestion price-interval LP (F3-9/F3-13), S3 `audit_profile` exact/standard (F3-3), S4 angle reduced-cost unscaling (F3-12), S5 benchmarks G4 row. Work items G4-1..G4-8 proposed. Owner questions O1–O7 at the end. Next: owner approves gate-4.md; PM then writes Gate 4 items on `gate-4`. Prep list exhausted.
 P11 done 2026-11-27 on `prep` (5ae07e1, formulation lead Opus): `docs/drafts/architecture-spec.md` — §A block contract A1–A10 (switch off = default, inputs unread when off, append-only layout, 3 coupling hooks, recompute check, price-setter statement, mutation hook, golden ablation identity); §B `ra.prm` (one system area, hard row ELCC×ICAP ≥ peak×(1+IRM)×ε̄, storage on P with fixed-duration candidates, κ $/MW-yr, no hourly class, annual capacity price-setter, T5 known answers, M11/M12); §C weighted rep-period PDC (exact W1, degenerate-hour envelopes, trimmed tail until Gate 9), monthly means and daily spreads from the reconstruction, M1.3 info, full-year dispatch = period-selection check. Owner questions O1–O6 in §E. Next: P12 (gate-4.md draft).
 Gate 3 DONE 2026-11-27: owner yes to all 10 review items (DECISIONS 54); `gate-3` merged into `main` (8ba64d2). Branch `g2-7b-broken-hash` delete refused from this workspace (proxy, as in Gate 2) — owner deletes it at GitHub. Next: prep P11 (formulation lead, Opus), then P12 drafts gate-4.md for owner approval; then PM writes Gate 4 items on `gate-4` (from `gate-3`).
