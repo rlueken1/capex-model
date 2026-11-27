@@ -1,13 +1,14 @@
 # Gate 2 evidence — CI + data-download workflow
 
-Item G2-7, verifier role, 2026-11-26. Criteria: `docs/gates/gate-2.md` §2–§5 (approved, DECISIONS 38).
-Commit under test: `c975ea4` on `gate-2` (code identical to G2-6 `ee5f3e7`; the claim commit changes only PLAN.md).
+Item G2-7 (verifier, 2026-11-26) and G2-7b (verifier, 2026-11-27 UTC). Criteria: `docs/gates/gate-2.md` §2–§5 (approved, DECISIONS 38).
+Commit under test for CI (§1–§2, §5): `c975ea4` on `gate-2` (code identical to G2-6 `ee5f3e7`). Commit under test for §3: `cafcff0` on `gate-2` (claim G2-7b; no code change since G2-7a).
 
-**Bottom line.** CI (C1–C9) passes on Actions. The data-download workflow **cannot be dispatched**:
-`.github/workflows/data-download.yml` is not valid YAML (line 79, col 44), so GitHub never registered its
-`workflow_dispatch` trigger. The dispatch API returns *"Workflow does not have 'workflow_dispatch' trigger"*.
-Evidence parts 3 and 4 (D3/D5 on Actions) are therefore **not produced**. The same fetch/verify scripts pass the
-D2–D5 checks locally (below). New items G2-7a (builder fix) and G2-7b (dispatch evidence) are added before G2-8.
+**Bottom line.** CI (C1–C9) passes on Actions. G2-7 found that `data-download.yml` was invalid YAML (V2-1) so it could not be
+dispatched; it was fixed in G2-7a (DECISIONS 41) and G2-7b now has the Actions evidence: two `gate-2` dispatches of `pjm5`
+both succeeded and uploaded an artifact (D5), and a dispatch from a throwaway branch with a corrupted pjm5 hash failed at
+"Fetch and verify" with all later steps skipped and no artifact (D3). Limits: the artifact contents and the step summary could not
+be read from this workspace (blob host blocked), so `provenance.json` fields (D4) are not observed on Actions, and the D5 "equal
+hashes" is shown through the pinned-hash verification in both job logs, not by reading hashes out of the artifacts.
 
 ## 1. CI run on the final gate-2 commit (C1–C4, C8, C9)
 - Run: https://github.com/rlueken1/capex-model/actions/runs/45890836224 (ci #107, `push`, head `c975ea4`) — **success**,
@@ -59,40 +60,61 @@ D2–D5 checks locally (below). New items G2-7a (builder fix) and G2-7b (dispatc
   not compared**: it needs the CI `prices` tables from the artifact, which this workspace cannot download. Fingerprints
   differ local vs CI (OS / Python fields), as gate-2.md C7 expects.
 
-## 3. Data-download dispatch and repeat (D5) — NOT PRODUCED
-- `actions_run_trigger run_workflow data-download.yml ref=gate-2 source_id=pjm5` →
-  **error: "Workflow does not have 'workflow_dispatch' trigger"**.
-- Cause (verifier finding **V2-1**, blocking): line 79 of `data-download.yml`,
-  `run: echo "data-download $SOURCE_ID: skipped (…)" >> "$GITHUB_STEP_SUMMARY"`, is a plain YAML scalar containing
-  `": "` → `yaml.safe_load` raises *"mapping values are not allowed here, line 79, column 44"*. GitHub lists the
-  workflow by its path (`.github/workflows/data-download.yml`) instead of its `name: data-download`, the usual sign
-  of an unparseable file, and records a failed run on every push (runs #1–#10, all `failure`, 0 jobs). The file on
-  `main` (f123ad1, DECISIONS 39) is byte-identical to `gate-2`'s, so both are broken. `ci.yml` parses.
-- Why nothing caught it: G2-3's 16 builder smoke tests exercise the scripts, not the YAML; no CI step parses workflow files.
-- Local substitute (same scripts the workflow calls, this workspace, live fetch from raw.githubusercontent.com):
-  two fetches of `pjm5` → `all_verified=True` both times; `provenance.json` has `source_id`, `vintage`
-  `matpower-b6c85b0`, URL, `retrieved_at`, per-file SHA-256, `workflow_run_id`/`git_commit` (= `local` off Actions);
-  per-file hashes equal across the two fetches (case5.m `ed907208…fe279`, LICENSE_MATPOWER `5d14c09b…1750`);
-  `verify_artifact.py` exit 0. This shows D2/D4/D5 logic works; it is **not** the Actions evidence §5(3) asks for.
+## 3. Data-download dispatch and repeat (D5)
+Workflow `data-download` (path `.github/workflows/data-download.yml`, workflow id 431840597), `workflow_dispatch`, `ref=gate-2`,
+input `source_id=pjm5` (`vintage` blank, `pin_mode` default `verify`). Dispatch accepted both times (HTTP 204).
 
-## 4. Broken-hash dispatch (D3) — NOT PRODUCED on Actions
-- Not attempted on a throwaway branch: the dispatch trigger is unregistered (§3), so it would fail for the wrong reason.
-- Local substitute: manifest copy with a corrupted `case5.m` hash → `HASH MISMATCH case5.m …`,
-  `ERROR: hash/size check failed; output removed, nothing will be uploaded`, **exit 1**, output dir absent.
-  Unknown `source_id` (`nosuch`) → `ERROR: unknown source_id`, **exit 2** (D2).
+| | Run 1 | Run 2 |
+|---|---|---|
+| Run | [45916594450](https://github.com/rlueken1/capex-model/actions/runs/45916594450) (#14) | [45916775025](https://github.com/rlueken1/capex-model/actions/runs/45916775025) (#15) |
+| Head | `cafcff0` (gate-2) | `cafcff0` (gate-2) |
+| Conclusion | **success** (job `download`, ubuntu-24.04, 6 s) | **success** (job `download`, 17 s) |
+| Fetch and verify | success: `OK: 2 file(s) in download/pjm5; all_verified=True` | same line |
+| Re-verify before upload | success: `OK: download/pjm5 matches provenance.json and manifest` | same line |
+| Provenance summary | success (summary page not readable here) | success |
+| Note skipped source | skipped | skipped |
+| Upload artifact | success, 3 files (case5.m, LICENSE_MATPOWER, provenance.json) | success, 3 files |
+| Artifact | `data-pjm5-default-45916594450`, id 15162192600, 2,706 B, retention 90 d (expires 2027-02-25) | `data-pjm5-default-45916775025`, id 15161949978, 2,704 B, retention 90 d (expires 2027-02-25) |
+| Artifact zip sha256 | `2ed26ce4c671a3cdfab6f13b90525ff7ae8bb7f5f155b121ae8b48e748955346` | `9e4925bbec35db6b54356cf0fa503068592f46dd19ff4ffbddd40bec12cb226b` |
 
-Static D-criteria (read from the file; valid once V2-1 is fixed):
+Both fetches GET the pinned URLs `raw.githubusercontent.com/MATPOWER/matpower/b6c85b0…/data/case5.m` and `/LICENSE` and passed
+verification against `data/manifests/pjm5.csv`, whose pins are case5.m `ed9072089d080debde2aa029ed8a95491c311b08ff4f45ad7bf06882d86fe279`
+(1,921 B) and LICENSE_MATPOWER `5d14c09b3e4f2adf62c0373e6320163697aa4603186f8925c07c6b84201e1750` (2,074 B). So both runs produced
+files with identical per-file SHA-256 (equal to the pins, which `fetch_source.py` enforces and `verify_artifact.py` re-checks).
+**Not observed:** the per-file hashes as printed in the step summary or in `provenance.json` (the job logs do not contain the
+summary, and the artifact download URL is blocked by this workspace's proxy: `productionresultssa1.blob.core.windows.net` HTTP 403).
+The two artifact zip digests differ; that is expected because `provenance.json` carries `retrieved_at` and the run id (inference,
+the archive size differs by 2 B, not inspected). D5 is judged on per-file hashes, not zip digests.
+Earlier local substitute (G2-7, same scripts): two fetches equal per-file hashes; superseded by the above.
+
+## 4. Broken-hash dispatch (D3)
+- Throwaway branch `g2-7b-broken-hash` from `gate-2` (commit `6894418`), one change: `data/manifests/pjm5.csv` case5.m sha256
+  set to 64 zeros. (Workflow file identical to gate-2; dispatch trigger comes from `main`'s registration.)
+- Run [45916853288](https://github.com/rlueken1/capex-model/actions/runs/45916853288) (#16), `ref=g2-7b-broken-hash`, `source_id=pjm5`: **failure**, job `download` 11 s.
+- Steps: checkout success, setup-python success, **Fetch and verify: failure**, then Re-verify, Provenance summary, Note skipped
+  source, Upload artifact, Post setup-python all **skipped**.
+- Job log (failed step):
+  ```
+  HASH MISMATCH case5.m: got ed9072089d080debde2aa029ed8a95491c311b08ff4f45ad7bf06882d86fe279, manifest 0000000000000000000000000000000000000000000000000000000000000000
+  ERROR: hash/size check failed; output removed, nothing will be uploaded
+  ##[error]Process completed with exit code 1.
+  ```
+- Artifacts for run 45916853288: `total_count: 0` (list API) — **nothing uploaded**.
+- Local substitute from G2-7 (unknown `source_id` `nosuch` → `ERROR: unknown source_id`, exit 2; D2). Not re-run on Actions.
+- **Cleanup status:** deleting the throwaway branch was attempted (`git push origin --delete g2-7b-broken-hash`, twice) and the
+  push was refused with HTTP 403 from this workspace. The branch **still exists** on origin at `6894418`; the owner must delete it
+  (the branch contains only the corrupted manifest and must never be merged).
 
 | # | Result | Evidence |
 |---|---|---|
-| D1 | **fail (V2-1)** | intent correct (`workflow_dispatch` only, inputs `source_id`, `vintage`, `pin_mode`; no `schedule:`), but the file does not parse, so the trigger does not exist on GitHub |
-| D2 | pass (local) | manifest-driven; unknown id exits 2 |
-| D3 | pass (local) / not shown on Actions | mismatch exits 1, output removed, later steps gated on `fetched == 'true'` |
-| D4 | pass (local) | `provenance.json` fields above |
-| D5 | pass (local) / not shown on Actions | equal hashes on repeat; `upload-artifact@v4`, `retention-days: 90` |
-| D6 | pass | `permissions: contents: read`; no `git push` step; `persist-credentials: false` |
-| D7 | pass (static) | `EIA_API_KEY` / `PJM_DATAMINER_KEY` passed via env from `secrets.*`, never echoed; skip note step |
-| D8 | pass (local, G2-3) | `scripts/fetch_artifact.py` / `fetch_artifact.md`; `verify_artifact.py --against` |
+| D1 | pass | file parses and is registered: dispatched twice on `gate-2` and once on a throwaway branch (HTTP 204); `on:` has only `workflow_dispatch`, no `schedule:` |
+| D2 | pass | manifest-driven (log shows pinned URLs and file list from `pjm5.csv`); unknown id exits 2 (local, G2-7); not re-run on Actions |
+| D3 | **pass** | run 45916853288: HASH MISMATCH, step failed, exit 1, all later steps skipped, 0 artifacts |
+| D4 | pass (partial) | Actions: `verify_artifact.py` logged "matches provenance.json and manifest" and upload shows 3 files (2 data + `provenance.json`); field contents (`retrieved_at`, run id, commit) verified locally in G2-7 only, **not read from the Actions artifact** |
+| D5 | **pass** (hashes via pins) | runs 45916594450 and 45916775025 both success, artifacts uploaded with 90-day retention, both verified to the same pinned per-file SHA-256; artifact/summary hashes not read directly (see §3) |
+| D6 | pass | `permissions: contents: read`, no `git push` step, `persist-credentials: false`; run logs show token scope unchanged |
+| D7 | pass (static + log) | `EIA_API_KEY` / `PJM_DATAMINER_KEY` appear empty in the run env; `pjm5` needs no key; keyed-source skip path not exercised on Actions |
+| D8 | pass (local, G2-3) | `scripts/fetch_artifact.py` / `fetch_artifact.md`; `verify_artifact.py --against`; not exercised against these Actions artifacts (download blocked) |
 
 ## 5. C5 proof (a marker without a reason fails)
 - CI step "Check xfail/skip markers (C5)" on run #107: `check_markers.py --self-test` rejects the bad sample
@@ -118,10 +140,9 @@ All in `tests/test_gate2_findings.py` (27) — pass on CI run #107.
 - No `docs/formulation.md` change; F5 fixes the adapter to the existing dual-sign spec.
 
 ## 8. Known limitations
-1. **V2-1 (blocking for D1/D3/D5):** `data-download.yml` invalid YAML; fix = make line 79 a block scalar (`run: |`)
-   or quote it; add a CI step that parses every `.github/workflows/*.yml` so this can't recur. The fixed file must
-   reach `main` again before any dispatch (GitHub reads the trigger from the default branch).
-2. Every push to any branch records a failed `data-download` run until V2-1 is fixed (red ✗ noise next to green CI).
+1. V2-1 (data-download.yml invalid YAML) fixed in G2-7a (DECISIONS 41); D1/D3/D5 now shown on Actions (§3, §4). A CI step that
+   parses every `.github/workflows/*.yml` was proposed so this cannot recur; whether it landed is not checked here.
+2. Throwaway branch `g2-7b-broken-hash` could not be deleted from this workspace (HTTP 403 on branch deletion); owner action.
 3. C3 fingerprint-version equality and C7 local-vs-CI π not inspected directly: this workspace cannot download
    Actions artifacts (blob-storage host blocked by the proxy). Objectives agree exactly.
 4. Local checks ran on Python 3.13 (same package pins), not 3.12; CI is the reference environment.
