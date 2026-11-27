@@ -158,7 +158,7 @@ One per session, strictly in order; claim before work (CLAUDE.md). Default netwo
 One per session, in order (gate-4.md §10; builder ≠ verifier).
 - [x] G4-1 Formulation lead [Opus]: W-spec S1–S5 into formulation.md (F-0.4), data-schema, benchmarks §6; DECISIONS
   entries (S1–S4 and the heat-rate choice).
-- [ ] G4-2 Data lead [Sonnet]: K4–K6. Converter variants `rts_gmlc_px`, `rts_gmlc_px_cp`, `rts_gmlc_nodal`(`_px`) (73 buses,
+- [~] G4-2 Data lead [Sonnet]: K4–K6. (claimed 2026-11-27T21:24Z) Converter variants `rts_gmlc_px`, `rts_gmlc_px_cp`, `rts_gmlc_nodal`(`_px`) (73 buses,
   branch x/Cont Rating, DC1 `dc` ±100, load = area series × bus.csv `MW Load` share — check vs PLEXOS participation).
   Sets `audit_profile: standard`; provenance on every new value.
 - [ ] G4-3 Verifier [Sonnet]: tests §4 (H1–N1, M13–M16) and the §5 comparison harness (F0/C0 route from case CSVs +
