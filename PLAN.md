@@ -163,7 +163,7 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
   Sets `audit_profile: standard`; provenance on every new value.
 - [x] G4-3 Verifier [Sonnet]: tests §4 (H1–N1, M13–M16) and the §5 comparison harness (F0/C0 route from case CSVs +
   reference tables), from the spec, before the code exists (strict xfail).
-- [ ] G4-4 Builder [Sonnet]: S1–S4 in `src/capex/`, performance-ledger writer. No judging tests.
+- [~] G4-4 Builder [Sonnet]: S1–S4 in `src/capex/`, performance-ledger writer. No judging tests. (claimed 2026-11-27T23:24Z)
 - [ ] G4-5 Builder [Sonnet]: Actions job for R4-F/R4-NF (separate from CI, 30-min limit, artifact upload); CI runs window cases.
 - [ ] G4-6 Verifier [Sonnet]: runs everything, writes the evidence file and the ledger rows.
 - [ ] G4-7 Formulation lead [Opus]: code-vs-spec trace `reports/gate-4-spec-trace.md` (incl. the A1–A10 check).
