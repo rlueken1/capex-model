@@ -276,3 +276,8 @@ Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
 Ruling: empty `tx.ref_bus` list = `DataError`; default reference only by omitting the key. F-0.3 amendment 3 in
 formulation §7.4a.1 + data-schema rule 11; DECISIONS 53. Spec only, no src/tests change; check_markers ok (suite not
 runnable here: highspy missing in this workspace; CI is the judge). Next: G3-6-fix5 (builder). Nothing needs the owner.
+
+2026-11-27 16:2x UTC — G3-6-fix5 (builder Sonnet + verifier Sonnet, 2 subagents), branch gate-3.
+Isolated node = own island now runs (audit `ptdf`/`angles_from_injection` skip empty reduced block); `tx.ref_bus: []`
+→ `DataError` per DECISIONS 53. Verifier removed both G3-6-fix3 strict xfails. 671 pass / 0 fail; check_markers ok;
+T1–T4 golden + pjm5 unchanged. Next: G3-7 (gate-3 review). Nothing needs the owner.

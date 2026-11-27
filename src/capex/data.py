@@ -177,9 +177,12 @@ def check_network_switches(manifest: dict) -> None:
     unknown = [k for k in switches if k not in SWITCH_KEYS]
     if unknown:
         raise DataError(f"switch {unknown[0]!r} is not implemented (implemented: {SWITCH_KEYS})")
-    ref = switches.get("tx.ref_bus", [])
-    if not isinstance(ref, str) and not (isinstance(ref, list) and all(isinstance(z, str) for z in ref)):
-        raise DataError(f"switch tx.ref_bus must be a zone id or a list of zone ids, got {ref!r}")
+    if "tx.ref_bus" in switches:
+        ref = switches["tx.ref_bus"]
+        if not isinstance(ref, str) and not (isinstance(ref, list) and all(isinstance(z, str) for z in ref)):
+            raise DataError(f"switch tx.ref_bus must be a zone id or a list of zone ids, got {ref!r}")
+        if not ref:
+            raise DataError("switch tx.ref_bus names no zone; omit the key for the default")
     if not isinstance(switches.get("scaling", True), bool):
         raise DataError(f"switch scaling must be true or false, got {switches['scaling']!r}")
     model, form = switches.get("tx.model", "transport"), switches.get("tx.dcpf_form", "angle")

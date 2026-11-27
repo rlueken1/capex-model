@@ -95,7 +95,8 @@ def ptdf(g: Grid) -> np.ndarray:
     x = np.zeros((n, n))
     for i in range(len(g.ids)):
         keep = g.reduced(i)
-        x[np.ix_(keep, keep)] = np.linalg.solve(bus[np.ix_(keep, keep)], np.eye(len(keep)))
+        if len(keep):
+            x[np.ix_(keep, keep)] = np.linalg.solve(bus[np.ix_(keep, keep)], np.eye(len(keep)))
     h = g.b[:, None] * (g.incidence @ x)
     h[np.abs(h) <= PTDF_NOISE] = 0.0
     return h
@@ -115,8 +116,9 @@ def angles_from_injection(g: Grid, inj: np.ndarray) -> np.ndarray:
     bus, theta = _bus_susceptance(g), np.zeros(inj.shape)
     for i in range(len(g.ids)):
         keep = g.reduced(i)
-        theta[keep] = np.linalg.solve(bus[np.ix_(keep, keep)], inj[keep].reshape(len(keep), -1)).reshape(
-            (len(keep), *inj.shape[1:]))
+        if len(keep):
+            theta[keep] = np.linalg.solve(bus[np.ix_(keep, keep)], inj[keep].reshape(len(keep), -1)).reshape(
+                (len(keep), *inj.shape[1:]))
     return theta
 
 

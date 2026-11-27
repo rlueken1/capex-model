@@ -95,10 +95,9 @@ def test_loader_rejects_non_string_ref_bus(tmp_path, model, bad):
         load_case(cd)
 
 
-@pytest.mark.xfail(strict=True, reason="SPEC-GAP: empty tx.ref_bus list (Gate 3, DECISIONS 51)")
 def test_loader_empty_ref_bus_list_is_rejected(tmp_path):
-    """7.4a.1 says 'zone id, or list of zone ids (<= 1 per island)' and data-schema rule 11 'every entry is a zone id';
-    neither says what an empty list means (error, or the default rule). Written as 'error'; the code accepts it."""
+    """7.4a.1 / data-schema rule 11 (F-0.3 amendment 3, DECISIONS 53): `tx.ref_bus: []` names no zone, so it is a DataError.
+    The default reference rule applies only when the key is omitted."""
     from capex.data import DataError, load_case
     cd = make_pjm5(tmp_path, switches={"tx.model": "dcpf", "tx.ref_bus": []})
     with pytest.raises(DataError):
@@ -247,8 +246,6 @@ def test_congestion_rent_residual_is_per_island_not_summed():
     assert _rent_residual(g, pi, inj, mu, f) == pytest.approx(1.0, abs=1e-12)
 
 
-@pytest.mark.xfail(strict=True, reason="G3-6-fix3 finding (Gate 3, formulation 7.4a.2): isolated node (own island) crashes capex.audit.network "
-                                       "angles_from_injection (empty reduced block, reshape ValueError)")
 def test_isolated_node_is_its_own_island_and_runs(tmp_path):
     """7.4a.2: 'an isolated node is its own island' (reference = itself, no lines, no rent). pjm5 minus bc, cd leaves C alone."""
     cd = make_pjm5(tmp_path / "c", drop_links=("bc", "cd"),
