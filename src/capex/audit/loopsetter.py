@@ -16,6 +16,7 @@ from .pricesetter import LoopRow, PriceSetter, _Class, _classes, _Interval, asse
 from .solved import Solved
 
 N_LOCAL = 6    # VOLL, VOLL_BLACKOUT, MARGINAL_UNIT, STORAGE_DIS, STORAGE_CH, TIE_AT_BOUND (CAPACITY_RENT follows)
+BLACKOUT = "VOLL_BLACKOUT"
 LOOP_COLUMNS = ["zone", "period_id", "t", "resource_id", "alpha", "cost_usd_mwh", "setter_zone", "case"]
 
 
@@ -39,9 +40,10 @@ def _congestion(sv: Solved, eco: Economics, rep: NetworkReport, tol_pi: np.ndarr
 
 
 def _members(sv: Solved, eco: Economics, local: list[_Class], nodes: np.ndarray, p: int, t: int) -> list[Member]:
-    """M_i: every setter of a bus-local class at any bus of the island, sorted by id."""
+    """M_i: every setter of a bus-local class at any bus of the island, sorted by id. Class setters already passed
+    their class's price check; VOLL_BLACKOUT is excluded (pi = VOLL + mu_use there is not a known cost, see `_bounds`)."""
     case, found = sv.case, []
-    for cls in local:
+    for cls in (c for c in local if c.name != BLACKOUT):
         pool = pools(case, cls.kind, *eco.pi.shape[1:])
         for z in nodes:
             idx = np.flatnonzero(cls.setters[z, :, p, t])
@@ -51,7 +53,8 @@ def _members(sv: Solved, eco: Economics, local: list[_Class], nodes: np.ndarray,
 
 
 def _bounds(sv: Solved, nodes: np.ndarray, h_k: np.ndarray, p: int, t: int) -> list[loop.Bound]:
-    """Resources at a bound at a bus of the island: gens at cap (pi >= mc) or zero (pi <= mc), unserved at 0 (<= VOLL)."""
+    """Resources at a bound at a bus of the island: gens at cap (pi >= mc) or zero (pi <= mc), unserved at 0 (<= VOLL),
+    total-blackout buses (pi >= VOLL)."""
     case, gen, tol = sv.case, sv.case.gen, sv.case.tolerances
     g, cap = sv.var("g")[:, p, t], gen.avail[:, p, t] * (gen.k0 + sv.var("x"))
     tq = np.maximum(tol.tol_q_abs_mw, tol.tol_q_rel * (gen.k0 + sv.var("x")))
@@ -60,7 +63,9 @@ def _bounds(sv: Solved, nodes: np.ndarray, h_k: np.ndarray, p: int, t: int) -> l
            for r in np.flatnonzero(in_island & ((g >= cap - tq) | (g <= tq)))]
     u, d = sv.var("use")[:, p, t], case.demand[:, p, t]
     zero_unserved = [z for z in nodes if u[z] <= max(tol.tol_q_abs_mw, tol.tol_q_rel * d[z]) and d[z] > tol.tol_q_abs_mw]
-    return out + [loop.Bound(loop.phi(h_k, np.array([z]))[0], case.voll, -1) for z in zero_unserved]
+    blackout = [z for z in nodes if u[z] >= d[z] - max(tol.tol_q_abs_mw, tol.tol_q_rel * d[z]) and d[z] > tol.tol_q_abs_mw]
+    return (out + [loop.Bound(loop.phi(h_k, np.array([z]))[0], case.voll, -1) for z in zero_unserved]
+            + [loop.Bound(loop.phi(h_k, np.array([z]))[0], case.voll, 1) for z in blackout])
 
 
 def _island_hour(sv: Solved, rep: NetworkReport, members: list[Member], nodes: np.ndarray, binding: np.ndarray,

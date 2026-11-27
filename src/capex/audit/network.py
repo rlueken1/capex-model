@@ -138,9 +138,13 @@ def _line_dual_violation(sv: Solved, g: Grid, mu: np.ndarray) -> float:
     return float(max(off.max(initial=0.0), on.max(initial=0.0)))
 
 
-def _rent_residual(pi: np.ndarray, inj: np.ndarray, mu: np.ndarray, f: np.ndarray) -> float:
-    """Congestion-rent identity: sum_n pi (-inj) = sum_l mu f per hour, relative to max(1, |sum mu f|)."""
-    lhs, rhs = (pi * -inj).sum(axis=0), (mu * f).sum(axis=0)
+def _rent_residual(g: Grid, pi: np.ndarray, inj: np.ndarray, mu: np.ndarray, f: np.ndarray) -> float:
+    """Congestion-rent identity per island-hour: sum_{n in i} pi (-inj) = sum_{l in i} mu f, relative to
+    max(1, |sum mu f|); the maximum over (i,p,t), so residuals of different islands cannot cancel."""
+    lhs = np.zeros((len(g.ids), *pi.shape[1:]))
+    rhs = np.zeros_like(lhs)
+    np.add.at(lhs, g.node, pi * -inj)
+    np.add.at(rhs, g.line, mu * f)
     return float((np.abs(lhs - rhs) / np.maximum(1.0, np.abs(rhs))).max(initial=0.0))
 
 
@@ -192,7 +196,7 @@ def network_report(sv: Solved, eco: Economics) -> NetworkReport:
     metrics = {
         "kvl": _kvl_residual(sv, g, theta), "ptdf": float(np.abs(f - line_flow(g, rc_theta)).max(initial=0.0)),
         "lmp": float(np.abs(pi - (energy + congestion)).max(initial=0.0)),
-        "rent": _rent_residual(pi, inj, mu, f), "line_duals": _line_dual_violation(sv, g, mu)}
+        "rent": _rent_residual(g, pi, inj, mu, f), "line_duals": _line_dual_violation(sv, g, mu)}
     return NetworkReport(grid=g, h=h, inj=inj, theta=theta, theta_source="lp" if lp_theta else "recomputed",
                          lmp_energy=energy, lmp_congestion=congestion, metrics=metrics,
                          island_violations=violations, island_detail=detail)

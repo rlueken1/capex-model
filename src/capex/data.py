@@ -4,7 +4,7 @@ from __future__ import annotations
 import calendar
 import hashlib
 import warnings
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from datetime import date
 from pathlib import Path
 
@@ -54,6 +54,7 @@ REQUIRED_TABLES = ["periods", "load", "load_meta", "zones", "resources", "financ
 NULLABLE = {"links": ["ntc_fwd_mw", "ntc_rev_mw"]}      # blank rating = unlimited (data-schema 3.2)
 TX_MODELS = ("transport", "dcpf")
 DCPF_FORMS = ("angle", "ptdf")
+SWITCH_KEYS = ("tx.model", "tx.dcpf_form", "tx.ref_bus", "scaling")    # implemented switches (7.4a.1, amendment 2)
 PROVENANCE_TABLES = ["load_meta", "links", "resources", "finance", "availability_meta", "fuel_prices_meta", "deflator"]
 
 
@@ -173,6 +174,14 @@ def read_manifest(case_dir: Path) -> dict:
 def check_network_switches(manifest: dict) -> None:
     """Switch values of data-schema rule 11 that need no tables; dcpf needs formulation F-0.3."""
     switches = manifest.get("switches") or {}
+    unknown = [k for k in switches if k not in SWITCH_KEYS]
+    if unknown:
+        raise DataError(f"switch {unknown[0]!r} is not implemented (implemented: {SWITCH_KEYS})")
+    ref = switches.get("tx.ref_bus", [])
+    if not isinstance(ref, str) and not (isinstance(ref, list) and all(isinstance(z, str) for z in ref)):
+        raise DataError(f"switch tx.ref_bus must be a zone id or a list of zone ids, got {ref!r}")
+    if not isinstance(switches.get("scaling", True), bool):
+        raise DataError(f"switch scaling must be true or false, got {switches['scaling']!r}")
     model, form = switches.get("tx.model", "transport"), switches.get("tx.dcpf_form", "angle")
     if model not in TX_MODELS:
         raise DataError(f"switch tx.model must be one of {TX_MODELS}, got {model!r}")
@@ -180,6 +189,17 @@ def check_network_switches(manifest: dict) -> None:
         raise DataError(f"switch tx.dcpf_form must be one of {DCPF_FORMS}, got {form!r}")
     if model == "dcpf" and manifest["formulation_version"] != DCPF_FORMULATION:
         raise DataError(f"tx.model = dcpf requires formulation_version {DCPF_FORMULATION}")
+
+
+def read_tolerances(manifest: dict, dcpf: bool) -> Tolerances:
+    """The run's tolerance set; a key that is not one of its fields is a DataError (7.4a.1, amendment 2)."""
+    kind = NetworkTolerances if dcpf else Tolerances
+    given = manifest.get("tolerances") or {}
+    known = {f.name for f in fields(kind)}
+    unknown = [k for k in given if k not in known]
+    if unknown:
+        raise DataError(f"tolerance {unknown[0]!r} is not a key of {kind.__name__}")
+    return kind(**given)
 
 
 def read_tables(case_dir: Path, manifest: dict) -> dict[str, pd.DataFrame]:
@@ -552,7 +572,7 @@ def load_case(case_dir: str | Path) -> Case:
         model_year=int(manifest["model_year"]), zones=tuple(zones), periods=tuple(periods), w=w,
         demand=_grid(load, "zone", zones, periods, "demand_mw"), voll=float(manifest["voll_usd_mwh"]) * voll_factor,
         gen=gen, storage=build_storage(res, factors, ann, zone_ix), links=build_links(tables, zone_ix),
-        tolerances=(NetworkTolerances if dcpf else Tolerances)(**manifest.get("tolerances", {})),
+        tolerances=read_tolerances(manifest, dcpf),
         switches=manifest.get("switches", {}),
         solver_config=manifest.get("solver", {}), seed=int(manifest.get("seed", 0)), config=manifest, tables=tables,
         annualization=ann, conversions=conv, n_avail_zeroed=n_zeroed)
