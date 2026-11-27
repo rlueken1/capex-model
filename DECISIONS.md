@@ -262,3 +262,22 @@
     health diagnostics, which would make the values CPU-independent; it changes golden health values, so it needs its own
     item and owner yes. This narrows how Gate-2 C7 "byte-identical" is read (two health values only) → owner yes/no in
     the Gate-3 review.
+
+2026-11-27 (formulation lead, G3-6 code-vs-spec trace, reports/gate-3-spec-trace.md)
+51. Formulation F-0.3 **amendment 2** (rules/wording only; LP, duals, thresholds unchanged, version string stays `F-0.3`).
+    (a) §7.4a.1: a `switches` key the code does not implement is a `DataError` whatever its value (incl. reserved
+    later-gate keys); implemented at Gate 3: `tx.model`, `tx.dcpf_form`, `tx.ref_bus`, `scaling`; unknown `tolerances`
+    keys and a non-string `tx.ref_bus` are `DataError`, not `TypeError` (G3-5 found `tx.dcpf_formm: ptdf` silently ran
+    angle; this trace found `tx.losses: true` silently ignored). (b) §7.4a.6 `congestion_rent` per island-hour (was
+    summed over islands per hour; residuals of two islands could cancel). Non-toy MW warn/fail split stays unbuilt for
+    all four MW checks and is specified in Gate 4 (every Gate 3 case is a test system at 1e-6). (c) §7.4a.7: line
+    $tol_\pi$ = max of the end buses' $tol_\pi$, line $tol_q$ = `tol_q_abs_mw` (the code's reading); $\mathcal M_i$ members
+    must pass their class price check (code); `BLACKOUT` is **not** a marginal member (π = VOLL + μ^use is not a known
+    cost; the F-0.3 text was wrong) and becomes a case-(c) bound π ≥ VOLL; storage bounds in case (c) deferred (interval
+    only wider). (d) §4 "List cells": the Gate-2 code's join/order rules ratified (transport byte identity freezes them;
+    "sorted" in §7.4a.7 for `setter_ids`/`binding_links` was not what the code writes); `island_id` integer, 0-based
+    price island under `transport`, k of `ik` under `dcpf`. (e) §8.10: the fingerprint carries the **code's** version
+    (`capex.FORMULATION_VERSION`, F-0.3 from Gate 3; §7.4a.9 already masks it in the golden test); `run.json` keeps the
+    case's declared version. (f) §8.12: congestion rent per hour/year is read from `flows` (no table). Rejected: changing
+    `setter_ids` to sorted order (breaks transport golden); keeping the fingerprint at F-0.2 (hides the formulation
+    change; §7.4a.9 was written to let it differ). Code fixes: G3-6-fix2/fix3 in PLAN.md.

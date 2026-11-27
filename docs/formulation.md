@@ -10,6 +10,10 @@ weights $\alpha$ and `DEGENERATE` sub-tag, outputs, `transport` identity rule, m
 F-0.3 amendment 1 (G3-3-fix2, 2026-11-27, DECISIONS 50): comparison rule only — §8.10a: the `value` field of
 `health.csv` and `health_report.md` is compared at an absolute-or-relative 1e-12 tolerance when two runs are compared;
 every other byte of every canonical output stays byte-identical. LP, outputs, fingerprint inputs and thresholds unchanged.
+F-0.3 amendment 2 (G3-6 trace, 2026-11-27, DECISIONS 51): wording/rules only, LP unchanged — §7.4a.1 unknown switch and
+tolerance keys are load errors; §7.4a.6 `congestion_rent` per island-hour, non-toy MW split deferred to Gate 4; §7.4a.7
+line tolerances, $\mathcal M_i$ needs the price check and excludes `BLACKOUT` (a bound in case (c)); §4 list-cell formats
+(the Gate-2 code's, ratified); §8.10 fingerprint carries the code's version; §8.12 congestion rent read from `flows`.
 F-0.2 changes (DECISIONS 25): daily fuel price $\phi_{f,p,t}$; DECISIONS 22–24 applied (ATB-style PFF default,
 block-average price scoring, 2024\$ / ORDC backcast scarcity); `VOLL` class covers total blackout; tolerances,
 $Z^0$, $FOM^P/FOM^E$, weight range, remainder-day rule and basic-solution requirement made consistent;
@@ -307,6 +311,14 @@ classes): mean of their costs. Further column `rent_ids` (the `CAPACITY_RENT` re
 weighted hours ($\sum w_p$) by marginal fuel/tech per zone — the IMM comparison metric.
 Ties between several marginal units split the hour equally among them; a `CAPACITY_RENT` hour is split
 equally among its setters only (not among all of `rent_ids`).
+**List cells** (amendment 2 of F-0.3; ratifies the Gate-2 code, which `transport` byte identity freezes): items joined by
+`,` with no spaces. `setter_ids`: local classes in the row order of the class's pool (generators, or storage, in
+`resources.csv` order; unserved energy as `unserved:<zone>` in `zones.csv` order); `CONGESTION_LOOP`: grouped by bus in
+`zones.csv` order, by id within a bus (= row order of `price_setter_loop`). `setter_tech`, `setter_fuel`, `setter_zone`,
+`rent_ids`: distinct values, sorted lexicographically. `binding_links`: `links.csv` row order. `all_classes`: evaluation
+order, total blackout written `VOLL:BLACKOUT`. `flags`: `UNEXPLAINED`, then `DEGENERATE` or `INVESTMENT_MARGIN`, `BLACKOUT`,
+`IMPORT`, `CONGESTED`, `LINK_INCONSISTENT`. `island_id` (integer): `transport` — 0-based label of the hour's price island
+(connected-component label, per hour); `dcpf` — $k$ of electrical island `i`$k$ (§7.4a.2).
 
 Later classes (inserted before `CAPACITY_RENT`, by gate): `RESERVE_ORDC` (G7: price includes
 reserve shadow price via headroom coupling), `LOSS_HURDLE` (G8: island test becomes
@@ -474,6 +486,12 @@ contingencies in this gate. A fixed-fleet run is the existing data rule ($X^{max
 
 `tx.dcpf_form` and `tx.ref_bus` are ignored under `transport` (they still enter the fingerprint as config). The builder
 never writes a default into `case.config`: an absent key stays absent (needed for §7.4a.9).
+**Keys (amendment 2):** a `switches` key the code does not implement is a load error (`DataError` naming the key),
+whatever its value — this includes keys data-schema reserves for later gates (`tx.losses`, `reserves.enabled`, …), which
+become valid in their own gate. Implemented at Gate 3: `tx.model`, `tx.dcpf_form`, `tx.ref_bus`, `scaling` (bool, default
+true = §6.1 scaling on). `tx.ref_bus` must be a string or a list of strings. A `tolerances` key that is not a field of the
+run's tolerance set (Gate 1 keys; plus the §7.4a.6 keys only under `dcpf`) is likewise a `DataError`, never a Python
+`TypeError`. Reason: a typo (`tx.dcpf_formm`) or a not-yet-built feature (`tx.losses: true`) must not run silently as the default.
 
 #### 7.4a.2 Sets, parameters, units, islands
 | Symbol | Meaning | Unit / source |
@@ -552,12 +570,16 @@ present only under `dcpf` (so the `tolerances` fingerprint component is unchange
 | `kvl.recompute` | $\max_{l,p,t}\lvert f - b_l^{case}(\theta_o-\theta_e)\rvert$ MW, $\theta$ from output `angles` (angle form: LP $\theta$; PTDF form: recomputed, see `angles`) | ≤ `kvl_residual_mw` = 1e-6 |
 | `ptdf.recompute` | $\max\lvert f - f^{rc}\rvert$ MW; $f^{rc}$: solve $B^i_{red}\theta=\text{inj}$ (case $b$, solved inj, `numpy.linalg.solve`, no PTDF matrix), $f^{rc}_l=b_l(\theta_o-\theta_e)$ | ≤ `kvl_residual_mw` |
 | `lmp.decomposition` | $\max_{n,p,t}\lvert \pi_n - (\lambda_{i(n)} - \sum_l H^{case}_{l,n}\mu_l)\rvert$ \$/MWh | ≤ `lmp_decomposition_usd_mwh` = 1e-6 |
-| `congestion_rent` | $\max_{p,t}\lvert\sum_n\pi(-\text{inj})-\sum_l\mu f\rvert / \max(1,\lvert\sum_l\mu f\rvert)$ | ≤ `congestion_rent_rel` = 1e-7 |
+| `congestion_rent` | $\max_{i,p,t}\lvert\sum_{n\in i}\pi(-\text{inj})-\sum_{l\in i}\mu f\rvert / \max(1,\lvert\sum_{l\in i}\mu f\rvert)$ (per island-hour, amendment 2: residuals of two islands must not cancel) | ≤ `congestion_rent_rel` = 1e-7 |
 | `dcpf.line_duals` | max of $\lvert\mu_l\rvert$ over line-hours with $\lvert f\rvert < F_l - $ `binding_slack` (all hours of unlimited lines) and of $\max(0,-\mu_l\,\mathrm{sgn} f_l)$ at a rating | ≤ `line_dual_usd_mwh` = 1e-6 |
 | `dcpf.islands` | count of violations: per island-hour exactly one **active** reference row — angle: a `ref_angle` row with lo = hi = 0 whose only nonzero is on $\theta_{n_0(i)}$, and $\lvert\theta_{n_0}\rvert\le10^{-9}$; PTDF: one `bal_sys` row with lo = hi $=\sum_{n\in i}D$; island count from case data. `detail` = e.g. `2 islands: i1 ref A; i2 ref C` | = 0 |
 | `price_setter.loop_alpha` (family `price_setter`) | max over `CONGESTION_LOOP` bus-hours with weights of $\max(\lvert\sum_m\alpha_{n,m}-1\rvert, \lvert\pi_n-\sum_m\alpha_{n,m}c_m\rvert)$ | ≤ `loop_alpha` = 1e-6 |
 
 Non-toy runs use the §6.2 warn/fail thresholds ($10^{-3}$/$10^{-1}$ MW) for the two MW checks, as for `balance`.
+(Amendment 2:) every Gate 3 case (T1–T4, `pjm5`, random) is a test system and uses the 1e-6 MW pass rule above. The
+non-toy split is not built yet for any of `balance`, `storage.soc_recompute`, `kvl.recompute`, `ptdf.recompute` (only
+`conditioning.bal_residual_mw` carries §6.2 for `bal`); it is specified once for all four, with a machine-readable
+test-system flag, in Gate 4 (first non-toy case).
 Gate 1 checks under `dcpf`: `balance` = nodal KCL recomputed from the primal ($\text{inj}_n - \sum_l a_{l,n}f_l$, both
 forms; `zone_hourly.bal_residual_mw` likewise); `strong_duality`, `comp_slack`, `dual_sign` cover the new families with the
 signs above; `price_setter.link_inconsistent` is reported with value 0 and detail `n/a under dcpf (see lmp.decomposition,
@@ -565,15 +587,18 @@ dcpf.line_duals)`. Conditioning (§6.2) unchanged; `pjm5` must give no `warn`.
 
 #### 7.4a.7 Price-setter under `dcpf` (replaces §4 Step 0 for congested islands)
 Loop flow makes $\Delta\pi\ne0$ on unconstrained lines, so §4's price islands do not apply. Per island-hour $(i,p,t)$:
-**congested** iff some line of $i$ has $\lvert\mu_l\rvert>tol_\pi$.
+**congested** iff some line of $i$ has $\lvert\mu_l\rvert>tol_\pi$. (Amendment 2:) a line's $tol_\pi$ is the larger §4 $tol_\pi$ of
+its two end buses; a line has no $K_r$, so its $tol_q$ is `tol_q_abs_mw` ($10^{-3}$ MW).
 - **Uncongested island-hour:** §4 Steps 1–2 unchanged with island := electrical island $i$ (all its LMPs are equal).
 - **Congested island-hour**, per bus $n$, first match wins (all matches recorded): (1) the local classes of §4 in order
   (`VOLL`, `BLACKOUT`, `MARGINAL_UNIT`, `STORAGE_DIS`, `STORAGE_CH`, `TIE_AT_BOUND`), evaluated on resources and unserved
   energy **at bus $n$ only**; (2) `CONGESTION_LOOP` (below); (3) `CAPACITY_RENT` with island := $\{n\}$; (4) `UNEXPLAINED`.
 
 **`CONGESTION_LOOP`.** Marginal set $\mathcal M_i$: every resource (or unserved energy) at any bus of $i$ that meets a
-local class condition (1) at its own bus, with cost $c_m$ = that class's setter cost (§4 Outputs; `TIE_AT_BOUND` units
-included, which handles primal degeneracy). Binding set $\mathcal K_i$: lines of $i$ with $\lvert f\rvert\ge F_l-tol_q$ and
+local class condition (1) at its own bus **and passes that class's price check** (amendment 2), with cost $c_m$ = that
+class's setter cost (§4 Outputs; `TIE_AT_BOUND` units included, which handles primal degeneracy). **`BLACKOUT` is
+excluded** (amendment 2): at a total-blackout bus $\pi_m=\text{VOLL}+\mu^{use}_m$ is not a known cost; it enters case (c) as a
+bound $\pi_m\ge\text{VOLL}$. Binding set $\mathcal K_i$: lines of $i$ with $\lvert f\rvert\ge F_l-tol_q$ and
 $\lvert\mu_l\rvert>tol_\pi$. Marginal buses $\mathcal B$ = distinct buses of $\mathcal M_i$, $c_b$ = mean of $c_m$ at $b$. With
 $\phi_n := [\,1,\ -H_{\mathcal K,n}^\top\,]$ ($1\times(1+|\mathcal K|)$, any reference bus) and $\Phi$ the matrix with rows $\phi_b$, $b\in\mathcal B$:
 the marginal units impose $\Phi\,[\lambda;\mu_{\mathcal K}] = c_{\mathcal B}$, and
@@ -591,11 +616,13 @@ In (a)–(b) $\Phi$ has full column rank, so $\alpha_n^\top\Phi=\phi_n$; its fir
 For $n\in\mathcal B$, (a) gives $\alpha_n=e_n$, consistent with `MARGINAL_UNIT`. Interval in (c): min and max of
 $\lambda-\sum_{l\in\mathcal K}H_{l,n}\mu_l$ over $(\lambda,\mu_{\mathcal K})$ subject to $\Phi[\lambda;\mu]=c_{\mathcal B}$, $\mu_l\,\mathrm{sgn}f_l\ge0$, and for every
 resource at a bound at bus $m$ of $i$: $\pi_m(\lambda,\mu)\ge c_r$ at its upper bound, $\le c_r$ at zero (unserved at 0
-with $D>0$: $\le$ VOLL) — a tiny LP solved through the solver adapter; unbounded sides are $\pm\infty$. Case (c) is not
-expected in Gate 3 (no candidates, no storage); P5a–P5e are case (a).
+with $D>0$: $\le$ VOLL; unserved at $D$: $\ge$ VOLL) — a tiny LP solved through the solver adapter; unbounded sides are
+$\pm\infty$. Case (c) is not expected in Gate 3 (no candidates, no storage); P5a–P5e are case (a). Gate 3 limit
+(amendment 2): storage at a bound adds no row (its inequality involves $v$; specified with the first `dcpf` case that
+has storage), so the interval can only be wider, never falsely tight.
 
-Outputs per `CONGESTION_LOOP` row of `price_setter`: `setter_ids` = sorted ids of $\mathcal M_i$; `setter_zone` = sorted
-buses $\mathcal B$; `setter_cost` = $\sum\alpha c$ (case (c): `price_lo`); `residual` = $\pi-$`setter_cost`; `binding_links` = sorted
+Outputs per `CONGESTION_LOOP` row of `price_setter` (list order per §4 "List cells"): `setter_ids` = ids of $\mathcal M_i$;
+`setter_zone` = buses $\mathcal B$; `setter_cost` = $\sum\alpha c$ (case (c): `price_lo`); `residual` = $\pi-$`setter_cost`; `binding_links` =
 $\mathcal K_i$; `flags` ⊇ `CONGESTED` (+ `IMPORT`, since $n\notin\mathcal B$; + `DEGENERATE` in (b), (c)); `price_lo`/`price_hi` =
 setter_cost in (a)–(b), the interval in (c); weights in table `price_setter_loop` (§7.4a.8). Local-class rows in a
 congested island also carry `binding_links` = $\mathcal K_i$ and `CONGESTED`. `price_setter_summary` splits a loop
@@ -713,7 +740,7 @@ demand curve as stepped benefit segments with ELCC-accredited supply $\sum_r \te
 7. **Price-setter report** (§4) and `UNEXPLAINED` count; marginal fuel shares per zone.
 8. **Curtailment** and **unserved energy** by zone/period, weighted annual totals.
 9. **Conditioning report** (§6.2).
-10. **Run fingerprint**: SHA-256 over (canonical input tables: sorted, fixed float repr; config incl. all switches; formulation version string `F-x.y`; git commit + dirty-diff hash; solver name, version, all options; Python and package versions; clustering seed); stored with run id, timestamps, solve time, model size. Same fingerprint ⇒ byte-identical **canonical outputs**
+10. **Run fingerprint**: SHA-256 over (canonical input tables: sorted, fixed float repr; config incl. all switches; formulation version string `F-x.y` of the **code** (`capex.FORMULATION_VERSION`, the version of this file the code implements — `F-0.3` from Gate 3; `run.json` `formulation_version` is the case's declared version, amendment 2 of F-0.3); git commit + dirty-diff hash; solver name, version, all options; Python and package versions; clustering seed); stored with run id, timestamps, solve time, model size. Same fingerprint ⇒ byte-identical **canonical outputs**
     expected (amendment 4). Canonical outputs = every file written to `outputs/<run_id>/` except `run.json`, with
     `assumptions.md` compared after deleting its one line that starts `- run_id: `. Per-run values (run_id,
     timestamps, solve time) may appear only in those two places; every other file, including `health_report.md`,
@@ -739,7 +766,8 @@ demand curve as stepped benefit segments with ELCC-accredited supply $\sum_r \te
    the header adds the banner line "Toy case: all inputs assumed; numbers are illustrative, not PJM estimates."
    (amendment 3).
 12. **Network (`tx.model = dcpf` only, §7.4a.6–8):** islands and reference buses, bus angles, LMP decomposition
-   (energy / congestion / loss = 0) per bus-hour, congestion rent per hour and annual, `kvl.recompute` /
+   (energy / congestion / loss = 0) per bus-hour, congestion rent per hour and annual (read from `flows`:
+   $\sum_l\mu f$ per hour, $\sum_p w_p\sum_t\sum_l\mu f$ per year; no separate table, amendment 2), `kvl.recompute` /
    `ptdf.recompute` residuals from case data, line-dual complementary slackness, `CONGESTION_LOOP` weights $\alpha$.
 
 ---

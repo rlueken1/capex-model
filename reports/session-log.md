@@ -249,3 +249,8 @@ Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
 - Tests: local 637 pass / 0 fail; CI run 150 green; data-download `pjm5` dispatch run 45981948446 success (K1 print + hashes = pins, no Node 20 warning → K3).
 - 7 findings for G3-6 (FORMULATION_VERSION F-0.2, unknown switch keys accepted, §7.4a.6 split missing, thin pjm5 provenance cols, ntc blanks, bus-D α, setter_ids format).
 - Owner: nothing new; MATPOWER licence still "verify".
+## 2026-11-27 ~11:40 UTC — G3-6 (formulation lead, Opus)
+- `reports/gate-3-spec-trace.md`: §7.4a + dual/sign trace, 15 findings (0 blocker, 8 should-fix, 5 carry to Gate 4, 2 narrative); audit route independent of builder code.
+- Spec F-0.3 amendment 2 + DECISIONS 51; new items G3-6-fix1 (docs), fix2 (builder), fix3 (verifier) before G3-7.
+- Tests: 637 pass / 0 fail locally (no src/tests changes).
+- Owner: 3 yes/no questions (strict switch keys, fingerprint bump to F-0.3, carry list) in Needs owner.
