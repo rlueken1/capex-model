@@ -195,3 +195,9 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 - Dispatched data-download (pjm5): runs 45916594450 + 45916775025 on gate-2 success, identical pinned hashes (D5 pass); broken-hash run 45916853288 fails at verify, 0 artifacts (D3 pass).
 - reports/gate-2-evidence.md §3–§4 + D table filled (440fe60, 3f58682). No code/tests changed.
 - Needs owner: delete branch `g2-7b-broken-hash` (403 from workspace); artifact contents/step summary not readable here (D4 partial).
+
+## 2026-11-27 — G2-8 (PM, main session + markets reviewer Sonnet)
+- Wrote reports/gate-2-review.md: pass/fail table (C1–C9, D1–D8, F3–F5, P1-a/b all pass; D4/D5/D7 carried limitations), PM checks, 9-item owner decision list.
+- Full-history audit: no secrets, no downloaded raw data (vendored test-system data owner-approved). CI #121 green on last completed commit; ~63 s/run.
+- Markets reviewer: verdict yes; should-fix for later gates (log provenance/hashes, case5.m hash test, revised-data vintage policy, >90-day storage, hub gas source).
+- STATUS: AWAITING_OWNER_REVIEW. Needs owner: answer the 9 items; delete branch g2-7b-broken-hash.

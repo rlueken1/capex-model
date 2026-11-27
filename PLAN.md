@@ -1,6 +1,6 @@
 # PLAN
 
-STATUS: IN_PROGRESS
+STATUS: AWAITING_OWNER_REVIEW
 CURRENT GATE: 2 (CI + data-download workflow), branch `gate-2`
 GATE 1: approved by owner 2026-11-26 (DECISIONS 33, 37); merged into `main` 2026-11-26 on owner instruction
 GATE 0: approved by owner 2026-11-24 (DECISIONS 26–30); merged into `main` 2026-11-24 on owner go-ahead
@@ -120,8 +120,8 @@ One per session, strictly in order; claim before work (CLAUDE.md).
 - [x] G2-7b Verifier [Sonnet]: unblocked — fixed data-download.yml copied to `main` 2026-11-26 (9671c02, owner live approval; workflow registered as `data-download`, active). Dispatch `data-download.yml` (ref `gate-2`,
   `source_id=pjm5`) twice (D5 equal hashes) and once from a throwaway branch with a corrupted manifest hash (D3 fails,
   nothing uploaded; delete the branch after); fill gate-2-evidence.md §3–§4 and the D table.
-- [~] G2-8 PM [Sonnet] + markets reviewer [Sonnet] (1 subagent): `reports/gate-2-review.md` pass/fail table and owner yes/no
-  list; STATUS: AWAITING_OWNER_REVIEW. (claimed 2026-11-27T01:24:14Z)
+- [x] G2-8 PM [Sonnet] + markets reviewer [Sonnet] (1 subagent): `reports/gate-2-review.md` pass/fail table and owner yes/no
+  list; STATUS: AWAITING_OWNER_REVIEW.
 
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
 Use when STATUS is AWAITING_OWNER_REVIEW, or when the next gate item is already claimed by another run (owner, 2026-11-26). One item per session, in order. Drafts and raw data only:
@@ -149,6 +149,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+G2-8 done 2026-11-27 on `gate-2`: `reports/gate-2-review.md` — all C1–C9, D1–D8, F3–F5, P1-a/b pass (D4/D5/D7 carried limitations); history audit clean (no secrets, no downloaded raw data); markets reviewer yes, 6 forward should-fix notes. STATUS: AWAITING_OWNER_REVIEW — 9 yes/no items for the owner. Next: owner review; prep lane only.
 G2-7b done 2026-11-27 on `gate-2` (440fe60, 3f58682): Actions runs 45916594450 + 45916775025 (gate-2, pjm5) both success, all_verified=True with identical pinned file hashes (D5 pass; zip digests differ, likely provenance timestamps/run id — not inspected); run 45916853288 on throwaway branch fails at "Fetch and verify" (HASH MISMATCH case5.m), later steps skipped, 0 artifacts (D3 pass). D1–D8 pass (D2/D8 local, D4 partial: artifact contents/step summary not readable here, blob 403). Throwaway branch NOT deleted (403) → Needs owner. Next: G2-8.
 Owner action done 2026-11-26: fixed data-download.yml on `main` (9671c02), dispatch trigger registered. Next: G2-7b (verifier) dispatch evidence, then G2-8.
 G2-7a done 2026-11-26 on `gate-2` (fc90b77): data-download.yml line 79 → `run: |` block scalar; new `scripts/check_workflows.py` (PyYAML safe_load, already pinned 6.0.3) as CI step "Parse workflow files"; shown to fail (exit 1, line 79) with the fix reverted. Local 547 pass / 30 skip / 0 fail; check_markers exit 0. **Copy to `main` NOT done**: the run's push to `main` was refused by the session's safety guard and the scheduled prompt says "never on main" → owner action (Needs owner). Next: owner copies the file to `main`, then G2-7b.
@@ -187,6 +188,7 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
+- 2026-11-27 G2-8: Gate 2 review — 9 yes/no decisions in reports/gate-2-review.md (all rec yes; delete `g2-7b-broken-hash` before merging; enable branch protection on `main`).
 - 2026-11-27 G2-7b: please delete throwaway branch `g2-7b-broken-hash` (origin, 6894418; only corrupts the case5.m hash in `data/manifests/pjm5.csv`) — deletion returned HTTP 403 from the cloud workspace. Never merge it. Optional: glance at artifact `data-pjm5-default-45916594450` provenance.json (not readable from here) to close D4 fully.
 - (answered 2026-11-26, done: copied to `main` at 9671c02 in a live session on owner instruction) 2026-11-26 G2-7a: fixed `.github/workflows/data-download.yml` is on `gate-2` (fc90b77) but could not be copied to `main` — the unattended run's push to `main` was blocked, and the scheduled prompt forbids working on main (conflicts with DECISIONS 41). Please either copy it yourself (`git checkout origin/gate-2 -- .github/workflows/data-download.yml` on main, commit "copy fixed data-download.yml to main (DECISIONS 41)", push) or amend the scheduled prompt to allow exactly this. G2-7b waits on it. rec: copy it yourself.
 - (answered 2026-11-26, yes, DECISIONS 41: the G2-7a run copies the fixed file to `main`) 2026-11-26 G2-7: `.github/workflows/data-download.yml` on `main` (f123ad1) is invalid YAML (line 79, `: ` inside an unquoted `run:`), so GitHub never registered its dispatch trigger and logs a failed run on every push. After G2-7a fixes it on `gate-2`, OK to copy the fixed file onto `main` again (same scope as DECISIONS 39), so G2-7b can run the D3/D5 dispatches? rec yes (owner action, or allow a run to do it).
