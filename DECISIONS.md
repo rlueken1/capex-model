@@ -288,3 +288,15 @@
     F3-13 carried to Gate 4 (F3-9/F3-13 wait for the first `dcpf` case with storage if dcpf is not kept for Gate 4).
     (4) DECISIONS 50 / §8.10a accepted: Gate-2 C7 "byte-identical" reads with health `value` compared at 1e-12
     abs-or-rel, all other bytes exact. G3-7 records these as answered in the Gate 3 decision list.
+
+2026-11-27 (formulation lead, G3-6-fix4 — spec ruling on an empty `tx.ref_bus` list)
+53. Formulation F-0.3 **amendment 3** (load rule only; LP, outputs, fingerprint inputs unchanged, version string stays
+    `F-0.3`): §7.4a.1 + data-schema rule 11 — `tx.ref_bus: []` is a `DataError` ("names no zone; omit the key for the
+    default"); an entry that is not a zone id (incl. `""`) already was. The default reference rule (first zone of each
+    island in `zones.csv` order) is asked for only by omitting the key; a non-empty list may still leave islands unnamed
+    (they take the default). Reasons: (a) one spelling per meaning — absent and `[]` would be two `case.config` values,
+    so two fingerprints (§7.4a.9 "absent stays absent") for the same LP; (b) consistent with the strict-key rule
+    (DECISIONS 51(a)/52(1)): an empty list is more likely a script's empty selection than a request for the default.
+    Rejected: `[]` = default (silent, and the fingerprint split). Effect: the strict xfail
+    `test_loader_empty_ref_bus_list_is_rejected` in `tests/test_g3_fix3.py` is right as written (no verifier change);
+    G3-6-fix5 builder makes the loader raise, verifier removes the xfail marker. Found by G3-6-fix3.

@@ -14,6 +14,8 @@ F-0.3 amendment 2 (G3-6 trace, 2026-11-27, DECISIONS 51): wording/rules only, LP
 tolerance keys are load errors; §7.4a.6 `congestion_rent` per island-hour, non-toy MW split deferred to Gate 4; §7.4a.7
 line tolerances, $\mathcal M_i$ needs the price check and excludes `BLACKOUT` (a bound in case (c)); §4 list-cell formats
 (the Gate-2 code's, ratified); §8.10 fingerprint carries the code's version; §8.12 congestion rent read from `flows`.
+F-0.3 amendment 3 (G3-6-fix4, 2026-11-27, DECISIONS 53): load rule only — §7.4a.1 an empty `tx.ref_bus` list is a
+`DataError`; the default reference rule is asked for only by omitting the key.
 F-0.2 changes (DECISIONS 25): daily fuel price $\phi_{f,p,t}$; DECISIONS 22–24 applied (ATB-style PFF default,
 block-average price scoring, 2024\$ / ORDC backcast scarcity); `VOLL` class covers total blackout; tolerances,
 $Z^0$, $FOM^P/FOM^E$, weight range, remainder-day rule and basic-solution requirement made consistent;
@@ -482,14 +484,14 @@ contingencies in this gate. A fixed-fleet run is the existing data rule ($X^{max
 |---|---|---|---|
 | `tx.model` | `transport` \| `dcpf` | `transport` | network model; any other value is a load error |
 | `tx.dcpf_form` | `angle` \| `ptdf` | `angle` | LP form under `dcpf` (identical optimum, §7.4a.4) |
-| `tx.ref_bus` | zone id, or list of zone ids (≤ 1 per island) | per island: first zone of the island in `zones.csv` row order | reference bus $n_0(i)$ |
+| `tx.ref_bus` | zone id, or non-empty list of zone ids (≤ 1 per island) | per island: first zone of the island in `zones.csv` row order | reference bus $n_0(i)$ |
 
 `tx.dcpf_form` and `tx.ref_bus` are ignored under `transport` (they still enter the fingerprint as config). The builder
 never writes a default into `case.config`: an absent key stays absent (needed for §7.4a.9).
 **Keys (amendment 2):** a `switches` key the code does not implement is a load error (`DataError` naming the key),
 whatever its value — this includes keys data-schema reserves for later gates (`tx.losses`, `reserves.enabled`, …), which
 become valid in their own gate. Implemented at Gate 3: `tx.model`, `tx.dcpf_form`, `tx.ref_bus`, `scaling` (bool, default
-true = §6.1 scaling on). `tx.ref_bus` must be a string or a list of strings. A `tolerances` key that is not a field of the
+true = §6.1 scaling on). `tx.ref_bus` must be a string or a list of strings. **Empty `tx.ref_bus` (amendment 3):** `[]` is a `DataError` ("names no zone; omit the key for the default"), as is any entry that is not a zone id (incl. `""`). A non-empty list may leave islands unnamed; those take the default. Reason: absent and `[]` would be two configs (two fingerprints, §7.4a.9) for one LP, and an empty list is more likely a script's empty selection than a request for the default. A `tolerances` key that is not a field of the
 run's tolerance set (Gate 1 keys; plus the §7.4a.6 keys only under `dcpf`) is likewise a `DataError`, never a Python
 `TypeError`. Reason: a typo (`tx.dcpf_formm`) or a not-yet-built feature (`tx.losses: true`) must not run silently as the default.
 

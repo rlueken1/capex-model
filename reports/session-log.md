@@ -271,3 +271,8 @@ Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
   Tests: 669 pass / 2 strict xfail / 0 fail locally; check_markers ok. No src change.
   Findings → new items: G3-6-fix4 (spec ruling: empty `tx.ref_bus` list), G3-6-fix5 (builder: isolated node crashes audit `angles_from_injection`, §7.4a.2).
   Owner: nothing needed. Next: G3-6-fix4 (formulation lead, Opus).
+
+2026-11-27 15:2x UTC — G3-6-fix4 (formulation lead, Opus, no subagents), branch gate-3.
+Ruling: empty `tx.ref_bus` list = `DataError`; default reference only by omitting the key. F-0.3 amendment 3 in
+formulation §7.4a.1 + data-schema rule 11; DECISIONS 53. Spec only, no src/tests change; check_markers ok (suite not
+runnable here: highspy missing in this workspace; CI is the judge). Next: G3-6-fix5 (builder). Nothing needs the owner.
