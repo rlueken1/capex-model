@@ -19,7 +19,7 @@ class Solved:
 
     @cached_property
     def x(self) -> np.ndarray:
-        return self.sol.x / self.lp.scaling.k_p
+        return self.sol.x / self.lp.col_scale
 
     @cached_property
     def y(self) -> np.ndarray:
@@ -45,11 +45,11 @@ class Solved:
 
     @cached_property
     def col_lo(self) -> np.ndarray:
-        return self.lp.col_lo / self.lp.scaling.k_p
+        return self.lp.col_lo / self.lp.col_scale
 
     @cached_property
     def col_hi(self) -> np.ndarray:
-        return self.lp.col_hi / self.lp.scaling.k_p
+        return self.lp.col_hi / self.lp.col_scale
 
     @cached_property
     def z0(self) -> float:

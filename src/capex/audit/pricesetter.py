@@ -33,6 +33,20 @@ class _Interval(NamedTuple):
     invest: np.ndarray      # (G,) interior build (0 < x < xmax)
 
 
+class LoopRow(NamedTuple):
+    """CONGESTION_LOOP setter data of one bus-hour (formulation 7.4a.7), built by `loopsetter`."""
+    ids: list[str]
+    techs: list[str]
+    fuels: list[str]
+    zones: list[str]        # bus of each marginal member
+    costs: np.ndarray       # c_m of each member
+    alpha: np.ndarray       # alpha_{n,m} per member (empty in case (c))
+    cost: float             # setter_cost: sum alpha c (case (c): price_lo)
+    lo: float
+    hi: float
+    case: str               # "unique" | "weights_nonunique" | "interval"
+
+
 @dataclass(frozen=True)
 class PriceSetter:
     table: pd.DataFrame
@@ -41,6 +55,7 @@ class PriceSetter:
     unexplained: int
     link_inconsistent: int
     islands: np.ndarray     # (Z,P,T)
+    loop: pd.DataFrame | None = None   # price_setter_loop (dcpf only)
 
 
 def _components(edges: np.ndarray, origin: np.ndarray, end: np.ndarray, n_zones: int) -> np.ndarray:
@@ -153,6 +168,32 @@ def _join(items) -> str:
     return ",".join(map(str, items))
 
 
+def pools(case, kind: str, n_p: int, n_t: int) -> dict[str, np.ndarray]:
+    """ids, zone index, tech, fuel and cost (over p,t) of the resource set a class kind indexes."""
+    gen, st = case.gen, case.storage
+    if kind == "gen":
+        return {"ids": np.asarray(gen.ids, dtype=object), "zone": gen.zone, "tech": gen.tech, "fuel": gen.fuel,
+                "cost": gen.mc}
+    if kind == "storage":
+        return {"ids": np.asarray(st.ids, dtype=object), "zone": st.zone, "tech": st.tech,
+                "fuel": np.full(len(st.ids), "storage"),
+                "cost": np.broadcast_to(st.vom[:, None, None], (len(st.ids), n_p, n_t))}
+    n_z = len(case.zones)
+    return {"ids": np.asarray([f"unserved:{z}" for z in case.zones], dtype=object), "zone": np.arange(n_z),
+            "tech": np.full(n_z, "unserved"), "fuel": np.full(n_z, "none"),
+            "cost": np.full((n_z, n_p, n_t), case.voll)}
+
+
+def setter_costs(case, eco: Economics, cls: _Class, members: np.ndarray, p: int, t: int) -> list[float]:
+    """Section 4 Outputs: class cost of each setter; STORAGE_DIS VOM + v/eta_d, STORAGE_CH eta_c v (v = water value)."""
+    st = case.storage
+    if cls.kind == "storage":
+        v = eco.v[members, p, t]
+        return list(st.vom[members] + v / st.eta_d[members]) if cls.name == "STORAGE_DIS" \
+            else list(st.eta_c[members] * v)
+    return list(pools(case, cls.kind, *eco.pi.shape[1:])["cost"][members, p, t])
+
+
 @dataclass(frozen=True)
 class _Ctx:
     """Everything the per-zone-hour record needs, bundled once."""
@@ -166,29 +207,7 @@ class _Ctx:
     binding: np.ndarray
     touching_bad: np.ndarray
     islands: np.ndarray
-
-    def pools(self, kind: str) -> dict[str, np.ndarray]:
-        """ids, zone index, tech, fuel and cost (over p,t) of the resource set a class kind indexes."""
-        case, gen, st = self.sv.case, self.sv.case.gen, self.sv.case.storage
-        n_p, n_t = self.eco.pi.shape[1:]
-        if kind == "gen":
-            return {"ids": np.asarray(gen.ids, dtype=object), "zone": gen.zone, "tech": gen.tech, "fuel": gen.fuel,
-                    "cost": gen.mc}
-        if kind == "storage":
-            return {"ids": np.asarray(st.ids, dtype=object), "zone": st.zone, "tech": st.tech,
-                    "fuel": np.full(len(st.ids), "storage"),
-                    "cost": np.broadcast_to(st.vom[:, None, None], (len(st.ids), n_p, n_t))}
-        n_z = len(case.zones)
-        return {"ids": np.asarray([f"unserved:{z}" for z in case.zones], dtype=object), "zone": np.arange(n_z),
-                "tech": np.full(n_z, "unserved"), "fuel": np.full(n_z, "none"),
-                "cost": np.full((n_z, n_p, n_t), case.voll)}
-
-    def _storage_costs(self, name: str, members: np.ndarray, p: int, t: int) -> list[float]:
-        """Section 4 Outputs: STORAGE_DIS cost VOM + v/eta_d, STORAGE_CH cost eta_c v (v = water value)."""
-        st, v = self.sv.case.storage, self.eco.v[members, p, t]
-        if name == "STORAGE_DIS":
-            return list(st.vom[members] + v / st.eta_d[members])
-        return list(st.eta_c[members] * v)
+    loops: dict[tuple[int, int, int], LoopRow]
 
     def record(self, z: int, p: int, t: int) -> tuple[dict, list[tuple]]:
         """Table row and (zone, tech, fuel, class, hours) pieces for the summary, for one zone-hour."""
@@ -203,12 +222,17 @@ class _Ctx:
         costs: list[float] = []
         lo = hi = np.nan
         rent_ids: list[str] = []
-        if explained:
-            pool = self.pools(cls.kind)
+        if explained and cls.kind == "loop":
+            loop = self.loops[(z, p, t)]
+            ids, techs, fuels, szones = loop.ids, loop.techs, loop.fuels, loop.zones
+            costs, lo, hi = [loop.cost], loop.lo, loop.hi
+            flags += ["DEGENERATE"] * (loop.case != "unique")
+        elif explained:
+            pool = pools(case, cls.kind, *self.eco.pi.shape[1:])
             members = np.flatnonzero(cls.setters[z, :, p, t])
             ids, techs, fuels = pool["ids"][members], pool["tech"][members], pool["fuel"][members]
             szones = [zones[i] for i in pool["zone"][members]]
-            costs = list(pool["cost"][members, p, t])
+            costs = setter_costs(case, self.eco, cls, members, p, t)
             if cls.name == "CAPACITY_RENT":
                 lo, hi = self.interval.lo[z, p, t], self.interval.hi[z, p, t]
                 costs = [lo]
@@ -223,8 +247,6 @@ class _Ctx:
             flags.append("CONGESTED")
         if self.touching_bad[z, :, p, t].any():
             flags.append("LINK_INCONSISTENT")
-        if explained and cls.kind == "storage":
-            costs = self._storage_costs(cls.name, members, p, t)
         cost = float(np.mean(costs)) if costs else np.nan
         all_classes = [PRIMARY_NAME.get(c.name, c.name) + (":BLACKOUT" if c.name == "VOLL_BLACKOUT" else "")
                        for c, m in zip(self.classes, matched) if m]
@@ -244,21 +266,29 @@ def price_setter(sv: Solved, eco: Economics) -> PriceSetter:
     """Classify every zone-hour; raises if the solution has no valid basis (section 4)."""
     if not sv.sol.basis_valid:
         raise ValueError("price-setter requires a basic solution (basis_valid is False)")
-    case, lk = sv.case, sv.case.links
-    n_z, n_p, n_t = eco.pi.shape
-    tol_pi = np.maximum(case.tolerances.tol_pi_abs, case.tolerances.tol_pi_rel * np.abs(eco.pi))
+    lk = sv.case.links
+    n_z = eco.pi.shape[0]
+    tol_pi = np.maximum(sv.case.tolerances.tol_pi_abs, sv.case.tolerances.tol_pi_rel * np.abs(eco.pi))
     separated, at_bound, bad = _link_state(sv, eco, tol_pi)
     isl = _components(~separated, lk.origin, lk.end, n_z)
     classes, interval = _classes(sv, eco, isl, tol_pi)
+    binding, touching_bad = _boundary_links(sv, isl, at_bound, bad)
+    return assemble(sv, eco, classes, interval, isl, binding, touching_bad, (separated, bad), {})
+
+
+def assemble(sv: Solved, eco: Economics, classes: list[_Class], interval: _Interval, isl: np.ndarray,
+             binding: np.ndarray, touching_bad: np.ndarray, link_state: tuple[np.ndarray, np.ndarray],
+             loops: dict[tuple[int, int, int], LoopRow]) -> PriceSetter:
+    """First matching class per zone-hour (section 4 Step 2) and the output tables for the given class list."""
+    n_z, n_p, n_t = eco.pi.shape
     matched = np.stack([c.cond for c in classes])
     ok = np.stack([c.ok for c in classes])
     primary = matched.argmax(axis=0)
     explained = matched.any(axis=0) & np.take_along_axis(ok, primary[None], 0)[0]
-    binding, touching_bad = _boundary_links(sv, isl, at_bound, bad)
-    ctx = _Ctx(sv, eco, classes, interval, matched, primary, explained, binding, touching_bad, isl)
+    ctx = _Ctx(sv, eco, classes, interval, matched, primary, explained, binding, touching_bad, isl, loops)
     records = [ctx.record(z, p, t) for z in range(n_z) for p in range(n_p) for t in range(n_t)]
-    table = pd.DataFrame([r for r, _ in records])
-    return PriceSetter(table=table, summary=_summary([pc for _, ps in records for pc in ps]),
+    separated, bad = link_state
+    return PriceSetter(table=pd.DataFrame([r for r, _ in records]), summary=_summary([pc for _, ps in records for pc in ps]),
                        link_issues=_link_issues(sv, separated, bad), unexplained=int((~explained).sum()),
                        link_inconsistent=int(bad.sum()), islands=isl)
 

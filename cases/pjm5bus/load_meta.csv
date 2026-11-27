@@ -1,0 +1,6 @@
+zone,net_of_btm,year,source_id,vintage,retrieved,method,basis,confidence
+A,False,2025,pjm5,matpower-b6c85b0,2026-11-26,observed,"published test-system value: case5.m bus Pd (MW), constant over the 72 representative hours; model_year 2025 only fixes the weight D_y/3",high
+B,False,2025,pjm5,matpower-b6c85b0,2026-11-26,observed,"published test-system value: case5.m bus Pd (MW), constant over the 72 representative hours; model_year 2025 only fixes the weight D_y/3",high
+C,False,2025,pjm5,matpower-b6c85b0,2026-11-26,observed,"published test-system value: case5.m bus Pd (MW), constant over the 72 representative hours; model_year 2025 only fixes the weight D_y/3",high
+D,False,2025,pjm5,matpower-b6c85b0,2026-11-26,observed,"published test-system value: case5.m bus Pd (MW), constant over the 72 representative hours; model_year 2025 only fixes the weight D_y/3",high
+E,False,2025,pjm5,matpower-b6c85b0,2026-11-26,observed,"published test-system value: case5.m bus Pd (MW), constant over the 72 representative hours; model_year 2025 only fixes the weight D_y/3",high

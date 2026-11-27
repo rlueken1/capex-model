@@ -1,0 +1,7 @@
+link_id,zone_from,zone_to,ntc_fwd_mw,ntc_rev_mw,reactance_pu,base_mva,x_matpower_branch,source_id,vintage,retrieved,method,basis,confidence
+ab,A,B,400.0,400.0,0.0281,100.0,1,pjm5,matpower-b6c85b0,2026-11-26,observed,published test-system value: case5.m branch x (pu on baseMVA 100) and rateA (MW; 0 = unlimited -> blank); rating symmetric,high
+ad,A,D,,,0.0304,100.0,2,pjm5,matpower-b6c85b0,2026-11-26,observed,published test-system value: case5.m branch x (pu on baseMVA 100) and rateA (MW; 0 = unlimited -> blank); rating symmetric,high
+ae,A,E,,,0.0064,100.0,3,pjm5,matpower-b6c85b0,2026-11-26,observed,published test-system value: case5.m branch x (pu on baseMVA 100) and rateA (MW; 0 = unlimited -> blank); rating symmetric,high
+bc,B,C,,,0.0108,100.0,4,pjm5,matpower-b6c85b0,2026-11-26,observed,published test-system value: case5.m branch x (pu on baseMVA 100) and rateA (MW; 0 = unlimited -> blank); rating symmetric,high
+cd,C,D,,,0.0297,100.0,5,pjm5,matpower-b6c85b0,2026-11-26,observed,published test-system value: case5.m branch x (pu on baseMVA 100) and rateA (MW; 0 = unlimited -> blank); rating symmetric,high
+de,D,E,240.0,240.0,0.0297,100.0,6,pjm5,matpower-b6c85b0,2026-11-26,observed,published test-system value: case5.m branch x (pu on baseMVA 100) and rateA (MW; 0 = unlimited -> blank); rating symmetric,high

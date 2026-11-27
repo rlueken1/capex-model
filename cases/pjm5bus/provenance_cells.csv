@@ -1,0 +1,4 @@
+table,row_key,column,source_id,vintage,retrieved,method,basis,confidence,est_level
+resources,*,dollar_year,pjm5,matpower-b6c85b0,2026-11-26,assumed,case5.m costs are unitless $/MWh; read as base-year 2024 $ so the deflator factor is 1 (gate-3.md section 2),low,
+links,*,"ntc_fwd_mw,ntc_rev_mw",pjm5,matpower-b6c85b0,2026-11-26,observed,"case5.m rateA; a rating of 0 means unlimited in MATPOWER and is written as a blank cell (unlimited, data-schema 3.2)",high,
+links,*,"reactance_pu,base_mva",pjm5,matpower-b6c85b0,2026-11-26,observed,"case5.m branch x and mpc.baseMVA = 100; resistance, charging and angle limits are not used by the lossless DC model",high,

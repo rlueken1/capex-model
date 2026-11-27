@@ -9,8 +9,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from . import FORMULATION_VERSION, SCHEMA_VERSION
-from .audit import assumptions, duals
+from . import SCHEMA_VERSION
+from .audit import assumptions, duals, network
 from .audit.fingerprint import Fingerprint, run_fingerprint
 from .audit.report import HealthReport, health_report
 from .audit.solved import Solved
@@ -65,7 +65,7 @@ def run_json(sv: Solved, health: HealthReport, fp: Fingerprint) -> dict:
     comps = fp.components
     return {
         "run_id": uuid.uuid4().hex, "fingerprint": str(fp), "fingerprint_sha256": fp.sha256, "valid": fp.valid,
-        "case_id": c.case_id, "formulation_version": FORMULATION_VERSION, "schema_version": SCHEMA_VERSION,
+        "case_id": c.case_id, "formulation_version": c.formulation_version, "schema_version": SCHEMA_VERSION,
         "git_commit": comps["git_commit"], "dirty_diff_hash": comps["dirty_diff_hash"], "solver": sol.solver_name,
         "solver_version": sol.solver_version, "solver_options": sol.options, "python": comps["python"],
         "packages": comps["packages"], "seed": c.seed, "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -92,6 +92,11 @@ def output_tables(sv: Solved, health: HealthReport) -> dict[str, pd.DataFrame]:
     if a.price_setter is not None:
         tables |= {"price_setter": a.price_setter.table, "price_setter_summary": a.price_setter.summary,
                    "link_issues": a.price_setter.link_issues}
+    if a.network is not None:
+        tables["zone_hourly"] = tables["zone_hourly"].assign(**network.zone_hourly_columns(sv, a.network))
+        tables |= {"angles": network.angles_table(sv, a.network), "islands": network.islands_table(sv.case, a.network)}
+        if a.price_setter is not None:
+            tables["price_setter_loop"] = a.price_setter.loop
     return tables
 
 

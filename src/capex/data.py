@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import calendar
 import hashlib
+import warnings
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -11,8 +12,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from . import FORMULATION_VERSION, SCHEMA_VERSION, econ
-from .config import Tolerances
+from . import ACCEPTED_FORMULATIONS, DCPF_FORMULATION, SCHEMA_VERSION, econ, network
+from .config import NetworkTolerances, Tolerances
 
 T = 72
 AVAIL_ZERO_BELOW = 1e-3
@@ -30,7 +31,7 @@ SCHEMA: dict[str, tuple[list[str], list[str], list[str]]] = {
     "load_meta": (["zone", "net_of_btm", "year"] + PROV, ["est_level"], ["zone"]),
     "zones": (["zone_id", "name", "rto"], ["state_shares_ref", "reserve_area"] + PROV + ["est_level"], ["zone_id"]),
     "links": (["link_id", "zone_from", "zone_to", "ntc_fwd_mw", "ntc_rev_mw"] + PROV,
-              ["dollar_year", "est_level"], ["link_id"]),
+              ["reactance_pu", "base_mva", "dollar_year", "est_level"], ["link_id"]),
     "resources": (["resource_id", "zone", "type", "tech", "status"] + PROV,
                   ["fuel", "k0_mw", "e0_mwh", "xmax_mw", "xmax_mwh", "heat_rate_mmbtu_mwh", "life_yr",
                    "finance_class", "construction_profile_id", "eta_c_frac", "eta_d_frac", "selfdis_frac_h",
@@ -50,6 +51,9 @@ SCHEMA: dict[str, tuple[list[str], list[str], list[str]]] = {
     "sources": (["source_id", "description"], [], ["source_id"]),
 }
 REQUIRED_TABLES = ["periods", "load", "load_meta", "zones", "resources", "finance", "deflator", "sources"]
+NULLABLE = {"links": ["ntc_fwd_mw", "ntc_rev_mw"]}      # blank rating = unlimited (data-schema 3.2)
+TX_MODELS = ("transport", "dcpf")
+DCPF_FORMS = ("angle", "ptdf")
 PROVENANCE_TABLES = ["load_meta", "links", "resources", "finance", "availability_meta", "fuel_prices_meta", "deflator"]
 
 
@@ -101,8 +105,10 @@ class Links:
     ids: tuple[str, ...]
     origin: np.ndarray
     end: np.ndarray
-    f_plus: np.ndarray
+    f_plus: np.ndarray     # MW (inf = unlimited)
     f_minus: np.ndarray
+    x_pu: np.ndarray       # series reactance (NaN if blank); used only under tx.model = dcpf
+    base_mva: np.ndarray
 
 
 @dataclass(frozen=True)
@@ -129,6 +135,15 @@ class Case:
     conversions: pd.DataFrame      # dollar-year conversions applied
     n_avail_zeroed: int
 
+    @property
+    def dcpf(self) -> bool:
+        """True when the network is modelled as DC power flow (switch `tx.model`, formulation 7.4a.1)."""
+        return self.switches.get("tx.model", "transport") == "dcpf"
+
+    @property
+    def dcpf_form(self) -> str:
+        return self.switches.get("tx.dcpf_form", "angle")
+
 
 def days_in_year(year: int) -> int:
     return 366 if calendar.isleap(year) else 365
@@ -147,11 +162,24 @@ def read_manifest(case_dir: Path) -> dict:
         raise DataError(f"case.yaml missing keys {missing}")
     if manifest["schema_version"] != SCHEMA_VERSION:
         raise DataError(f"schema_version {manifest['schema_version']} != {SCHEMA_VERSION}")
-    if manifest["formulation_version"] != FORMULATION_VERSION:
-        raise DataError(f"formulation_version {manifest['formulation_version']} != {FORMULATION_VERSION}")
+    if manifest["formulation_version"] not in ACCEPTED_FORMULATIONS:
+        raise DataError(f"formulation_version {manifest['formulation_version']} not in {ACCEPTED_FORMULATIONS}")
     if float(manifest["dt_h"]) != 1.0:
         raise DataError("dt_h must be 1.0 (formulation 1.1)")
+    check_network_switches(manifest)
     return manifest
+
+
+def check_network_switches(manifest: dict) -> None:
+    """Switch values of data-schema rule 11 that need no tables; dcpf needs formulation F-0.3."""
+    switches = manifest.get("switches") or {}
+    model, form = switches.get("tx.model", "transport"), switches.get("tx.dcpf_form", "angle")
+    if model not in TX_MODELS:
+        raise DataError(f"switch tx.model must be one of {TX_MODELS}, got {model!r}")
+    if form not in DCPF_FORMS:
+        raise DataError(f"switch tx.dcpf_form must be one of {DCPF_FORMS}, got {form!r}")
+    if model == "dcpf" and manifest["formulation_version"] != DCPF_FORMULATION:
+        raise DataError(f"tx.model = dcpf requires formulation_version {DCPF_FORMULATION}")
 
 
 def read_tables(case_dir: Path, manifest: dict) -> dict[str, pd.DataFrame]:
@@ -178,7 +206,7 @@ def check_schema(tables: dict[str, pd.DataFrame]) -> None:
         unknown = [c for c in df.columns if c not in required + optional and not c.startswith("x_")]
         if absent or unknown:
             raise DataError(f"{name}: missing columns {absent}, unknown columns {unknown}")
-        if df[required].isna().any().any():
+        if df[[c for c in required if c not in NULLABLE.get(name, [])]].isna().any().any():
             raise DataError(f"{name}: null in required columns")
         if df.duplicated(keys).any():
             raise DataError(f"{name}: duplicate keys {keys}")
@@ -449,6 +477,16 @@ def build_storage(res: pd.DataFrame, factors: np.ndarray, ann: pd.DataFrame, zon
         fom0=fom_p * p0 + fom_e * e0)
 
 
+def _float_column(df: pd.DataFrame, col: str) -> np.ndarray:
+    """Optional numeric column as floats (NaN where blank or absent); non-numeric text is a load error."""
+    if col not in df.columns:
+        return np.full(len(df), np.nan)
+    parsed = pd.to_numeric(df[col], errors="coerce")
+    if (parsed.isna() & df[col].notna()).any():
+        raise DataError(f"links: {col} must be numeric")
+    return parsed.to_numpy(float)
+
+
 def build_links(tables: dict[str, pd.DataFrame], zone_ix: dict[str, int]) -> Links:
     df = tables.get("links", pd.DataFrame(columns=SCHEMA["links"][0]))
     if not (df["zone_from"].isin(zone_ix).all() and df["zone_to"].isin(zone_ix).all()):
@@ -456,8 +494,27 @@ def build_links(tables: dict[str, pd.DataFrame], zone_ix: dict[str, int]) -> Lin
     if (df["zone_from"] == df["zone_to"]).any() or (df[["ntc_fwd_mw", "ntc_rev_mw"]] < 0).any().any():
         raise DataError("links: endpoints must differ and NTC >= 0")
     return Links(ids=tuple(df["link_id"]), origin=df["zone_from"].map(zone_ix).to_numpy(int),
-                 end=df["zone_to"].map(zone_ix).to_numpy(int), f_plus=df["ntc_fwd_mw"].to_numpy(float),
-                 f_minus=df["ntc_rev_mw"].to_numpy(float))
+                 end=df["zone_to"].map(zone_ix).to_numpy(int),
+                 f_plus=df["ntc_fwd_mw"].fillna(np.inf).to_numpy(float),
+                 f_minus=df["ntc_rev_mw"].fillna(np.inf).to_numpy(float),
+                 x_pu=_float_column(df, "reactance_pu"), base_mva=_float_column(df, "base_mva"))
+
+
+def check_network(case: Case) -> None:
+    """Data-schema rule 11 under dcpf: link parameters, symmetric positive ratings, reference buses."""
+    lk = case.links
+    if not (lk.x_pu > 0).all() or not (lk.base_mva > 0).all():
+        raise DataError("dcpf: every link needs reactance_pu > 0 and base_mva > 0")
+    if not (lk.f_plus == lk.f_minus).all() or (lk.f_plus == 0).any():
+        raise DataError("dcpf: ntc_fwd_mw must equal ntc_rev_mw and a rating of 0 is an error (delete the row)")
+    refs = network.ref_bus_ids(case)
+    if not all(r in case.zones for r in refs):
+        raise DataError(f"tx.ref_bus must name zone ids, got {refs}")
+    if len({network.islands(case).node[case.zones.index(r)] for r in refs}) != len(refs):
+        raise DataError(f"tx.ref_bus names more than one reference per island: {refs}")
+    b = network.susceptance_mw_rad(case)
+    if len(b) and (b.max() > 1e6 or b.max() / b.min() > 1e4):
+        warnings.warn("dcpf: susceptance > 1e6 MW/rad or max/min > 1e4 (conditioning, formulation 6.2)", stacklevel=2)
 
 
 def load_case(case_dir: str | Path) -> Case:
@@ -485,15 +542,20 @@ def load_case(case_dir: str | Path) -> Case:
     factors = _factors(res, deflator, RESOURCE_COSTS, "resources")
     ann = build_annualization(res, factors, tables)
     gen, n_zeroed = build_gen(res, factors, ann, tables, zone_ix, periods, deflator)
+    dcpf = (manifest.get("switches") or {}).get("tx.model", "transport") == "dcpf"
     voll_factor = econ.deflator_factor(int(manifest["voll_dollar_year"]), deflator)
     years = res["dollar_year"].dropna().astype(int) if "dollar_year" in res.columns else pd.Series(dtype=int)
     conv = pd.DataFrame({"dollar_year": sorted(set(years) | {int(manifest["voll_dollar_year"])})})
     conv["factor"] = econ.deflator_factor(conv["dollar_year"].to_numpy(), deflator)
-    return Case(
+    case = Case(
         case_id=str(manifest["case_id"]), formulation_version=manifest["formulation_version"], base_dollar_year=base,
         model_year=int(manifest["model_year"]), zones=tuple(zones), periods=tuple(periods), w=w,
         demand=_grid(load, "zone", zones, periods, "demand_mw"), voll=float(manifest["voll_usd_mwh"]) * voll_factor,
         gen=gen, storage=build_storage(res, factors, ann, zone_ix), links=build_links(tables, zone_ix),
-        tolerances=Tolerances(**manifest.get("tolerances", {})), switches=manifest.get("switches", {}),
+        tolerances=(NetworkTolerances if dcpf else Tolerances)(**manifest.get("tolerances", {})),
+        switches=manifest.get("switches", {}),
         solver_config=manifest.get("solver", {}), seed=int(manifest.get("seed", 0)), config=manifest, tables=tables,
         annualization=ann, conversions=conv, n_avail_zeroed=n_zeroed)
+    if case.dcpf:
+        check_network(case)
+    return case

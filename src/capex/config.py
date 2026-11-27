@@ -25,6 +25,16 @@ class Tolerances:
 
 
 @dataclass(frozen=True)
+class NetworkTolerances(Tolerances):
+    """Extra keys of formulation 7.4a.6; present in case.yaml `tolerances` only under `tx.model = dcpf`."""
+    kvl_residual_mw: float = 1e-6
+    lmp_decomposition_usd_mwh: float = 1e-6
+    congestion_rent_rel: float = 1e-7
+    line_dual_usd_mwh: float = 1e-6
+    loop_alpha: float = 1e-6
+
+
+@dataclass(frozen=True)
 class Scaling:
     """Section 6.1: x~ = k_P x, Z~ = k_C s_obj Z. Duals unscale with S = k_P / (k_C s_obj)."""
     k_p: float = 1e-3

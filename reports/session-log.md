@@ -216,3 +216,9 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 - Golden Gate-2 outputs in `tests/golden/gate2/` (from main 450f29c) + byte-identity test under `transport`: passes.
 - Tests: 578 pass / 44 xfail / 0 fail; check_markers exit 0.
 - Open (non-blocking): multi-element `binding_links` format unspecified; K1/K3 untested ("current majors" undefined); golden made on Python 3.13 vs CI 3.12 (version components compared only if equal).
+
+2026-11-27 — G3-3 (builder, Sonnet subagent; verifier Sonnet subagent removed markers), branch `gate-3`
+- `tx.model=dcpf` angle + PTDF, `cases/pjm5bus/` with provenance, CONGESTION_LOOP α weights, new health checks; transport golden byte-identical.
+- pjm5: LMPs 16.98/26.38/30.00/39.94/10.00, D–E binding at 240 MW (μ −62.32); health pass.
+- Tests: 628 pass / 0 fail (44 former strict xfails now pass, markers removed by verifier); check_markers exit 0.
+- Open (non-blocking, for G3-5/G3-6): F-0.2 fingerprint constant; §7.4a.6 non-toy warn/fail split missing; pjm5 sources.csv/periods.csv provenance columns thin.

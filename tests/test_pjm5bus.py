@@ -3,10 +3,9 @@ section 7.4a only (never from src/capex expected values).
 
 Part 1 (passes now): independent DC-OPF reference route (scipy/HiGHS, angle and PTDF form) from cases/raw/pjm5bus,
         self-checks of gate-3.md section 2, the spec's alpha example, and K2 (case5.m sha256 = manifests).
-Part 2 (strict xfail, "Gate 3 G3-3"): model-facing tests P5a-P5f, section 4 health checks, islands fixture, loader rules,
-        mutations M7-M10. They need `tx.model = dcpf` and `cases/pjm5bus/` (G3-3). A strict xfail that starts to pass is a
-        failure: when G3-3 lands, remove the marker in the same commit that shows the test green (builder never edits
-        these tests; the verifier removes markers).
+Part 2 (G3-3, markers removed at G3-3): model-facing tests P5a-P5f, section 4 health checks, islands fixture, loader rules,
+        mutations M7-M10. They need `tx.model = dcpf` and `cases/pjm5bus/`; they were strict xfail until G3-3 landed and the
+        verifier removed the markers once all passed.
 Part 3 (passes now): Gate-2 identity under `transport` against tests/golden/gate2/ (7.4a.9).
 
 Sign conventions (7.4a.5): f_l = b_l (theta_o - theta_e), + = zone_from -> zone_to. pi_n = dCost/dD_n. mu_l signed with
@@ -38,8 +37,6 @@ LINKS = ["ab", "ad", "ae", "bc", "cd", "de"]                    # 7.4a.11: from 
 RES_IDS = ["alta", "park_city", "solitude", "sundance", "brighton"]
 D_Y = 365.0                                                     # pjm5 model_year 2025 (7.4a.11)
 
-G33 = pytest.mark.xfail(strict=True, reason="Gate 3 G3-3: tx.model=dcpf and cases/pjm5bus/ not built yet")
-G33_RULES = pytest.mark.xfail(strict=True, reason="Gate 3 G3-3: loader rules of data-schema 11 / formulation 7.4a.1 not built yet")
 
 
 # =============================================================== Part 1: independent reference route
@@ -323,7 +320,7 @@ def test_ref_scan_hours_are_uncongested_or_unique_alpha():
     assert n_loop == 51                                            # factors >= 0.6775 are congested (D-E binding)
 
 
-# =============================================================== Part 2: model-facing (strict xfail until G3-3)
+# =============================================================== Part 2: model-facing (markers removed at G3-3)
 LOAD_FACTORS = np.linspace(0.50, 1.10, 72)                    # P5e, fixed list
 TOL = dict(obj_rel=1e-7, g=1e-4, lmp=1e-4, pub_lmp=0.01, pub_g=0.01)
 
@@ -466,7 +463,6 @@ def _assert_all_health_pass(h):
     assert bad.empty, bad
 
 
-@G33
 def test_p5a_base_angle(pj, base):
     r = pj(form="angle")
     t, h = r.t, r.h
@@ -487,7 +483,6 @@ def test_p5a_base_angle(pj, base):
         assert len(_check(h, cid)) == 1 and (_check(h, cid)["status"] == "pass").all(), cid
 
 
-@G33
 def test_p5a_defaults_are_angle_and_first_zone_reference(pj, base):
     r = pj(switches={"tx.model": "dcpf"})                     # tx.dcpf_form and tx.ref_bus absent (7.4a.1)
     _compare(r.t, base)
@@ -496,7 +491,6 @@ def test_p5a_defaults_are_angle_and_first_zone_reference(pj, base):
     assert set(r.fp.components["config"]["switches"]) == {"tx.model"}                              # builder writes no defaults
 
 
-@G33
 def test_p5b_ptdf_equals_angle(pj, base):
     a, b = pj(form="angle"), pj(form="ptdf")
     za = a.t["objective"].query("component == 'total'")["value_usd_yr"].iloc[0]
@@ -513,7 +507,6 @@ def test_p5b_ptdf_equals_angle(pj, base):
     assert (b.t["angles"]["theta_source"] == "recomputed").all()
 
 
-@G33
 @pytest.mark.parametrize("form", ["angle", "ptdf"])
 @pytest.mark.parametrize("ref", range(5))
 def test_p5c_reference_bus_invariance(pj, base, form, ref):
@@ -530,7 +523,6 @@ def test_p5c_reference_bus_invariance(pj, base, form, ref):
     _assert_all_health_pass(r.h)
 
 
-@G33
 def test_p5d_uncongested(pj):
     ref = solve_opf("angle", 0, drop_de=True)
     r = pj(form="angle", drop_de=True)
@@ -547,7 +539,6 @@ def test_p5d_uncongested(pj):
     _assert_all_health_pass(r.h)
 
 
-@G33
 def test_p5e_load_scan(pj):
     r = pj(form="angle", scale=LOAD_FACTORS)
     t = r.t
@@ -559,7 +550,6 @@ def test_p5e_load_scan(pj):
     _assert_all_health_pass(r.h)
 
 
-@G33
 def test_p5f_transport_contrast_reported_only(pj):
     r = pj(tx="transport")                                    # NTC = rating; reported, not judged
     t = r.t
@@ -573,7 +563,6 @@ def test_p5f_transport_contrast_reported_only(pj):
 
 
 # ---- section 4 health checks: each driven by an independent recomputation, not by the audit layer's verdict
-@G33
 @pytest.mark.parametrize("form", ["angle", "ptdf"])
 def test_h_kvl_recomputation(pj, base, form):
     r = pj(form=form)
@@ -588,7 +577,6 @@ def test_h_kvl_recomputation(pj, base, form):
     assert len(row) == 1 and row["status"].iloc[0] == "pass" and row["value"].iloc[0] <= 1e-6
 
 
-@G33
 @pytest.mark.parametrize("form", ["angle", "ptdf"])
 def test_h_ptdf_recomputation(pj, base, form):
     r = pj(form=form)
@@ -600,7 +588,6 @@ def test_h_ptdf_recomputation(pj, base, form):
     assert len(row) == 1 and row["status"].iloc[0] == "pass" and row["value"].iloc[0] <= 1e-6
 
 
-@G33
 @pytest.mark.parametrize("drop", [False, True])
 @pytest.mark.parametrize("ref_bus", [0, 3])
 def test_h_lmp_decomposition_and_congestion_rent(pj, drop, ref_bus):
@@ -621,7 +608,6 @@ def test_h_lmp_decomposition_and_congestion_rent(pj, drop, ref_bus):
         assert len(_check(r.h, cid)) == 1 and (_check(r.h, cid)["status"] == "pass").all()
 
 
-@G33
 def test_h_line_duals_complementary_slackness(pj, base):
     f = _flows(pj(form="angle").t)
     rate = pd.Series(base["rate"], index=LINKS)
@@ -633,7 +619,6 @@ def test_h_line_duals_complementary_slackness(pj, base):
     assert len(row) == 1 and row["status"].iloc[0] == "pass"
 
 
-@G33
 def test_h_islands_fixture_one_ref_angle_per_island(pj):
     """pjm5 minus ad, bc, de: islands {A,B,E} (ref A) and {C,D} (ref C) (7.4a.11)."""
     from capex.data import load_case
@@ -662,7 +647,6 @@ def test_h_islands_fixture_one_ref_angle_per_island(pj):
     _assert_all_health_pass(r.h)
 
 
-@G33
 def test_h_conditioning_no_warn_on_p5a_to_p5e(pj):
     for kw in (dict(), dict(form="ptdf"), dict(drop_de=True), dict(scale=LOAD_FACTORS)):
         c = pj(**kw).h.checks
@@ -670,7 +654,6 @@ def test_h_conditioning_no_warn_on_p5a_to_p5e(pj):
         assert len(cond) >= 1 and not cond["status"].isin(["warn", "fail"]).any(), (kw, cond)
 
 
-@G33
 @pytest.mark.parametrize("form", ["ptdf", "angle"])
 def test_h_ranged_rows_none_written(pj, form):
     """7.4a.4/7.4a.11: flow limits stay column bounds; no row with -inf < lo < hi < inf (F5 vacuous)."""
@@ -685,7 +668,6 @@ def _cases_t(name):
     return REPO / "cases" / name
 
 
-@G33_RULES
 def test_loader_accepts_f03_and_requires_it_for_dcpf(tmp_path):
     from capex.data import DataError, load_case
     cd = stage_case(_cases_t("T4"), tmp_path)
@@ -701,7 +683,6 @@ def test_loader_accepts_f03_and_requires_it_for_dcpf(tmp_path):
         load_case(bad)
 
 
-@G33_RULES
 def test_loader_rejects_unknown_tx_model_value(tmp_path):
     from capex.data import DataError, load_case
     cd = stage_case(_cases_t("T4"), tmp_path)
@@ -727,7 +708,6 @@ def _bad_links(name):
     return edit
 
 
-@G33
 @pytest.mark.parametrize("bad", ["missing_reactance", "zero_base", "asymmetric_rating", "zero_rating"])
 def test_loader_dcpf_link_validation_errors(tmp_path, bad):
     """data-schema 3.2 / rule 11: under dcpf these are load errors."""
@@ -737,7 +717,6 @@ def test_loader_dcpf_link_validation_errors(tmp_path, bad):
         load_case(cd)
 
 
-@G33
 @pytest.mark.parametrize("refs", [["Z"], ["A", "B"]])
 def test_loader_rejects_bad_ref_bus(tmp_path, refs):
     """tx.ref_bus must be zone ids, at most one per island (7.4a.1)."""
@@ -747,7 +726,6 @@ def test_loader_rejects_bad_ref_bus(tmp_path, refs):
         load_case(cd)
 
 
-@G33
 def test_audit_network_does_not_import_builder_network():
     """7.4a.10: the audit's case-data route must not import capex.network (verifier static check, as 5.1)."""
     path = REPO / "src" / "capex" / "audit" / "network.py"
@@ -782,7 +760,6 @@ def _control_and_run(case_dir):
     return solve_audit
 
 
-@G33
 @pytest.mark.parametrize("form", ["angle", "ptdf"])
 def test_m7_reactance_scaled_in_lp_only(tmp_path, monkeypatch, form):
     net_mod, _run, _solver = _mutation_env()
@@ -803,7 +780,6 @@ def test_m7_reactance_scaled_in_lp_only(tmp_path, monkeypatch, form):
     assert set(f) & {"kvl.recompute", "ptdf.recompute"}, f"M7 not caught; failing: {f}"
 
 
-@G33
 def test_m8_kvl_row_sign_flip(tmp_path, monkeypatch):
     import dataclasses
     _net, run_mod, _solver = _mutation_env()
@@ -826,7 +802,6 @@ def test_m8_kvl_row_sign_flip(tmp_path, monkeypatch):
     assert set(f) & {"kvl.recompute", "ptdf.recompute"}, f"M8 not caught; failing: {f}"
 
 
-@G33
 def test_m9_reference_row_dropped(tmp_path, monkeypatch):
     import dataclasses
     _net, run_mod, _solver = _mutation_env()
@@ -846,7 +821,6 @@ def test_m9_reference_row_dropped(tmp_path, monkeypatch):
     assert "dcpf.islands" in _failing(h), f"M9 must be caught by dcpf.islands; failing: {_failing(h)}"
 
 
-@G33
 @pytest.mark.parametrize("form", ["angle", "ptdf"])
 def test_m10_one_line_mu_sign_flipped(tmp_path, monkeypatch, form):
     import dataclasses
