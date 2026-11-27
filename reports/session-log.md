@@ -290,3 +290,8 @@ No tests run this item (review only). STATUS → AWAITING_OWNER_REVIEW. Owner: 1
 2026-11-27 18:2x UTC — owner live reply "Approve proceed" to the Gate 3 review.
 Recorded DECISIONS 54 (yes to all 10 items); merged `gate-3` into `main` (8ba64d2); Gate 3 DONE. Gate 4 notes added to P12.
 Branch `g2-7b-broken-hash` delete refused from this workspace — owner deletes at GitHub. Next: prep P11, then P12 (gate-4.md).
+
+2026-11-27 18:4x UTC — P11 (formulation lead, Opus, no subagents), branch prep (5ae07e1).
+`docs/drafts/architecture-spec.md`: feature-block contract A1–A10, `ra.prm` Gate 7 row (κ, annual setter report, T5 toys), weighted rep-period PDC + M1.1/M1.4/M1.5 mapping.
+Spec draft only; no code, no tests run. Owner: 6 yes/no questions (O1 FPR-based requirement, O2 storage class round-down, O3 fixed-duration candidates, O4 trimmed PDC tail until Gate 9, O5, O6).
+Next: P12 (gate-4.md draft).
