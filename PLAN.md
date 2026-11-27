@@ -26,7 +26,7 @@ PJM single node → PJM zonal. Features are proven on test systems before touchi
 | 8 | Foresight modes + per-year periods + GenX multi-stage | myopic/rolling (T7f closed form, regret report); per-year re-clustering vs shared periods vs full-chronology multi-year RTS-GMLC; GenX multi-stage 3-zone cross-check (cost, capacity by stage, prices) explained; ledger rows `my.foresight`, `my.ts`, `my.eoh` |
 | 9 | Reserves + shortage pricing | ORDC-style; on RTS-GMLC; ledger |
 | 10 | Zonal transmission + expansion | interfaces, congestion price-setters; on RTS-GMLC; ledger |
-| 11 | Clustered linear UC | min gen, starts, ramps; in the expansion LP, switch default off unless the ledger shows it changes builds or PDC fit; on RTS-GMLC |
+| 11 | Clustered linear UC | linearized only (continuous commitment, no binaries; DECISIONS 46): min gen, starts, ramps; switch `uc.enabled` **default off**; ledger reports its effect on builds and PDC fit; default-on considered no earlier than Gate 19 (calibration); on RTS-GMLC |
 | 12 | Policy + build/retirement realism | state RPS/CES (NJ, MD, IL, VA), RGGI by state, federal credits under current law; annual build limits by tech/zone (queue reality); going-forward-cost retirements (allowed with `ra.prm` on); announced retirements/RMR fixed |
 | **C. PJM** |||
 | 13 | PJM one-zone data slice | e.g. Dominion, 2023; daily hub gas (Tetco M3, Transco Z6, Dominion South); fleet with provenance + estimation hierarchy |
@@ -164,6 +164,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+DECISIONS 46 (owner 2026-11-27): no integer (full) UC anywhere; linearized clustered UC is the basis, built at Gate 11, default off until a later gate.
 Design review 2026-11-27 (DECISIONS 44, amended by 45 on owner reply): rep-period PDC matching is the price check (no operations mode); PRM in Gate 7; UC in the expansion LP default off; performance budget from Gate 4 — no new gates. Gate 3 criteria approval still the next step.
 Gates restructured 2026-11-27 (owner, DECISIONS 43): multi-year gets Gates 7–8 after the GenX cross-check; old Gates 7–20 → 9–22. Formulation lead's design draft: docs/drafts/multi-year-design.md (open owner items O3–O12).
 Gate 2 DONE 2026-11-27: merged `gate-2` → `main` on owner instruction. Throwaway branch `g2-7b-broken-hash` neutralized (correct hash restored, 3a8872a) but not deleted (403) — owner deletes when at GitHub. Branch protection on `main` still owner action. Next: owner approves gate-3.md (incl. 0.01 MW dispatch tolerance, P5e load scan), then PM writes Gate 3 items (add markets a/b + Actions bump, DECISIONS 42).

@@ -209,3 +209,7 @@
     instead of revenue reconciliation; UC (Gate 11) is in the expansion LP, switch default off unless the ledger shows it
     changes builds or PDC fit. 44(c) PRM at Gate 7, (d) performance budget, (e) block contract stand. Note: before
     Gate 9 (ORDC) prices at capacity-bound hours are non-unique, so the PDC upper tail is judged from Gate 9 on.
+46. Owner (2026-11-27): full (integer/MIP) unit commitment is not used — the model stays an LP. The basis is
+    **linearized clustered UC** (Palmintier & Webster; continuous commitment, formulation §7.5), built at Gate 11 with
+    `uc.enabled` **default off**. The ledger reports its effect on builds and the PDC fit; switching it on by default is
+    considered no earlier than Gate 19 (calibration + hold-out) and needs an owner decision.
