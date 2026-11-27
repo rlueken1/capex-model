@@ -318,3 +318,9 @@ Next: P12 (gate-4.md draft).
 - Tests: 732 pass / 69 strict xfail (need G4-4) / 5 skip (full-window, CAPEX_GATE4_FULL=1) / 0 fail; check_markers ok.
 - F0 passes (4.1e-4 MW); C0/C2 live. Independent LP predicts C1 7.1% (>5%) and G1 coal/gas-CC ~±9 pp (>3 pp): UC gap, owner call at G4-8.
 - 8 SPEC-GAPs listed in tests/test_gate4_known_answers.py docstring for G4-4/G4-7.
+
+## 2026-11-27 — PM scrum (gate-4, PM Opus main session, no subagents)
+- Item: scrum; `reports/scrum-2026-11-27.md`. Gate 4 ~40%: G4-1..G4-3 done, G4-4 claimed (live).
+- Re-plan: G4-6 split into G4-6a (window metrics) / G4-6b (full year, ledgers, evidence); G4-4v (verifier clears XPASSing xfails) added.
+- Tests: none run (planning only).
+- Owner: nothing blocking; C1/G1 predicted miss is a G4-8 decision (early steer welcome).

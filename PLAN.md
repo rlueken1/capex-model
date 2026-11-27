@@ -164,11 +164,22 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
 - [x] G4-3 Verifier [Sonnet]: tests §4 (H1–N1, M13–M16) and the §5 comparison harness (F0/C0 route from case CSVs +
   reference tables), from the spec, before the code exists (strict xfail).
 - [~] G4-4 Builder [Sonnet]: S1–S4 in `src/capex/`, performance-ledger writer. No judging tests. (claimed 2026-11-27T23:24Z)
-- [ ] G4-5 Builder [Sonnet]: Actions job for R4-F/R4-NF (separate from CI, 30-min limit, artifact upload); CI runs window cases.
-- [ ] G4-6 Verifier [Sonnet]: runs everything, writes the evidence file and the ledger rows.
-- [ ] G4-7 Formulation lead [Opus]: code-vs-spec trace `reports/gate-4-spec-trace.md` (incl. the A1–A10 check).
-- [ ] G4-8 PM + markets reviewer [Opus]: `reports/gate-4-review.md` with the UC/reserve gap narrative (C1, G1, L1, U0)
-  and the decision list; STATUS → AWAITING_OWNER_REVIEW.
+- [ ] G4-4v Verifier [Sonnet], branch `gate-4`: after G4-4 — remove the strict xfails that now pass (keep C1/G1 as
+  they are until G4-6a), align tests with any spec ruling G4-4 needed; check_markers ok; CI green on `gate-4`. If G4-4
+  hit a SPEC-GAP it could not settle, a formulation-lead [Opus] ruling item goes in before this one. Tick as done with
+  no change if G4-4 already left CI green with no XPASS.
+- [ ] G4-5 Builder [Sonnet], branch `gate-4`: Actions workflow for R4-F/R4-NF (dispatch only, separate from CI, 30-min
+  limit, artifact upload); CI runs the window cases. Proof: one dispatched run green. No judging tests.
+- [ ] G4-6a Verifier [Sonnet], branch `gate-4`: window runs R4-Z/R4-C/R4-N/R4-NS; §5 metrics F0, C0–C2, G1–G2, L1–L2,
+  P1, U0 vs PLEXOS; turn the C1/G1 strict xfails into real outcomes (pass/fail as measured, not loosened); evidence
+  file §9 parts for these runs.
+- [ ] G4-6b Verifier [Sonnet], branch `gate-4`: dispatch the G4-5 job for R4-F/R4-NF; health + performance-ledger rows
+  (window ≤ 60 s, full year ≤ 5 min / 4 GB) and complexity-ledger rows `tx.dc_links`, `tx.model` (RTS); finish
+  `reports/gate-4-evidence.md`; refresh the dashboard Model results tab (`scripts/export_dashboard.py`).
+- [ ] G4-7 Formulation lead [Opus], branch `gate-4`: code-vs-spec trace `reports/gate-4-spec-trace.md` (incl. A1–A10
+  and closing the 8 G4-3 SPEC-GAPs); findings become fix items.
+- [ ] G4-8 PM [Sonnet] + markets reviewer [Opus] (1 subagent), branch `gate-4`: `reports/gate-4-review.md` with the
+  UC/reserve gap narrative (C1, G1, L1, U0) and the §11 decision list; STATUS → AWAITING_OWNER_REVIEW.
 
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
 Use when STATUS is AWAITING_OWNER_REVIEW, or when the next gate item is already claimed by another run (owner, 2026-11-26). One item per session, in order. Drafts and raw data only:
@@ -204,6 +215,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+Scrum 2026-11-27 (PM): Gate 4 ~40% (spec, data, tests done; G4-4 code in progress). G4-6 split into G4-6a (window metrics, C1/G1 outcomes) and G4-6b (full-year job, ledgers, evidence); G4-4v added so XPASSing strict xfails are cleared by the verifier, not the builder. No reviewers until G4-8 (markets, Opus). Next: G4-4 (claimed), then G4-4v.
 G4-3 done 2026-11-27 on `gate-4` (verifier Sonnet): `tests/g4lib.py` (independent scipy-highs DC-OPF route + F-0.4 fixtures), `tests/rts_compare.py` (§5 harness, no capex import), `tests/test_gate4_{known_answers,mutations,comparison}.py`. 732 pass / 69 strict xfail ("Gate 4: needs G4-4 …") / 5 skip unless `CAPEX_GATE4_FULL=1` (B1, N1, R4-F, R4-NF); check_markers ok. Live now: F0 passes (max violation 4.1e-4 MW R4-Z/R4-C), C0, C2 closure, K6. **Independent zonal LP predicts C1 7.1% (limit 5% [P]) and G1 coal +8.4 pp / gas CC −10.4 pp (limit 3 pp [P])** — UC/heat-rate effects (U0: 39% of gas-CC energy at Pmin); tests not loosened, owner decision at G4-8. 8 SPEC-GAPs in the `test_gate4_known_answers.py` docstring for G4-4/G4-7 (interval-LP tol_π on resource rows, θ reduced-cost label, M13/M16 hook names, case (c) forcing, H1b/H1c fixture ratings, no gate3 pjm5 golden for H1d, A1 residual-injection mechanism). G4-6 must convert C1/G1 strict xfails to real outcomes. Next: G4-4 (builder, Sonnet).
 G4-2 done 2026-11-27 on `gate-4` (data lead Sonnet + verifier Sonnet): K4 rts_gmlc row in `data/common/sources.csv`, case-local copy retired; K5 A4/`dc_r1_r3` → derived (DC1 `113_316_1` within ±100 MW in allTX, at limit 323/336 h; noTX −155…−62); K6 `cases/rts_gmlc/reference/ref_plexos_da_{alltx,notx}.csv.gz` (sha256 = MANIFEST, first hour p063 t1, gen = load to 7e-12); variants `rts_gmlc_px`, `_px_cp`, `_nodal`, `_nodal_px` (73 buses, 120 AC links, DC1 `dc` ±100) via `scripts/convert_rts_gmlc.py`; bus load share confirmed by KCL vs PLEXOS to 9e-12 (participation factors not vendored), DC-PF reproduces all 120 PLEXOS flows to 4e-12. All RTS cases declare F-0.4 + `audit_profile: standard` → they do NOT load until G4-4 (loader accepts F-0.4, `link_type`, DC link without reactance, parallel lines); G4-3 tests on RTS cases must be strict xfail. Verifier masked the shared-registry `tables.sources` hash in `tests/test_pjm5bus.py::_mask_components` (DECISIONS 40: registry append is an expected fingerprint change; goldens untouched). pytest 671/671 local. Next: G4-3 (verifier, Sonnet).
 G4-1 done 2026-11-27 on `gate-4` (formulation lead, Opus): formulation F-0.4 — §2.4 heat rate (secant incremental, DECISIONS 57), §3 audit_profile exact/standard (S3), §6.1 unscaling rule incl. θ/ref_angle (S4), §7.4a.1/.2/.12 controllable DC-link block `tx.dc_links`/`links.link_type` (S1), §7.4a.7 storage rows in the interval LP (S2), new check `price_setter.loop_interval`, M13–M16; data-schema keys + rules; benchmarks §6 G4 row (S5); DECISIONS 56–57. Flags for G4-2/G4-3: cases using the new keys must declare F-0.4; pjm5 golden identity now excludes the one new `loop_interval` health row (owner yes in G4-8 list). Next: G4-2 (data lead, Sonnet).
