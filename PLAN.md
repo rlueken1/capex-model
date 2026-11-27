@@ -156,7 +156,7 @@ One per session, strictly in order; claim before work (CLAUDE.md). Default netwo
 
 ## Gate 4 work items — branch `gate-4` (criteria: docs/gates/gate-4.md, approved 2026-11-27, DECISIONS 55)
 One per session, in order (gate-4.md §10; builder ≠ verifier).
-- [ ] G4-1 Formulation lead [Opus]: W-spec S1–S5 into formulation.md (F-0.4), data-schema, benchmarks §6; DECISIONS
+- [~] G4-1 Formulation lead [Opus]: W-spec S1–S5 into formulation.md (F-0.4), data-schema, benchmarks §6; DECISIONS (claimed 2026-11-27T20:24Z)
   entries (S1–S4 and the heat-rate choice).
 - [ ] G4-2 Data lead [Sonnet]: K4–K6. Converter variants `rts_gmlc_px`, `rts_gmlc_px_cp`, `rts_gmlc_nodal`(`_px`) (73 buses,
   branch x/Cont Rating, DC1 `dc` ±100, load = area series × bus.csv `MW Load` share — check vs PLEXOS participation).
