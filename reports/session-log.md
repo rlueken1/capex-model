@@ -281,3 +281,8 @@ runnable here: highspy missing in this workspace; CI is the judge). Next: G3-6-f
 Isolated node = own island now runs (audit `ptdf`/`angles_from_injection` skip empty reduced block); `tx.ref_bus: []`
 → `DataError` per DECISIONS 53. Verifier removed both G3-6-fix3 strict xfails. 671 pass / 0 fail; check_markers ok;
 T1–T4 golden + pjm5 unchanged. Next: G3-7 (gate-3 review). Nothing needs the owner.
+
+2026-11-27 17:3x UTC — G3-7 (PM + markets reviewer Opus, 1 subagent), branch gate-3.
+`reports/gate-3-review.md`: all Gate 3 criteria pass (P5f reported); CI #166 green on last code commit; 671 pass; history clean.
+Markets reviewer yes; 6 forward notes (Gate 4: storage under dcpf, HVDC link outside §7.4a, UC/reserve gaps vs RTS-GMLC reference).
+No tests run this item (review only). STATUS → AWAITING_OWNER_REVIEW. Owner: 10 yes/no items (incl. merge gate-3, delete g2-7b-broken-hash).
