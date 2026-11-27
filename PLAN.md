@@ -21,21 +21,24 @@ PJM single node → PJM zonal. Features are proven on test systems before touchi
 | 4 | RTS-GMLC dispatch | 3 regions, ~150 gens, full-year fixed-fleet dispatch vs published reference results |
 | 5 | Rep periods + storage + renewables | weighted 3-day periods (clustered on load, wind, solar, net load, fuel price; forced peak/scarcity/extreme periods), inter-period SOC; vs RTS-GMLC full-year; complexity ledger |
 | 6 | GenX cross-check | same inputs as a GenX example (e.g. 3-zone) → compare cost, capacity, prices; differences explained |
-| 7 | Reserves + shortage pricing | ORDC-style; on RTS-GMLC; ledger |
-| 8 | Zonal transmission + expansion | interfaces, congestion price-setters; on RTS-GMLC; ledger |
-| 9 | Clustered linear UC | min gen, starts, ramps; on RTS-GMLC; ledger |
-| 10 | Policy + build/retirement realism | state RPS/CES (NJ, MD, IL, VA), RGGI by state, federal credits under current law; annual build limits by tech/zone (queue reality); going-forward-cost retirements; announced retirements/RMR fixed |
+| **B2. Multi-year (owner 2026-11-27, DECISIONS 43; design: docs/drafts/multi-year-design.md)** |||
+| 7 | Multi-year expansion core (perfect foresight) | model years with discounted year weights, vintages, lifetimes/end-of-life, horizon-end annuity truncation; toys T7a–e, T7g, T7h vs closed form; `my.mode=single` reproduces the Gate 6 LP exactly; RTS-GMLC 3 model years + 1 tail year passes all health checks incl. per-vintage PV zero profit, UNEXPLAINED=0 every year; ledger row `my.mode` |
+| 8 | Foresight modes + per-year periods + GenX multi-stage | myopic/rolling (T7f closed form, regret report); per-year re-clustering vs shared periods vs full-chronology multi-year RTS-GMLC; GenX multi-stage 3-zone cross-check (cost, capacity by stage, prices) explained; ledger rows `my.foresight`, `my.ts`, `my.eoh` |
+| 9 | Reserves + shortage pricing | ORDC-style; on RTS-GMLC; ledger |
+| 10 | Zonal transmission + expansion | interfaces, congestion price-setters; on RTS-GMLC; ledger |
+| 11 | Clustered linear UC | min gen, starts, ramps; on RTS-GMLC; ledger |
+| 12 | Policy + build/retirement realism | state RPS/CES (NJ, MD, IL, VA), RGGI by state, federal credits under current law; annual build limits by tech/zone (queue reality); going-forward-cost retirements; announced retirements/RMR fixed |
 | **C. PJM** |||
-| 11 | PJM one-zone data slice | e.g. Dominion, 2023; daily hub gas (Tetco M3, Transco Z6, Dominion South); fleet with provenance + estimation hierarchy |
-| 12 | Scoreboard v0 (one zone) | fixed-fleet backcast; outages (seasonal maintenance, forced), imports/exports, nuclear/hydro/pumped storage, DR; extreme events (e.g. Winter Storm Elliott) as forced periods; baseline errors |
-| 13 | PJM single node | PJM-wide copper-plate backcast; scoreboard |
-| 14 | Capacity market | VRR curve, ELCC accreditation; vs RPM clearing prices |
-| 15 | First client deliverable | storage value study (arbitrage, capacity, reserves vs build cost) |
-| 16 | Full data pipeline | EIA-860/923, PUDL, CEMS, NEEDS, ATB, AEO, fuels, PJM load/LMP/RPM; versioned; assumptions book |
-| 17 | Calibration + hold-out | 2022–24 calibrate/hold-out; regression rule; one-off full-year check of rep periods; forward runs vs West Hub futures |
-| 18 | PJM zonal + multi-year | PJM zones, 50+ clusters, multi-year horizon, runtime target |
-| 19 | Local web UI | inputs, run, outputs, audit views, scenario manager |
-| 20 | Continuous accuracy | scoreboard trend per version |
+| 13 | PJM one-zone data slice | e.g. Dominion, 2023; daily hub gas (Tetco M3, Transco Z6, Dominion South); fleet with provenance + estimation hierarchy |
+| 14 | Scoreboard v0 (one zone) | fixed-fleet backcast; outages (seasonal maintenance, forced), imports/exports, nuclear/hydro/pumped storage, DR; extreme events (e.g. Winter Storm Elliott) as forced periods; baseline errors |
+| 15 | PJM single node | PJM-wide copper-plate backcast; scoreboard |
+| 16 | Capacity market | VRR curve, ELCC accreditation; vs RPM clearing prices |
+| 17 | First client deliverable | storage value study (arbitrage, capacity, reserves vs build cost) |
+| 18 | Full data pipeline | EIA-860/923, PUDL, CEMS, NEEDS, ATB, AEO, fuels, PJM load/LMP/RPM; versioned; assumptions book |
+| 19 | Calibration + hold-out | 2022–24 calibrate/hold-out; regression rule; one-off full-year check of rep periods; forward runs vs West Hub futures |
+| 20 | PJM zonal (multi-year) | PJM zones, 50+ clusters, multi-year horizon from Gates 7–8 at PJM scale, runtime target |
+| 21 | Local web UI | inputs, run, outputs, audit views, scenario manager |
+| 22 | Continuous accuracy | scoreboard trend per version |
 
 Other RTOs/grids added later, one at a time. First use case: **storage value**.
 Focus throughout: **benchmarking / backcast accuracy**. From Gate 5 on, every feature has
@@ -150,6 +153,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+Gates restructured 2026-11-27 (owner, DECISIONS 43): multi-year gets Gates 7–8 after the GenX cross-check; old Gates 7–20 → 9–22. Formulation lead's design draft: docs/drafts/multi-year-design.md (open owner items O3–O12).
 Gate 2 DONE 2026-11-27: merged `gate-2` → `main` on owner instruction. Throwaway branch `g2-7b-broken-hash` neutralized (correct hash restored, 3a8872a) but not deleted (403) — owner deletes when at GitHub. Branch protection on `main` still owner action. Next: owner approves gate-3.md (incl. 0.01 MW dispatch tolerance, P5e load scan), then PM writes Gate 3 items (add markets a/b + Actions bump, DECISIONS 42).
 Owner answered Gate 2 review 2026-11-27: yes to all 9 (DECISIONS 42). Remaining owner actions before Gate 2 DONE: delete `g2-7b-broken-hash`, enable branch protection on `main` (require `ci`), merge `gate-2` → `main`. Then: PM drafts Gate 3 items (incl. markets a/b, Actions bump).
 G2-8 done 2026-11-27 on `gate-2`: `reports/gate-2-review.md` — all C1–C9, D1–D8, F3–F5, P1-a/b pass (D4/D5/D7 carried limitations); history audit clean (no secrets, no downloaded raw data); markets reviewer yes, 6 forward should-fix notes. STATUS: AWAITING_OWNER_REVIEW — 9 yes/no items for the owner. Next: owner review; prep lane only.
@@ -191,6 +195,7 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
+- 2026-11-27 multi-year design (docs/drafts/multi-year-design.md §6): O3–O12, all rec yes — 5-year model-year steps + 1 tail year, annuities truncated at horizon end (no salvage term); one real system discount rate (±2 pt sensitivity) separate from tech WACC; same rep periods every year in Gate 7 (re-cluster option in Gate 8); no inter-year storage; cost varies by vintage, performance does not; perfect foresight default; Gates 7–8 judged on toys/health/GenX, not scoreboard; add free source `pjm_ltlf` (PJM load forecast); technical life = economic life. Can be answered at the Gate 6 → 7 boundary.
 - 2026-11-27 Gate 3: approve docs/gates/gate-3.md draft (open: dispatch tolerance 0.01 vs 0.1 MW, rec 0.01; keep P5e load scan, rec yes). Also still open: delete `g2-7b-broken-hash` (neutralized), enable branch protection on `main` requiring `ci`.
 - (answered 2026-11-27, yes to all, DECISIONS 42) 2026-11-27 G2-8: Gate 2 review — 9 yes/no decisions in reports/gate-2-review.md (all rec yes; delete `g2-7b-broken-hash` before merging; enable branch protection on `main`).
 - 2026-11-27 G2-7b: please delete throwaway branch `g2-7b-broken-hash` (origin, 6894418; only corrupts the case5.m hash in `data/manifests/pjm5.csv`) — deletion returned HTTP 403 from the cloud workspace. Never merge it. Optional: glance at artifact `data-pjm5-default-45916594450` provenance.json (not readable from here) to close D4 fully.

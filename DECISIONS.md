@@ -177,3 +177,15 @@
     requiring `ci`; merge `gate-2` → `main` and mark Gate 2 DONE (owner later said to merge before the branch deletion; branch neutralized instead);
     markets items (a) log provenance/hashes and (b) case5.m hash test go into Gate 3 criteria, (c)–(f) are later-gate notes
     (Gate 4/11/16); bump Actions majors (Node 20 deprecation) in Gate 3.
+
+2026-11-27 (owner, live session)
+43. Gate restructure: multi-year optimization is a critical feature and gets its own gates, inserted right after Gate 6
+    (GenX cross-check). The owner let the formulation lead set the split: **two gates** — 7 Multi-year expansion core
+    (perfect foresight: model years, discounted year weights, vintages, lifetimes, horizon-end annuity truncation; toys +
+    RTS-GMLC) and 8 Foresight modes + per-year periods + GenX multi-stage cross-check. Design draft:
+    docs/drafts/multi-year-design.md (its O3–O12 stay open for the owner, due by the Gate 6 → 7 boundary). All gates
+    renumbered, sequential. **Old → new map** (every gate number in entries 1–42, docs/drafts/* and reports/* before this
+    date uses OLD numbers): 0–6 unchanged; 7→9 reserves/ORDC; 8→10 zonal transmission; 9→11 UC; 10→12 policy + build/
+    retirement; 11→13 PJM one-zone slice; 12→14 scoreboard v0; 13→15 PJM single node; 14→16 capacity market;
+    15→17 storage value study; 16→18 full data pipeline; 17→19 calibration + hold-out; 18→20 PJM zonal (multi-year
+    now from Gates 7–8, applied at PJM scale); 19→21 local web UI; 20→22 continuous accuracy.
