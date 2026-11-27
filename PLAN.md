@@ -161,7 +161,7 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
 - [x] G4-2 Data lead [Sonnet]: K4–K6. Converter variants `rts_gmlc_px`, `rts_gmlc_px_cp`, `rts_gmlc_nodal`(`_px`) (73 buses,
   branch x/Cont Rating, DC1 `dc` ±100, load = area series × bus.csv `MW Load` share — check vs PLEXOS participation).
   Sets `audit_profile: standard`; provenance on every new value.
-- [ ] G4-3 Verifier [Sonnet]: tests §4 (H1–N1, M13–M16) and the §5 comparison harness (F0/C0 route from case CSVs +
+- [~] G4-3 Verifier [Sonnet]: tests §4 (H1–N1, M13–M16) and the §5 comparison harness (F0/C0 route from case CSVs + (claimed 2026-11-27T22:24:03Z)
   reference tables), from the spec, before the code exists (strict xfail).
 - [ ] G4-4 Builder [Sonnet]: S1–S4 in `src/capex/`, performance-ledger writer. No judging tests.
 - [ ] G4-5 Builder [Sonnet]: Actions job for R4-F/R4-NF (separate from CI, 30-min limit, artifact upload); CI runs window cases.
