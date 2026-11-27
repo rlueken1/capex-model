@@ -1,0 +1,58 @@
+case_id: rts_gmlc_px
+description: RTS-GMLC PLEXOS-aligned fleet (no CSP, no storage), 3 zones, full year
+  2020 as 122 blocks of 72 h; Gate 4 R4-Z/R4-F vs PLEXOS DA allTX
+schema_version: S-0.1
+formulation_version: F-0.4
+base_dollar_year: 2024
+model_year: 2020
+dt_h: 1.0
+voll_usd_mwh: 10000
+voll_dollar_year: 2024
+finance_default: rts_unused
+seed: 0
+solver:
+  name: highs
+switches: {}
+audit_profile: standard
+tables:
+  periods:
+    file: ../rts_gmlc/periods.csv
+    sha256: 4ebc36301416c251009fcd2f1e80c0283849fe02b04e5c7ffaef1814a15d39d7
+  zones:
+    file: ../rts_gmlc/zones.csv
+    sha256: 84b30d637a84d17d4c5a35836048b707ef70637b53ed4061bdd160c0b27374a3
+  links:
+    file: ../rts_gmlc/links.csv
+    sha256: 5bedf0333fc85a0d76ffa6244ef10db0ba7bd6ed97f2188d2d46ed48e4c8cb26
+  load:
+    file: ../rts_gmlc/load.csv
+    sha256: db53a915af248195b704e5887d7648b16b0e966517377a111f11f04b808511b4
+  load_meta:
+    file: ../rts_gmlc/load_meta.csv
+    sha256: 1852ee108918aca37d82a845774bdafe32065e91216bfddace5e5fd30dfedd4f
+  resources:
+    file: resources.csv
+    sha256: 2a04ae26663fd87c6b451f6b4ad9946d8754278bf1edf22f0d38351aba61745e
+  finance:
+    file: ../rts_gmlc/finance.csv
+    sha256: 57cd77ff2513287678d3223c7a413c3d22bdfc824a9d5e2705b10776b0b461d4
+  availability:
+    file: availability.csv.gz
+    sha256: 8b27d9e455d30213d96af3f90c25162514cc2b9285487e1cdaf71ce8d34b4bba
+  availability_meta:
+    file: availability_meta.csv
+    sha256: 4c7a0807f7a20e1ea01ba2c348d60a87a3e347bb57d990d9542bf83b321913bf
+  fuel_map:
+    file: ../rts_gmlc/fuel_map.csv
+    sha256: 31133261760d6d0afaab43e56e15eb538b0d2ead22327643481a4940d4a616d2
+  fuel_prices:
+    file: ../rts_gmlc/fuel_prices.csv
+    sha256: c40650c51cc4d4509eac5af50787a10ae07ce65b28ff848270ba0376c9269f02
+  fuel_prices_meta:
+    file: ../rts_gmlc/fuel_prices_meta.csv
+    sha256: 93d327f94a021cc417768ebea0596aaa6979b5ceb72378d43ae18f0ebc1ffa26
+  sources:
+    file: ../../data/common/sources.csv
+  deflator:
+    file: ../../data/common/deflator.csv
+    sha256: c1fc4b6c9f000aa97d6821cf43f4d20daf61cadb31ab71239a911aa9733b153f

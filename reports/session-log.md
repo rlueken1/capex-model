@@ -306,3 +306,9 @@ Next: P12 (gate-4.md draft).
 - Item: W-spec S1–S5 → formulation F-0.4 (DC link block, storage in interval LP, audit_profile, unscaling rule, heat-rate §2.4), data-schema, benchmarks §6 G4 row; DECISIONS 56–57.
 - Tests: spec only, none run; src/capex/ and tests/ untouched.
 - Needs owner (at G4-8): pjm5/Gate 3 golden identity now drops the one new `price_setter.loop_interval` health row — small change to gate-4.md §6 wording.
+
+## 2026-11-27 — G4-2 (gate-4, data lead Sonnet + verifier Sonnet)
+- Item: K4 (common registry row, case-local sources retired), K5 (A4/DC1 derived, back-test ±100 MW), K6 (PLEXOS allTX/noTX reference tables, hashes = MANIFEST, p063 t1 aligned), 4 converter variants incl. 73-bus nodal.
+- Load-share method confirmed by KCL against PLEXOS (9e-12 MW); participation factors themselves not vendored.
+- Tests: 671 pass / 0 fail locally; verifier masked the registry hash in the pjm5 golden fingerprint compare (DECISIONS 40), 14 failures fixed.
+- RTS cases need G4-4 loader support for F-0.4 before they load. Nothing new for the owner.

@@ -14,10 +14,8 @@ dispatch check against the PLEXOS DA reference (`allTX` / `noTX`). **Licence:** 
 - **Fixed fleet.** All resources `status=existing`, `k0_mw=PMax`, `xmax=0`; no candidates, so no capex, finance or
   annualization (a placeholder `finance` class `rts_unused` exists only because the loader requires the table).
 - **Zones** `r1,r2,r3` = RTS Areas 1-3 (bus.csv `Area`); generators are assigned through their bus.
-- **Case-local `sources.csv`.** `data/common/sources.csv` lacks an `rts_gmlc` row. Editing it would change the sha256 that
-  the T1-T4 manifests pin, so this case points its `sources` table at a local copy (common rows + `rts_gmlc`).
-  `data/common/sources.csv` and all T* cases are untouched. Follow-up at Gate 4 (DECISIONS 38, 40): append the
-  `rts_gmlc` row to the common file and point this case at it; no T* re-hash is needed since DECISIONS 40 (registry not pinned).
+- **Source registry (K4, G4-2).** `sources` points at the shared `data/common/sources.csv`, which now has the `rts_gmlc` row
+  (DECISIONS 38/40/41); the case-local copy is retired. The registry is listed without sha256 (DECISIONS 40); T* need no re-hash.
 - **Availability is `availability.csv.gz`.** 81 VRE series x 8784 h = 711,504 rows (20 MB as text); gzip (2.6 MB) is read
   natively by the loader's `pd.read_csv`. Not Parquet (loader reads CSV only).
 - **Sidecar files the loader ignores (not in manifest, not hashed):** `provenance_cells.csv` (387 per-cell overrides, the
@@ -29,7 +27,7 @@ dispatch check against the PLEXOS DA reference (`allTX` / `noTX`). **Licence:** 
 | `zones` | `bus.csv` Area (3) | observed |
 | `load.demand_mw` | `timeseries_data_files/Load/DAY_AHEAD_regional_Load.csv` (MW, 8784 h x 3 areas) | observed (DA forecast); the series is already regional, so no bus aggregation is needed. Its max equals the Area bus.csv `MW Load` sum (2850), a unit check; `net_of_btm=False` (RTPV is supply) |
 | `links.ntc_*_mw` | `branch.csv` inter-area branches, `Cont Rating`, summed per area pair, symmetric | derived (est_level 1), medium |
-| `links` DC | `dc_branch.csv` DC1 (bus 113 Area 1 -> 316 Area 3), `MW Load` 100 MW used as symmetric rating | assumed, low |
+| `links` DC | `dc_branch.csv` DC1 (bus 113 Area 1 -> 316 Area 3), `MW Load` 100 MW used as symmetric +-100 MW rating; back-test (K5): PLEXOS allTX flow column `113_316_1` lies in [-100, 100] MW | derived, level 1, medium |
 | `resources.k0_mw`, `zone`, `vom_usd_mwh` | `gen.csv` `PMax MW`, Bus ID -> Area, `VOM` (all 0) | observed (zone derived) |
 | `resources.heat_rate_mmbtu_mwh` | `gen.csv` `HR_avg_0`, `HR_incr_1..3`, `Output_pct_0..3` | derived, est_level 1, high (below) |
 | `fuel_prices`, `fuel_map` | `gen.csv` `Fuel Price $/MMBTU`; 4 hubs `rts_oil/coal/gas/nuclear`, constant all year | observed |
@@ -92,3 +90,15 @@ is nothing to hold out.
 ## Loader smoke check
 `capex.data.load_case("cases/rts_gmlc")` validates: 3 zones, 122 periods (sum w = 122), demand (3,122,72), 154 gen + 1 storage, 4 links,
 sha256 of all tables match. No solve was run.
+
+## Gate 4 additions (G4-2; `scripts/convert_rts_gmlc.py` writes all of them)
+- `case.yaml`: `formulation_version: F-0.4` and `audit_profile: standard` (gate-4.md S3) on every RTS case. The loader accepts
+  these only after G4-4; until then it rejects `F-0.4`.
+- Variants (share unchanged tables from sibling dirs by relative path with sha256, like the shared deflator): `rts_gmlc_px`
+  (aligned fleet: CSP and storage removed, 3 zones), `rts_gmlc_px_cp` (aligned, one zone `rts`, no links table),
+  `rts_gmlc_nodal` (full fleet, 73 bus zones `b<id>`, 120 AC links with `reactance_pu` = branch X, `base_mva` 100 (assumed),
+  `ntc` = Cont Rating, DC1 as `link_type: dc` +-100 MW, `tx.model: dcpf`), `rts_gmlc_nodal_px` (nodal, aligned fleet).
+- Nodal load = area DA series x bus.csv `MW Load` / area sum. Back-tests against the vendored PLEXOS allTX run (assumptions A10, A11):
+  KCL-implied bus load matches to < 1e-9 MW, and a lossless DC power flow with branch X reproduces all 120 PLEXOS branch flows.
+- `reference/ref_plexos_da_{alltx,notx}.csv.gz` (K6): tidy long tables (variable, entity, period_id, t, timestamp, value, unit,
+  provenance), 336 h from p063 t1 (2020-07-05 00:00) to p067 t48; `ref_plexos_da_meta.csv` records source sha256 = MANIFEST.csv.

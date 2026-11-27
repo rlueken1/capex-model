@@ -1,0 +1,2 @@
+zone,net_of_btm,year,source_id,vintage,retrieved,method,confidence,basis,est_level
+rts,False,2020,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,high,"derived: sum of the three DAY_AHEAD_regional_Load.csv area series (MW, DA forecast, gross; RTPV is supply)",1

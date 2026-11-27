@@ -2,7 +2,7 @@ case_id: rts_gmlc
 description: RTS-GMLC fixed fleet, 3 zones (areas), full year 2020 as 122 weight-1
   blocks of 72 h; Gate 4 dispatch check
 schema_version: S-0.1
-formulation_version: F-0.2
+formulation_version: F-0.4
 base_dollar_year: 2024
 model_year: 2020
 dt_h: 1.0
@@ -13,6 +13,7 @@ seed: 0
 solver:
   name: highs
 switches: {}
+audit_profile: standard
 tables:
   periods:
     file: periods.csv
@@ -22,7 +23,7 @@ tables:
     sha256: 84b30d637a84d17d4c5a35836048b707ef70637b53ed4061bdd160c0b27374a3
   links:
     file: links.csv
-    sha256: 987eabcf7edc37ba69d8284bf871aed1f2770f5d40402fcaaf156ed3553bd104
+    sha256: 5bedf0333fc85a0d76ffa6244ef10db0ba7bd6ed97f2188d2d46ed48e4c8cb26
   load:
     file: load.csv
     sha256: db53a915af248195b704e5887d7648b16b0e966517377a111f11f04b808511b4
@@ -51,8 +52,7 @@ tables:
     file: fuel_prices_meta.csv
     sha256: 93d327f94a021cc417768ebea0596aaa6979b5ceb72378d43ae18f0ebc1ffa26
   sources:
-    file: sources.csv
-    sha256: deda1d4cebfb75622a4fcf0b7b57d76154fc5d4da91fd8f3c0b74e3da241cad1
+    file: ../../data/common/sources.csv
   deflator:
     file: ../../data/common/deflator.csv
     sha256: c1fc4b6c9f000aa97d6821cf43f4d20daf61cadb31ab71239a911aa9733b153f

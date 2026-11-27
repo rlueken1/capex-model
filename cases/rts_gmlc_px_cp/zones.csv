@@ -1,0 +1,2 @@
+zone_id,name,rto,source_id,vintage,retrieved,method,confidence,basis,est_level
+rts,"RTS-GMLC single zone (copper plate, Areas 1-3 merged)",RTS-GMLC,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,high,derived: the 3 bus.csv Areas merged into one zone (copper plate; noTX reference has one price per hour),1

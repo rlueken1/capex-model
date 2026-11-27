@@ -939,6 +939,11 @@ def _mask_components(comp: dict, golden: dict, drop_tx_model: bool = False, same
         comp.pop("python", None), comp.pop("packages", None), comp.get("solver", {}).pop("version", None)
     if drop_tx_model:
         comp.get("config", {}).get("switches", {}).pop("tx.model", None)
+    # DECISIONS 40: the shared registry data/common/sources.csv is append-only and unpinned; a registry append (e.g. the
+    # Gate-4 rts_gmlc row) is an expected, non-numerical change of tables.sources. Mask that ONE hash on both sides
+    # (presence is still required); every other table hash stays strictly compared.
+    if "sources" in comp.get("tables", {}):
+        comp["tables"]["sources"] = "<shared-registry-hash-masked: DECISIONS 40>"
     return comp
 
 

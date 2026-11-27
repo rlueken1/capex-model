@@ -1,0 +1,18 @@
+id,parameter,applies_to,value,method,est_level,confidence,source_id,basis,status
+A2,load_basis,load,"DA forecast, gross (RTPV as supply)",observed,,high,rts_gmlc,timeseries README: Load files are 'forecasted power demand' per region,used
+A3,link_rating,links,Cont Rating (MW),derived,1,medium,rts_gmlc,back-test: PLEXOS allTX DA flow on CB-1 saturates at exactly 500 MW = Cont Rating (LTE 600 not used),unused (no links)
+A4,dc_link_rating,dc_r1_r3,100 MW symmetric,derived,1,medium,rts_gmlc,"dc_branch.csv MW Load (100) is a scheduled setpoint, used as a +-100 MW rating; back-test (K5): PLEXOS allTX DA flow column 113_316_1 exists and lies in [-100, 100] MW over 336 h (max |flow| = 100 MW <= 100; at the limit in 323 h); noTX run reaches [-155, -62] MW (limit lifted). Lossless: R Line ignored",unused (no links)
+A1,dollar_year,"resources, fuel_prices",2024,assumed,,low,rts_gmlc,upstream states none; set to base year so deflator factor = 1; only deflator row in data/common is 2024 (placeholder),used
+A5,heat_rate,TH resources,secant incremental HR PMin..PMax (nuclear: full-load avg),derived,1,high,rts_gmlc,"linear MC = HR*fuel_price + VOM has no no-load term; secant slope is the marginal cost of the piecewise curve; x_noload_mmbtu_h, x_hr_full_load_avg_mmbtu_mwh kept for Gate 4/9 sensitivity",used
+A6,availability_TH,TH resources,1.0,assumed,,low,rts_gmlc,"no outages applied (default A=1); FOR and maintenance weeks kept as x_for_frac, x_maint_weeks; PLEXOS reference outage treatment unverified (gap G5)",used
+A7,hydro_modelling,20 hydro units,VRE with fixed hourly schedule (MW/PMax),derived,1,medium,rts_gmlc,pointers set PMin=PMax=series so RTS hydro is a fixed schedule; reservoirs (storage.csv) not modeled; model may curtail,used
+A8,rtpv_modelling,31 RTPV units,VRE (curtailable),derived,1,medium,rts_gmlc,"RTPV PMin=PMax=series upstream (non-dispatchable); schema has no must-take flag, so model may curtail",used
+A9,storage_roundtrip,313_storage_1,eta_c=eta_d=sqrt(0.85),estimated,4,medium,rts_gmlc,symmetric split of published 85% round trip,used
+G1,sync_cond,3 units,excluded (0 MW),,,,rts_gmlc,loader needs k0>0; they provide no MW,gap
+G2,fom_capex_costs,all resources,null,,,,,FOM/capex not in RTS-GMLC; irrelevant to fixed-fleet dispatch (constant Z0); fill from NREL ATB (est_level 4) if cost reporting is needed; needs ATB download (Needs owner/Actions),gap
+G3,csp_storage,212_csp_1,"not in this case (aligned fleet, A12)",,,,rts_gmlc,schema has no VRE+storage hybrid,gap
+G4,uc_params,TH resources,x_ columns only,,,,rts_gmlc,"pmin, ramps, min up/down kept as x_ columns; start costs not carried (Gate 9)",gap
+G5,reserves,case,not modeled,,,,rts_gmlc,reserves are Gate 7; PLEXOS DA reference prices include reserve scarcity/commitment effects,gap
+A12,fleet_alignment,"212_csp_1, 313_storage_1",removed from the case,derived,1,high,rts_gmlc,"back-test: PLEXOS DA generation/commitment/cost result files (both runs) have no columns for CSP and storage (checked in converter); total PLEXOS generation equals area load (max diff 7e-12 MW), so the reference is judged on the aligned fleet (gate-4.md O5; full fleet kept in rts_gmlc/rts_gmlc_nodal)",used
+A13,audit_profile,case.yaml,standard,assumed,,medium,,gate-4.md S3: non-toy cases use warn >1e-3 / fail >1e-1 MW(h) thresholds; 1e-1 MW is 1e-5 of the 8.2 GW peak,used
+A14,copper_plate,case,no links table,assumed,,medium,rts_gmlc,"noTX PLEXOS run has one price in every hour (checked, gate-4.md section 2); all network limits removed. Note noTX also lifts the DC1 limit",used

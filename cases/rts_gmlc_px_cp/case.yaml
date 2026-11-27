@@ -1,0 +1,55 @@
+case_id: rts_gmlc_px_cp
+description: RTS-GMLC PLEXOS-aligned fleet, one zone (copper plate), full year 2020
+  as 122 blocks of 72 h; Gate 4 R4-C vs PLEXOS DA noTX
+schema_version: S-0.1
+formulation_version: F-0.4
+base_dollar_year: 2024
+model_year: 2020
+dt_h: 1.0
+voll_usd_mwh: 10000
+voll_dollar_year: 2024
+finance_default: rts_unused
+seed: 0
+solver:
+  name: highs
+switches: {}
+audit_profile: standard
+tables:
+  periods:
+    file: ../rts_gmlc/periods.csv
+    sha256: 4ebc36301416c251009fcd2f1e80c0283849fe02b04e5c7ffaef1814a15d39d7
+  zones:
+    file: zones.csv
+    sha256: a01c8caa0a4592c16c40d0282e1a65e49ac8ff979d67bf38496ff21719e64677
+  load:
+    file: load.csv
+    sha256: 4e836d1fb75c3be3ee799d3db4f7c1a117bbd47f63b90cb9618783e46a9bb03a
+  load_meta:
+    file: load_meta.csv
+    sha256: 58f711b9638d3d5762a10947b054ee592c5f0e923a06e9ba7ae6f04b0b61f07c
+  resources:
+    file: resources.csv
+    sha256: 3568726db32a74aebd87fb98090778a44761b9728221474e22f31342edaa8fdf
+  finance:
+    file: ../rts_gmlc/finance.csv
+    sha256: 57cd77ff2513287678d3223c7a413c3d22bdfc824a9d5e2705b10776b0b461d4
+  availability:
+    file: ../rts_gmlc_px/availability.csv.gz
+    sha256: 8b27d9e455d30213d96af3f90c25162514cc2b9285487e1cdaf71ce8d34b4bba
+  availability_meta:
+    file: ../rts_gmlc_px/availability_meta.csv
+    sha256: 4c7a0807f7a20e1ea01ba2c348d60a87a3e347bb57d990d9542bf83b321913bf
+  fuel_map:
+    file: ../rts_gmlc/fuel_map.csv
+    sha256: 31133261760d6d0afaab43e56e15eb538b0d2ead22327643481a4940d4a616d2
+  fuel_prices:
+    file: ../rts_gmlc/fuel_prices.csv
+    sha256: c40650c51cc4d4509eac5af50787a10ae07ce65b28ff848270ba0376c9269f02
+  fuel_prices_meta:
+    file: ../rts_gmlc/fuel_prices_meta.csv
+    sha256: 93d327f94a021cc417768ebea0596aaa6979b5ceb72378d43ae18f0ebc1ffa26
+  sources:
+    file: ../../data/common/sources.csv
+  deflator:
+    file: ../../data/common/deflator.csv
+    sha256: c1fc4b6c9f000aa97d6821cf43f4d20daf61cadb31ab71239a911aa9733b153f
