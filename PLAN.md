@@ -177,7 +177,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   client questions, outputs, charts, sanity ranges.
 - [x] P10 Data lead [Sonnet]: EIA-860/923 field mapping to data-schema.md (`docs/drafts/eia-mapping.md`), incl. the
   estimation hierarchy for missing heat rates, min gen, ramp, outage rates.
-- [ ] P11 Formulation lead [Opus], branch `prep`, spec draft only (`docs/drafts/architecture-spec.md`): DECISIONS 44–45 in spec form —
+- [~] P11 Formulation lead [Opus], branch `prep`, spec draft only (`docs/drafts/architecture-spec.md`): DECISIONS 44–45 in spec form — (claimed 2026-11-27T18:25:08Z)
   §0 feature-block contract (switch, vars, labelled rows, audit hooks, price-setter class, ablation identity test); `ra.prm`
   row (ELCC × capacity ≥ peak × (1+IRM), dual = capacity shadow price, price-setter class) for Gate 7; the weighted
   rep-period PDC construction (each modeled hour counts w_p hours) and its mapping to benchmarks.md M1.4/M1.5.
