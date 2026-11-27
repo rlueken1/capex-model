@@ -142,7 +142,7 @@ One per session, strictly in order; claim before work (CLAUDE.md). Default netwo
   price-setter `CONGESTION_LOOP`, new health checks. Do not edit verifier tests. CI green.
 - [x] G3-4 Builder [Sonnet]: carried K1 (print provenance.json + hashes in data-download log) and K3 (bump Actions off Node 20). No verifier tests here.
 - [x] G3-3-fix Builder [Sonnet] (verifier if the test is wrong): CI red on `gate-3` since G3-3 (run 141 onward; G3-4 run 45952295488 same): 14 fails `tests/test_pjm5bus.py` transport fingerprint T1–T7 (`solver.version` / packages block vs `tests/golden/gate2`), and run 142 `compare` job shows health.csv/health_report.md differing across seeds for T1/T2b/T2c/T3a/T4. Make CI green without editing verifier tests unless the verifier rules the test wrong.
-- [ ] G3-5 Verifier [Sonnet]: `reports/gate-3-evidence.md` (gate-3.md §5), incl. a `pjm5` dispatch for K1/K3 and the performance-ledger row `tx.model`.
+- [~] G3-5 Verifier [Sonnet]: `reports/gate-3-evidence.md` (gate-3.md §5), incl. a `pjm5` dispatch for K1/K3 and the performance-ledger row `tx.model`. (claimed 2026-11-27T08:24:29Z)
 - [ ] G3-6 Formulation lead [Opus]: code-vs-spec trace of §7.4a and dual/sign conventions; findings become fix items.
 - [ ] G3-7 PM [Sonnet] + markets reviewer [Opus] (1 subagent): `reports/gate-3-review.md` pass/fail table and owner yes/no list;
   STATUS: AWAITING_OWNER_REVIEW.
