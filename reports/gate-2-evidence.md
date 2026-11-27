@@ -112,7 +112,7 @@ Earlier local substitute (G2-7, same scripts): two fetches equal per-file hashes
 | D3 | **pass** | run 45916853288: HASH MISMATCH, step failed, exit 1, all later steps skipped, 0 artifacts |
 | D4 | pass (partial) | Actions: `verify_artifact.py` logged "matches provenance.json and manifest" and upload shows 3 files (2 data + `provenance.json`); field contents (`retrieved_at`, run id, commit) verified locally in G2-7 only, **not read from the Actions artifact** |
 | D5 | **pass** (hashes via pins) | runs 45916594450 and 45916775025 both success, artifacts uploaded with 90-day retention, both verified to the same pinned per-file SHA-256; artifact/summary hashes not read directly (see §3) |
-| D6 | pass | `permissions: contents: read`, no `git push` step, `persist-credentials: false`; run logs show token scope unchanged |
+| D6 | pass | `permissions: contents: read`, no `git push` step, `persist-credentials: false` (read from the file; run logs show no push) |
 | D7 | pass (static + log) | `EIA_API_KEY` / `PJM_DATAMINER_KEY` appear empty in the run env; `pjm5` needs no key; keyed-source skip path not exercised on Actions |
 | D8 | pass (local, G2-3) | `scripts/fetch_artifact.py` / `fetch_artifact.md`; `verify_artifact.py --against`; not exercised against these Actions artifacts (download blocked) |
 
