@@ -178,6 +178,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+Owner answered the G3-1 questions 2026-11-27 (DECISIONS 49): yes to both — output key columns reconciled in a later schema bump; uppercase pjm5 zone ids A–E OK. Next: G3-2 (verifier).
 G3-1 done 2026-11-27 on `gate-3`: formulation F-0.3 §7.4a full dcpf spec (angle `kvl`/`ref_angle` + per-island PTDF; μ_l = −s_f/w_p signed as §3; π_n = λ_ref − Σ H_ln μ_l, components ref-bus dependent; α via φ_b=[1,−H_K,b] pseudo-inverse, `DEGENERATE` when min-norm/rank-deficient; check ids kvl.recompute, ptdf.recompute, lmp.decomposition, congestion_rent, dcpf.line_duals, dcpf.islands, price_setter.loop_alpha; SPEC-GAP resolution table; M7–M10 hooks), data-schema links.csv `reactance_pu`/`base_mva` + rule 11, DECISIONS 48, gate-3.md surplus → 14,957.29. Spec only; 547 pass. Owner questions: (1) Gate-2 output key columns `zone,period,t` vs schema `period_id/link_id/resource_id` — reconcile in a later schema bump? (2) uppercase zone ids A–E for pjm5 OK? Next: G3-2 (verifier; must also generate golden Gate-2 outputs in tests/golden/gate2/).
 Gate 3 started 2026-11-27 (owner approved criteria + runtime targets, DECISIONS 47); branch `gate-3` created from `gate-2`. Next: G3-1 (formulation lead, Opus).
 DECISIONS 46 (owner 2026-11-27): no integer (full) UC anywhere; linearized clustered UC is the basis, built at Gate 11, default off until a later gate.

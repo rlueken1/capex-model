@@ -241,3 +241,7 @@
     gate-3.md is where the number is stated; criteria and tolerances unchanged). Rejected: `ref_angle` as a column bound
     (M9 would be invisible); PTDF limits as ranged rows (extra adapter risk, μ read from a different place); convex
     (non-negative) loop weights (wrong: P5a bus D has α = 1.497/−0.497).
+49. Owner (2026-11-27, live reply to the G3-1 questions): (a) **yes** — the Gate-2 output key columns (`zone,period,t`,
+    `link,period,t`, `resource,period,t`, `g_mw`) stay as they are through Gate 3 (transport byte-identity) and are
+    reconciled with data-schema (`period_id`, `link_id`, `resource_id`) in a later schema bump; (b) **yes** — the
+    `pjm5` test case keeps uppercase zone ids `A`–`E` (T4 precedent); real PJM data keeps lowercase ids.

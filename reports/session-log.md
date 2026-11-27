@@ -208,3 +208,5 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 - formulation.md → F-0.3: full §7.4a dcpf spec (angle + PTDF forms, islands, μ sign, LMP decomposition, CONGESTION_LOOP α + DEGENERATE, 7 network check ids, M7–M10 hooks, SPEC-GAP table); data-schema links.csv reactance_pu/base_mva + rule 11; DECISIONS 48; gate-3.md surplus 14,957.29.
 - Tests: 547 pass / 30 skip / 0 fail (spec only, no code change).
 - Owner: Gate-2 output key column names vs schema (later bump?); uppercase pjm5 zone ids OK?
+
+2026-11-27 — owner reply (live): yes to both G3-1 questions → DECISIONS 49 (column rename later; uppercase pjm5 zone ids OK).
