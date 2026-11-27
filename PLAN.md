@@ -136,7 +136,7 @@ One per session, strictly in order; claim before work (CLAUDE.md).
 One per session, strictly in order; claim before work (CLAUDE.md). Default network model stays `transport` (pipe-and-bubble).
 - [x] G3-1 Formulation lead [Opus]: W-spec — complete formulation §7.4a (`kvl`, `ref_angle`, PTDF + islands, μ sign under `dcpf`,
   `CONGESTION_LOOP` with α weights and `DEGENERATE` sub-tag), data-schema `links.csv` validation; DECISIONS entry; version → F-0.3. Spec only.
-- [~] G3-2 Verifier [Sonnet]: tests from the amended spec only — promote `tests/draft/test_pjm5bus.py` (P5a–P5f, §4 checks, M7–M10; (claimed 2026-11-27T04:24:06Z)
+- [x] G3-2 Verifier [Sonnet]: tests from the amended spec only — promote `tests/draft/test_pjm5bus.py` (P5a–P5f, §4 checks, M7–M10;
   14,957.28 → .29 fix in gate-3.md §2) and K2 (case5.m hash = manifest). Expected red until G3-3/G3-4 (strict xfail citing Gate 3).
 - [ ] G3-3 Builder [Sonnet]: `tx.model=dcpf` angle + PTDF forms, `pjm5` case in `cases/pjm5bus/` with provenance, fixed-fleet run,
   price-setter `CONGESTION_LOOP`, new health checks. Do not edit verifier tests. CI green.
@@ -178,6 +178,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+G3-2 done 2026-11-27 on `gate-3`: `tests/test_pjm5bus.py` promoted from draft (SPEC-GAPs resolved to §7.4a.11 names); 44 strict xfails citing Gate 3 G3-3 (P5a–P5f, §4 checks, loader rules, M7–M10); K2 hash test passes; golden Gate-2 outputs `tests/golden/gate2/` from main 450f29c + identity test (passes, transport unchanged). 578 pass / 44 xfail / 0 fail; check_markers 0. Notes for G3-3: loader must accept blank `ntc_*` as unlimited (P5d); loader silently accepts unknown switch keys; multi-element `binding_links`/`setter_ids` format unspecified (G3-6). K1/K3 untested (G3-4 has no verifier tests; "current majors" undefined → G3-5). Next: G3-3 (builder).
 Owner answered the G3-1 questions 2026-11-27 (DECISIONS 49): yes to both — output key columns reconciled in a later schema bump; uppercase pjm5 zone ids A–E OK. Next: G3-2 (verifier).
 G3-1 done 2026-11-27 on `gate-3`: formulation F-0.3 §7.4a full dcpf spec (angle `kvl`/`ref_angle` + per-island PTDF; μ_l = −s_f/w_p signed as §3; π_n = λ_ref − Σ H_ln μ_l, components ref-bus dependent; α via φ_b=[1,−H_K,b] pseudo-inverse, `DEGENERATE` when min-norm/rank-deficient; check ids kvl.recompute, ptdf.recompute, lmp.decomposition, congestion_rent, dcpf.line_duals, dcpf.islands, price_setter.loop_alpha; SPEC-GAP resolution table; M7–M10 hooks), data-schema links.csv `reactance_pu`/`base_mva` + rule 11, DECISIONS 48, gate-3.md surplus → 14,957.29. Spec only; 547 pass. Owner questions: (1) Gate-2 output key columns `zone,period,t` vs schema `period_id/link_id/resource_id` — reconcile in a later schema bump? (2) uppercase zone ids A–E for pjm5 OK? Next: G3-2 (verifier; must also generate golden Gate-2 outputs in tests/golden/gate2/).
 Gate 3 started 2026-11-27 (owner approved criteria + runtime targets, DECISIONS 47); branch `gate-3` created from `gate-2`. Next: G3-1 (formulation lead, Opus).

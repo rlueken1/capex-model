@@ -1,0 +1,3 @@
+resource_id,component,dollar_year_in,deflator_factor,fom,I,r,n,kappa,pff,crf,ann,cfix,basis
+bat,P,2024,1.0,0.0,,,,,,,,0.0,cfix_override
+bat,E,2024,1.0,0.0,,,,,,,,3000.0,cfix_override

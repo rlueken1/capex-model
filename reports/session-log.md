@@ -210,3 +210,9 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 - Owner: Gate-2 output key column names vs schema (later bump?); uppercase pjm5 zone ids OK?
 
 2026-11-27 — owner reply (live): yes to both G3-1 questions → DECISIONS 49 (column rename later; uppercase pjm5 zone ids OK).
+
+2026-11-27 — G3-2 (verifier, Sonnet subagent), branch `gate-3`
+- Promoted `tests/test_pjm5bus.py` from draft; 44 strict xfails (Gate 3 G3-3) for P5a–P5f, §4 checks, loader rules, M7–M10; K2 case5.m hash test passes.
+- Golden Gate-2 outputs in `tests/golden/gate2/` (from main 450f29c) + byte-identity test under `transport`: passes.
+- Tests: 578 pass / 44 xfail / 0 fail; check_markers exit 0.
+- Open (non-blocking): multi-element `binding_links` format unspecified; K1/K3 untested ("current majors" undefined); golden made on Python 3.13 vs CI 3.12 (version components compared only if equal).

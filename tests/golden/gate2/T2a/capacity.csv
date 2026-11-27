@@ -1,0 +1,4 @@
+resource_id,existing_mw,new_mw,existing_mwh,new_mwh,at_xmax,x_reduced_cost_usd_mw_yr
+g1,100.0,0.0,,,False,-175200.00000000017
+g2,200.0,0.0,,,False,0.0
+bat,10.0,0.0,40.0,0.0,False,0.0

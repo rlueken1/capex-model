@@ -1,9 +1,7 @@
-# tests/draft - Gate 3 draft tests (prep item P6)
+# tests/draft - drafts awaiting a gate
 
-`test_pjm5bus.py` is written from the DRAFT `docs/gates/gate-3.md` and formulation 7.4a only (never from `src/capex`).
-- Part 1 (runs now): independent DC-OPF reference route (scipy/HiGHS, angle + PTDF form) and self-checks of the
-  draft's published numbers. Never imports `capex`.
-- Part 2 (skipped until Gate 3): model-facing tests P5a-P5f, health checks, mutations M7-M10. Each place where the
-  interface is not yet specified carries a `# SPEC-GAP:` comment; grep for it to build the W-spec checklist.
-Un-skip by deleting the module-level `pytestmark` once gate-3.md is approved and `tx.model=dcpf` exists; move the file
-to `tests/` and resolve the SPEC-GAPs. Never loosen a tolerance to make a test pass.
+Currently empty. The Gate 3 draft (`test_pjm5bus.py`, prep item P6) was promoted to `tests/test_pjm5bus.py` in G3-2 and
+its SPEC-GAP notes resolved to the names fixed by formulation 7.4a.11 (F-0.3).
+Convention for future drafts: written from the draft criteria and spec only (never from `src/capex`), skips (not xfails)
+citing `Gate <n>`; promote by moving the file to `tests/` once the gate is approved and the spec names are fixed.
+Never loosen a tolerance to make a test pass.

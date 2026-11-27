@@ -1,0 +1,3 @@
+zone,tech,fuel,class,weighted_hours,share_weighted_hours
+A,g,none,MARGINAL_UNIT,8638.333333333334,0.9861111111111112
+A,peaker,none,CAPACITY_RENT,121.66666666666669,0.013888888888888892
