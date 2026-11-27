@@ -308,3 +308,13 @@
     accepted, licence `verify` = internal test use only, never shipped to clients; (7) `dcpf` kept as an option for Gate 4
     RTS-GMLC, `transport` stays default; (8) merge `gate-3` → `main`, Gate 3 DONE; (9) delete branch `g2-7b-broken-hash`;
     (10) markets notes (a)–(c) go into the Gate 4 criteria draft (P12), (d)–(f) are later-gate notes (PJM zonal gates).
+
+2026-11-27 (owner, live reply "Approve all" to the P12 draft `docs/gates/gate-4.md`)
+55. Owner **approved the Gate 4 criteria** (`docs/gates/gate-4.md`, drafted on `prep` as P12, copied to `gate-4` unchanged
+    except its status line) and answered **yes to O1–O7**: (1) the 336-h PLEXOS DA window (p063–p067) is the Gate 4
+    reference, full year for health/performance only; (2) a 73-bus nodal variant is the `dcpf` case; (3) S1 HVDC 113–316 as a
+    controllable link, key absent = `controllable` (an A1 deviation), `exclude` = ablation; (4) LMPs reported, not judged,
+    replacing benchmarks §6 "zonal price MAE ≤10%" for G4; (5) judge on the PLEXOS-aligned fleet (CSP, storage removed), storage
+    checked by R4-NS and fixtures; (6) S2 storage interval conditional on the solved water value; (7) [P] tolerances C1 5%,
+    G1 3 pp, budgets window ≤60 s, full year ≤5 min / 4 GB, R4-NF outside CI. Branch `gate-4` created from `gate-3`; the
+    P11 architecture draft travels with it as an input (its own O1–O6 stay open). Spec changes S1–S5 land in G4-1 (F-0.4).

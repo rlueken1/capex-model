@@ -300,3 +300,4 @@ Next: P12 (gate-4.md draft).
 - Item: DRAFT `docs/gates/gate-4.md` on `prep` (012008b). RTS-GMLC fixed-fleet dispatch vs PLEXOS 336-h DA window (only results vendored); HVDC 113–316 as controllable link block in dcpf; storage under dcpf; F3-3, F3-12 closed by spec proposals S1–S5 (F-0.4).
 - Tests: docs only, none run. src/capex/ untouched.
 - Needs owner: approve/amend gate-4.md, answer O1–O7 (336-h window, 73-bus nodal dcpf variant, HVDC default, prices reported not judged, PLEXOS-aligned fleet w/o CSP+storage, storage interval, [P] tolerances). Prep list now empty.
+- 2026-11-27 (live owner reply): owner "Approve all" → Gate 4 criteria approved, O1–O7 yes (DECISIONS 55). Created `gate-4` from `gate-3` with gate-4.md + architecture-spec draft; PLAN STATUS IN_PROGRESS, items G4-1..G4-8 added. Next: G4-1.
