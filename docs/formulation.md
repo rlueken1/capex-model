@@ -7,6 +7,9 @@ F-0.3 changes (DECISIONS 48): §7.4a DC power flow option completed — `tx.mode
 (energy + congestion, loss 0), congestion-rent identity, network health checks, price-setter `CONGESTION_LOOP` with
 weights $\alpha$ and `DEGENERATE` sub-tag, outputs, `transport` identity rule, mutation hooks M7–M10. Under `transport`
 (the default) the LP and every output are unchanged from F-0.2.
+F-0.3 amendment 1 (G3-3-fix2, 2026-11-27, DECISIONS 50): comparison rule only — §8.10a: the `value` field of
+`health.csv` and `health_report.md` is compared at an absolute-or-relative 1e-12 tolerance when two runs are compared;
+every other byte of every canonical output stays byte-identical. LP, outputs, fingerprint inputs and thresholds unchanged.
 F-0.2 changes (DECISIONS 25): daily fuel price $\phi_{f,p,t}$; DECISIONS 22–24 applied (ATB-style PFF default,
 block-average price scoring, 2024\$ / ORDC backcast scarcity); `VOLL` class covers total blackout; tolerances,
 $Z^0$, $FOM^P/FOM^E$, weight range, remainder-day rule and basic-solution requirement made consistent;
@@ -614,7 +617,7 @@ D (1.497137, −0.497137), the same for every reference bus.
 #### 7.4a.9 Equivalence under `transport` and versioning
 With `tx.model` absent or `transport`: the LP (rows, columns, matrix, bounds, costs), every output table, column and
 health check are those of F-0.2; `reactance_pu`/`base_mva` are type-checked only and never used. **Identity test (Gate 1
-fingerprint identity):** for T1–T4, canonical outputs (§8.10) are byte-identical to golden Gate-2 outputs after deleting
+fingerprint identity):** for T1–T4, canonical outputs (§8.10) are byte-identical (§8.10a) to golden Gate-2 outputs after deleting
 from `assumptions.md` the lines starting `- run_id: ` and `- fingerprint: `; fingerprint components are equal except
 `formulation_version`, `git_commit`, `dirty_diff_hash`, environment entries (`python`, `packages`, `solver.version`) if the
 environment differs, and — only when the key is written explicitly — `config.switches["tx.model"]`. Golden files:
@@ -716,6 +719,20 @@ demand curve as stepped benefit segments with ELCC-accredited supply $\sum_r \te
     timestamps, solve time) may appear only in those two places; every other file, including `health_report.md`,
     `conditioning.json` and all tables, must be a pure function of the fingerprint inputs. Output tables do not
     repeat `run_id` as a column; it is read from `run.json` or the directory name when runs are stacked.
+10a. **Comparison rule for health values** (amendment 1 of F-0.3, DECISIONS 50). Wherever two runs' canonical outputs are
+    compared (the §7.4a.9 golden identity test, the Gate-2 C7 two-job compare, any later golden test), "byte-identical"
+    means: every file byte-identical, **except** the `value` field of `health.csv` and the value cell (3rd column) of the
+    check table in `health_report.md` (cells split on the first four `|`; `detail` may contain `|`). These two are parsed as floats and are equal when
+    $|a-b|\le 10^{-12}$ **or** $|a-b|\le 10^{-12}\max(|a|,|b|)$; non-finite values must match exactly. Everything else in
+    those two files — row set, row order, `check_id`, `family`, `status`, `tolerance`, `detail`, header, line endings —
+    stays byte-identical, so a status flip or any change of a decision output (dispatch, capacity, flows, duals, prices,
+    objective, rents, price-setter) is still a failure. Why: health values are residuals of quantities that are exactly
+    0 (or exact ratios) in exact arithmetic; they are formed with BLAS/SIMD reductions (e.g. `numpy.dot` for primal and
+    dual objectives in `strong_duality`) whose summation order depends on the CPU kernel selected at run time, which is
+    not, and should not be, a fingerprint input. Observed (CI run 148): `strong_duality` 1.74e-16 vs 0.0 on T1/T2b/T2c/
+    T3a/T4 between machines with identical Python, package and solver versions; nothing else differed. $10^{-12}$ is
+    three orders below the tightest health tolerance ($10^{-9}$) and four above the observed noise. If any other field or
+    file ever differs across machines, that is a finding for the formulation lead, not a reason to widen this rule.
 11. **Assumptions book** (from data layer): provenance mix by parameter, dollar-year conversions, annualization table.
    Starts with the run header of data-sources.md "Assumptions book format" item 1 (run_id and fingerprint equal to
    `run.json`, case, base dollar year); for a case with no input cell whose `method` is observed, derived or estimated,

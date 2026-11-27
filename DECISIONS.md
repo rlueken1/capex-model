@@ -245,3 +245,20 @@
     `link,period,t`, `resource,period,t`, `g_mw`) stay as they are through Gate 3 (transport byte-identity) and are
     reconciled with data-schema (`period_id`, `link_id`, `resource_id`) in a later schema bump; (b) **yes** — the
     `pjm5` test case keeps uppercase zone ids `A`–`E` (T4 precedent); real PJM data keeps lowercase ids.
+
+2026-11-27 (formulation lead, G3-3-fix2 — spec ruling on cross-machine float noise)
+50. Formulation F-0.3 **amendment 1** (comparison rule only; LP, outputs, fingerprint inputs and thresholds unchanged,
+    version string stays `F-0.3`): new §8.10a. When two runs' canonical outputs are compared (§7.4a.9 golden identity,
+    Gate-2 C7 two-job compare, later golden tests), the `value` field of `health.csv` and the value cell of the
+    `health_report.md` check table are equal at $|a-b|\le10^{-12}$ absolute or relative; every other byte of every
+    canonical output stays identical (row set/order, status, tolerance, detail; all decision outputs). Cause (CI run 148,
+    job 140393434312): only `strong_duality` differed, 1.7e-16 vs 0.0 on T1/T2b/T2c/T3a/T4, between the golden machine
+    and the CI runner. This workspace reproduces golden byte-identically on Py 3.13.18 and on Py 3.12.16 with the CI pins,
+    so the difference is the machine, not Python: BLAS/SIMD reduction order is CPU-dependent and not a fingerprint input. Explains run 142's "seed"
+    difference in `compare` (two runners). Rejected: (a) rounding health values in outputs — changes outputs, forces a
+    golden regeneration (SOURCE.txt forbids it to make a test pass) and a src change; (b) regenerating golden in CI from
+    the Gate-2 merge commit — doubles CI solves, weakens the fixed reference; (c) tolerance on all files — would hide
+    real drift in decision outputs. Possible later hardening (not required): exactly rounded sums (`math.fsum`) for
+    health diagnostics, which would make the values CPU-independent; it changes golden health values, so it needs its own
+    item and owner yes. This narrows how Gate-2 C7 "byte-identical" is read (two health values only) → owner yes/no in
+    the Gate-3 review.

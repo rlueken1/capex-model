@@ -850,6 +850,76 @@ def _mask_assumptions(text: str) -> str:
     return "".join(l for l in text.splitlines(keepends=True) if not l.startswith(("- run_id: ", "- fingerprint: ")))
 
 
+# ---- 8.10a comparison rule (F-0.3 amendment 1, DECISIONS 50). Keep in sync with scripts/compare_runs.py.
+def _floats_close(x: str, y: str) -> bool:
+    """8.10a: |a-b| <= 1e-12 absolute or relative; non-finite values must match exactly."""
+    if x == y:
+        return True
+    try:
+        a, b = float(x), float(y)
+    except ValueError:
+        return False
+    if not (np.isfinite(a) and np.isfinite(b)):
+        return (np.isnan(a) and np.isnan(b)) or a == b
+    d = abs(a - b)
+    return d <= 1e-12 or d <= 1e-12 * max(abs(a), abs(b))
+
+
+def _canonical_diff(fname: str, a: bytes, b: bytes) -> str | None:
+    """None if canonical-equal under 8.10a, else a reason naming the first difference."""
+    if a == b:
+        return None
+    if fname == "health.csv":
+        import csv
+        import io
+        ra = list(csv.reader(io.StringIO(a.decode(), newline="")))
+        rb = list(csv.reader(io.StringIO(b.decode(), newline="")))
+        if not ra or not rb or ra[0] != rb[0]:
+            return "health.csv header differs"
+        if len(ra) != len(rb):
+            return f"health.csv row count {len(ra)} vs {len(rb)}"
+        head = ra[0]
+        if "value" not in head:
+            return "health.csv has no value column"
+        iv = head.index("value")
+        for n, (x, y) in enumerate(zip(ra[1:], rb[1:]), start=1):
+            if len(x) != len(y):
+                return f"health.csv row {n} ({x[0]}) field count differs"
+            for j, (p, q) in enumerate(zip(x, y)):
+                if (j == iv and not _floats_close(p, q)) or (j != iv and p != q):
+                    return f"health.csv first differing check_id {x[0]!r} (row {n}, field {head[j]}): {p!r} vs {q!r}"
+        # parsed-equal but raw bytes differ only in value formatting / line endings
+        if a.replace(b"\r\n", b"\n").count(b"\n") != b.replace(b"\r\n", b"\n").count(b"\n") or \
+                (b"\r\n" in a) != (b"\r\n" in b):
+            return "health.csv line endings differ"
+        return None
+    if fname == "health_report.md":
+        la, lb = a.decode().split("\n"), b.decode().split("\n")
+        if len(la) != len(lb):
+            return f"health_report.md line count {len(la)} vs {len(lb)}"
+        for n, (x, y) in enumerate(zip(la, lb), start=1):
+            if x == y:
+                continue
+            def is_row(s):
+                return s.startswith("| ") and not s.startswith("| check |") and not s.startswith("|---")
+            if not (is_row(x) and is_row(y)):
+                return f"health_report.md line {n} differs: {x!r} vs {y!r}"
+            px, py = x.split("|", 5), y.split("|", 5)
+            if len(px) != 6 or len(py) != 6:
+                return f"health_report.md line {n} malformed table row"
+            for k in (0, 1, 2, 4, 5):
+                if px[k] != py[k]:
+                    return f"health_report.md check {px[1].strip()!r} (line {n}) cell {k} differs: {px[k]!r} vs {py[k]!r}"
+            if not _floats_close(px[3].strip(), py[3].strip()):
+                return f"health_report.md check {px[1].strip()!r} (line {n}) value {px[3].strip()} vs {py[3].strip()}"
+        return None
+    return f"{fname} bytes differ"
+
+
+def _canonical_equal(fname: str, a: bytes, b: bytes) -> bool:
+    return _canonical_diff(fname, a, b) is None
+
+
 def _same_env(a: dict, b: dict) -> bool:
     return (a.get("python") == b.get("python") and a.get("packages") == b.get("packages")
             and a.get("solver", {}).get("version") == b.get("solver", {}).get("version"))
@@ -893,7 +963,69 @@ def test_transport_canonical_outputs_byte_identical_to_gate2(canon, name):
         a, b = (gold / f).read_bytes(), (c.out_dir / f).read_bytes()
         if f == "assumptions.md":
             a, b = _mask_assumptions(a.decode()).encode(), _mask_assumptions(b.decode()).encode()
-        assert a == b, f"{name}/{f} differs from golden Gate-2 output"
+        why = _canonical_diff(f, a, b)
+        assert why is None, f"{name}/{f} differs from golden Gate-2 output: {why}"
+
+
+# ---- self-tests of the 8.10a comparison helper (no solver)
+def _g(f):
+    return (GOLDEN / "T1" / f).read_bytes()
+
+
+def test_canonical_accepts_strong_duality_noise():
+    csv_b = _g("health.csv").replace(b"1.7405024881444741e-16", b"0.0")
+    md_b = _g("health_report.md").replace(b"| 1.7405e-16 |", b"| 0 |")
+    assert csv_b != _g("health.csv") and md_b != _g("health_report.md")
+    assert _canonical_equal("health.csv", _g("health.csv"), csv_b)
+    assert _canonical_equal("health_report.md", _g("health_report.md"), md_b)
+
+
+def test_canonical_rejects_value_change_1e9():
+    c = _g("health.csv").replace(b"1.7405024881444741e-16", b"1e-09")
+    m = _g("health_report.md").replace(b"| 1.7405e-16 |", b"| 1e-09 |")
+    assert not _canonical_equal("health.csv", _g("health.csv"), c)
+    assert not _canonical_equal("health_report.md", _g("health_report.md"), m)
+    assert "strong_duality" in _canonical_diff("health.csv", _g("health.csv"), c)
+
+
+def test_canonical_rejects_status_flip():
+    c = _g("health.csv").replace(b"strong_duality,strong_duality,pass", b"strong_duality,strong_duality,warn")
+    m = _g("health_report.md").replace(b"| strong_duality | pass |", b"| strong_duality | warn |")
+    assert c != _g("health.csv") and m != _g("health_report.md")
+    assert not _canonical_equal("health.csv", _g("health.csv"), c)
+    assert not _canonical_equal("health_report.md", _g("health_report.md"), m)
+
+
+def test_canonical_rejects_detail_change():
+    c = _g("health.csv").replace(b"(excl. Z0)", b"(excl. Z1)", 1)
+    m = _g("health_report.md").replace(b"(excl. Z0)", b"(excl. Z1)", 1)
+    assert c != _g("health.csv") and m != _g("health_report.md")
+    assert not _canonical_equal("health.csv", _g("health.csv"), c)
+    assert not _canonical_equal("health_report.md", _g("health_report.md"), m)
+
+
+def test_canonical_rejects_row_swap():
+    lines = _g("health.csv").split(b"\n")
+    lines[1], lines[2] = lines[2], lines[1]
+    assert not _canonical_equal("health.csv", _g("health.csv"), b"\n".join(lines))
+    ml = _g("health_report.md").split(b"\n")
+    ml[5], ml[6] = ml[6], ml[5]
+    assert not _canonical_equal("health_report.md", _g("health_report.md"), b"\n".join(ml))
+
+
+def test_canonical_other_files_stay_exact():
+    d = _g("dispatch.csv")
+    assert _canonical_equal("dispatch.csv", d, d)
+    assert not _canonical_equal("dispatch.csv", d, d.replace(b"0", b"1", 1))
+    assert not _canonical_equal("dispatch.csv", d, d + b"\n")
+
+
+def test_canonical_nonfinite_must_match_exactly():
+    base = _g("health.csv")
+    v = b"1.7405024881444741e-16"
+    assert _canonical_equal("health.csv", base.replace(v, b"nan"), base.replace(v, b"nan"))
+    assert not _canonical_equal("health.csv", base, base.replace(v, b"nan"))
+    assert not _canonical_equal("health.csv", base, base.replace(v, b"inf"))
 
 
 @pytest.mark.parametrize("name", CANON)
@@ -921,4 +1053,5 @@ def test_transport_explicit_key_changes_only_the_tx_model_component(tmp_path, na
     assert fp.components["config"]["switches"]["tx.model"] == "transport"
     assert new == _mask_components(g, g, same_env=env)
     for f in (p.name for p in (GOLDEN / name).glob("*.csv")):
-        assert (tmp_path / "out" / f).read_bytes() == (GOLDEN / name / f).read_bytes(), f
+        why = _canonical_diff(f, (GOLDEN / name / f).read_bytes(), (tmp_path / "out" / f).read_bytes())
+        assert why is None, f"{name}/{f}: {why}"

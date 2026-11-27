@@ -237,3 +237,9 @@ Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
 - Pre-check: CI run 146 (G3-3-fix commit) is red: 10 fail / 618 pass (e.g. explicit-key transport test [T4]); health.csv differs from golden only by last-ulp float noise (1.8e-16 vs 0.0). Passes locally 7/7.
 - Evidence would only record a fail, so added G3-3-fix2 (formulation lead [Opus]: rule on byte identity across environments in §7.4a.9 + verifier test change) before G3-5.
 - Tests: local `-k explicit_key` 7 pass. Owner: nothing needed.
+
+2026-11-27 ~09:50 UTC — G3-3-fix2 (formulation lead [Opus] ruling + verifier [Sonnet] test change), branch `gate-3`.
+- Ruling: F-0.3 amendment 1, formulation §8.10a + DECISIONS 50 — health `value` fields compared at 1e-12 abs-or-rel; every other byte exact. Root cause: CPU-dependent BLAS reduction order (only strong_duality ~1e-16 vs 0 differed, CI run 148).
+- Verifier: `_canonical_diff` in tests/test_pjm5bus.py (+7 self-tests), same rule in scripts/compare_runs.py (C7) + tests/test_compare_runs.py.
+- Tests: 637 pass / 0 fail (Py 3.12 venv, CI pins); check_markers 0. CI on push decides.
+- Owner: yes/no at Gate-3 review on reading Gate-2 C7 "byte-identical" per §8.10a.
