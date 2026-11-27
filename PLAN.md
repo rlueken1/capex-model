@@ -181,7 +181,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   §0 feature-block contract (switch, vars, labelled rows, audit hooks, price-setter class, ablation identity test); `ra.prm`
   row (ELCC × capacity ≥ peak × (1+IRM), dual = capacity shadow price, price-setter class) for Gate 7; the weighted
   rep-period PDC construction (each modeled hour counts w_p hours) and its mapping to benchmarks.md M1.4/M1.5.
-- [ ] P12 Formulation lead [Opus], branch `prep`: draft `docs/gates/gate-4.md` (RTS-GMLC fixed-fleet dispatch vs PLEXOS
+- [~] P12 Formulation lead [Opus], branch `prep`: draft `docs/gates/gate-4.md` (claimed 2026-11-27T19:24:09Z) (RTS-GMLC fixed-fleet dispatch vs PLEXOS
   reference, first performance-ledger rows). Needs P11 done. Must include (DECISIONS 54(10), gate-3-review §4 a–c): storage
   under `dcpf` (close F3-9/F3-13), RTS-GMLC HVDC link 113–316 (§7.4a excludes DC links mixed with lines), UC/reserve gaps vs
   the PLEXOS reference (compare cost and mix, label LMP gaps as expected); also carried F3-3, F3-12 (DECISIONS 52).
