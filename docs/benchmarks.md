@@ -63,12 +63,16 @@ Before reserves/ORDC exist, capex-mode LMPs at capacity are non-unique (§9 Q2).
 
 ## 6. Test-ladder targets
 Tolerances are for the model against the named reference; "explained" means each residual is traced to a documented formulation difference.
+G4 row changed 2026-11-27 (DECISIONS 55(4), 56; before any Gate 4 result, so DECISIONS 21 holds): "full-year" became the
+336-h PLEXOS window because no full-year reference results are in the repo, and "zonal price MAE ≤10%" became "reported"
+because the gap is a formulation gap known in advance — the reference has UC and reserves, and LP prices at capacity are
+non-unique before Gate 9 (§5) — not a missed target.
 
 | Rung (gate) | Compared | Tolerance |
 |---|---|---|
 | Analytic toys T1–T4 (G1) | objective, capacities, block-average prices, rents, congestion rent vs closed forms in formulation §10 | objective and capacities rel 1e-6; block prices rel 1e-5; hourly price only inside the interval allowed by price-setter class |
 | PJM 5-bus (G3) | nodal LMP and congestion component per bus, flows, dispatch vs published case results (Li & Bo 2010) | LMP abs 0.01 $/MWh (published values are rounded); dispatch abs 0.1 MW; price-setter class correct at every bus-hour. Spec gap: needs DC flow/PTDF, see report |
-| RTS-GMLC dispatch (G4) | full-year fixed-fleet dispatch vs the published reference production-cost results (exact files: verify in the RTS-GMLC repo) : total variable cost, generation by tech, zonal mean price | cost ≤5%, tech share ≤3 pp, zonal price MAE ≤10% **[P]** (no UC yet; tighten to 2%/2 pp/5% after G9) |
+| RTS-GMLC dispatch (G4) | 336-h PLEXOS window (DA `allTX`/`noTX`, 2020-07-05..07-18 = blocks p063–p067, the only reference results vendored; DECISIONS 55(1)) fixed-fleet dispatch on the PLEXOS-aligned fleet: like-for-like variable cost (PLEXOS dispatch priced at our cost data), generation share by tech, unserved energy; zonal/bus LMPs | cost gap ≤5% **[P]** (gate-4.md C1); tech share ≤3 pp each, nuclear ≤0.5 pp **[P]** (G1); unserved energy = 0 MWh (G2); LMPs **reported, not judged** (L1, labelled `expected gap: UC/reserves/fixed hydro+RTPV`). Full year: health and performance checks only. (No UC yet; tighten to 2%/2 pp after the UC gate.) |
 | RTS-GMLC rep periods + storage (G5) | rep-period run vs the full-year fixed-fleet dispatch of the same fleet: annual variable cost, net-load duration curve, storage cycles/revenue, capacity mix if expansion enabled | cost ≤2%; net-load duration W1/mean ≤3%; peak net load error ≤1%; storage revenue ≤10% **[P]**; capacity per tech ≤10% |
 | Reserves, transmission, UC (G7–G9) | same RTS reference after each feature; reserve price vs reference where published | must not exceed G5 errors; new feature judged by ledger |
 | GenX cross-check (G6) | same inputs run in GenX (e.g. 3-zone example): objective, capacity by tech, annual mean zonal price, dispatch by tech | formulation-matched options: objective rel 1e-3, capacity per tech ≤1% of peak load, annual zonal price rel 1e-2; every difference larger than that explained line by line. Unexplained >0.5% objective = fail |

@@ -318,3 +318,46 @@
     checked by R4-NS and fixtures; (6) S2 storage interval conditional on the solved water value; (7) [P] tolerances C1 5%,
     G1 3 pp, budgets window ≤60 s, full year ≤5 min / 4 GB, R4-NF outside CI. Branch `gate-4` created from `gate-3`; the
     P11 architecture draft travels with it as an input (its own O1–O6 stay open). Spec changes S1–S5 land in G4-1 (F-0.4).
+
+2026-11-27 (formulation lead, G4-1 W-spec, gate-4.md §3 S1–S5)
+56. Formulation **F-0.4** (code `capex.FORMULATION_VERSION` F-0.3 → F-0.4; every fingerprint changes once, canonical outputs
+    of T1–T4 and `pjm5` unchanged except one new `dcpf` health row, removed before the golden compare, §7.4a.9). Loader
+    accepts F-0.2/F-0.3/F-0.4; the F-0.4 inputs (`links.link_type`, `tx.dc_links`, `audit_profile`) require `F-0.4`.
+    (S1, §7.4a.12) Controllable DC link: `link_type` ∈ {`ac`, `dc`} (blank = `ac`); a `dc` row is a zero-cost `flow`
+    column with bounds $-F^-\le f\le F^+$ (asymmetric allowed, 0 in either direction = `DataError`), injection pair in `bal`
+    / `bal_sys` / `ptdf_flow` (hook H1), no `kvl` row; islands from AC lines only; $\mu_k=\pi_e-\pi_o$; rent identity per
+    rent component (islands + all DC links); price-setter per price component (islands + DC links strictly inside limits)
+    with free-DC rows in $\hat\Phi$; `link_inconsistent` evaluated on DC links. Switch `tx.dc_links` absent = `controllable`
+    (owner's A1 deviation, DECISIONS 55(3)), `exclude` drops `dc` rows after validation (ids in `run.json`
+    `excluded_links`); a `DataError` outside `dcpf`. Replaces §7.4a "no HVDC/transport links mixed with lines".
+    (S2, §7.4a.7; closes F3-9/F3-13) Storage not in $\mathcal M_i$ adds idle / discharge-at-limit / charge-at-limit rows to
+    the case-(c) interval LP at the solved $v$, relaxed by $tol_\pi$; solver status mapped to an enum (UNBOUNDED and
+    UNBOUNDED_OR_INFEASIBLE → ±∞ after a feasibility pre-check of the solved point; anything else, or NaN, = failed solve);
+    new check `price_setter.loop_interval` (count, pass 0). (S3, §3; closes F3-3) top-level `audit_profile` ∈ {`exact`
+    (default), `standard`} for `balance`, `storage.soc_recompute`, `kvl.recompute`, `ptdf.recompute`; under `standard`
+    the keys `bal_residual_mw`/`kvl_residual_mw` are `DataError`. (S4, §6.1; closes F3-12) general column/row unscaling
+    rule; θ reduced cost and `ref_angle` use $k=1$. (S5) benchmarks §6 G4 row: 336-h window, LMPs reported.
+    Details decided here (gate-4.md left them open): F-0.4 version gate on the new inputs (same pattern as dcpf ⇒ F-0.3);
+    DC rating 0 in either direction is an error (no one-way links yet, avoids a link stuck at a bound at f = 0);
+    `tx.dc_links` under `transport` is an error while `tx.dcpf_form`/`tx.ref_bus` stay "ignored" (F-0.3 behaviour kept,
+    changing it would move fingerprints; harmonise if A1 is adopted); S2 rows relaxed by $tol_\pi$ so the solved point
+    always passes; storage with $P\le tol_q$ and simultaneous charge/discharge add no row (interval only wider there);
+    new health row kept even when vacuous (value 0) rather than emitted only when case (c) occurs.
+    Rejected: S1 exclusion as default (drops a tie at its limit 96% of reference hours), a fixed 100 MW injection
+    (reference reverses in 20 h), a DC link as an AC line with tiny reactance (wrong physics, conditioning); S2 full-dual
+    interval with $v$ free (needs the whole storage dual system in the tiny LP; owner chose conditional, 55(6)); S3 a
+    test-system flag inferred from provenance (`is_toy`) — implicit, and `pjm5` is observed data yet a test system.
+
+2026-11-27 (formulation lead, G4-1 heat-rate choice; DECISIONS 38 P5 note)
+57. Heat rate from a piecewise fuel curve (formulation §2.4): $HR_r$ = secant incremental rate $(F_N-F_0)/(P_N-P_0)$ over
+    the operating range, or the full-load average $F_N/P_N$ when the curve is flat ($F_N\le F_0$, RTS nuclear); **no
+    no-load term** before the UC gate (Gate 11); intercept kept as `x_noload_mmbtu_h`. Ratifies the RTS-GMLC converter
+    (`cases/rts_gmlc/README.md`, cell provenance derived L1). Reasons: (a) the LP has one linear cost per unit and no
+    commitment, so the price it can form is an incremental cost; the secant is the MW-width-weighted mean of the
+    `HR_incr` segments, i.e. the best single incremental rate over the range; (b) zero new columns or rows; (c) the
+    missing no-load cost is a separate, measured line (gate-4.md C2 basis gap, 4.9% in the window), not mixed into
+    dispatch error. Rejected: full-load average heat rate (folds no-load fuel into MC, overstates marginal cost and
+    prices, distorts merit order between units with different no-load shares); piecewise segments as separate columns
+    (3× thermal columns; without Pmin/commitment the lowest segment is dispatchable from 0 MW, so the extra accuracy is
+    spurious until UC); `HR_incr` of the last segment (overstates the price at partial load). Accuracy cost flagged in
+    §2.4/§9: flatter intra-unit price steps; cost understated by no-load fuel.

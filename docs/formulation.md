@@ -1,7 +1,17 @@
 # Formulation spec — capex-model
 
-Version: **F-0.3** (Gate 3, G3-1 W-spec, 2026-11-27, DECISIONS 48; F-0.2 was the Gate 0 patch W3, 2026-11-22; F-0.1 was W1).
+Version: **F-0.4** (Gate 4, G4-1 W-spec, 2026-11-27, DECISIONS 56–57; F-0.3 was G3-1, DECISIONS 48; F-0.2 was the Gate 0
+patch W3, 2026-11-22; F-0.1 was W1).
 Status: draft for owner review.
+F-0.4 changes (DECISIONS 56; gate-4.md §3 S1–S4): (S1) §7.4a.12 controllable DC links inside `dcpf` — `links.link_type`
+∈ {`ac`, `dc`}, switch `tx.dc_links` ∈ {`controllable` (default), `exclude`}; islands from AC lines only; per-component
+congestion rent and price-setter; (S2) §7.4a.7 storage rows in the case-(c) interval LP at the solved water value and a
+solver-status enum with check `price_setter.loop_interval` (closes F3-9, F3-13); (S3) §3 "Audit profile" — top-level
+`audit_profile` ∈ {`exact` (default), `standard`} for the four MW/MWh recomputation checks (closes F3-3); (S4) §6.1
+general unscaling rule, applied to $\theta$ reduced costs and `ref_angle` (closes F3-12). DECISIONS 57: §2.4 heat rate
+from a piecewise fuel curve = secant incremental rate, no no-load term. With no `dc` row and no `audit_profile` key, the
+LP and every canonical output are those of F-0.3 (T1–T4, `pjm5` golden identity), except one new health row under
+`dcpf` (`price_setter.loop_interval`, removed before the golden compare, §7.4a.9).
 F-0.3 changes (DECISIONS 48): §7.4a DC power flow option completed — `tx.model ∈ {transport (default), dcpf}`, angle form
 (`kvl`, `ref_angle`) and PTDF form (`bal_sys`, `ptdf_flow`), islands and reference bus, $\mu$ sign and LMP decomposition
 (energy + congestion, loss 0), congestion-rent identity, network health checks, price-setter `CONGESTION_LOOP` with
@@ -101,14 +111,14 @@ $\Delta t$ is omitted from equations; code must still assert it.
 | Symbol | Meaning | Unit |
 |---|---|---|
 | $z \in \mathcal Z$ | zones | – |
-| $l \in \mathcal L$ | transport links, origin $o(l)$, end $e(l)$ | – |
+| $l \in \mathcal L$ | transport links, origin $o(l)$, end $e(l)$ (under `dcpf`: AC lines $\mathcal L^{AC}$ and DC links $\mathcal L^{DC}$, §7.4a.12) | – |
 | $r \in \mathcal R = \mathcal R^{TH}\cup\mathcal R^{VRE}\cup\mathcal R^{ST}$ | resources (thermal, variable renewable, storage); zone $z(r)$ | – |
 | $\mathcal R_z$ | resources in zone $z$ | – |
 | $K^0_r$ | existing capacity (storage: $P^0_r$ power, $E^0_r$ energy) | MW, MWh |
 | $X^{max}_r$ | max new build ($+\infty$ allowed; storage: $X^{P,max}, X^{E,max}$) | MW, MWh |
 | $A_{r,p,t}\in[0,1]$ | availability (thermal: $1-$derate/outage; VRE: capacity factor) | – |
 | $MC_{r,p,t}$ | marginal cost $= HR_r\,\phi_{f(r),p,t} + VOM_r$ (+ adders, §7) | $/MWh |
-| $HR_r$, $\phi_{f,p,t}$ | heat rate; fuel price, hourly-indexed; real data are daily, so $\phi$ is constant on hours $1$–$24$, $25$–$48$, $49$–$72$ of a block (the three gas days of the medoid) | MMBtu/MWh, $/MMBtu |
+| $HR_r$, $\phi_{f,p,t}$ | heat rate (incremental; from a piecewise fuel curve by the §2.4 rule); fuel price, hourly-indexed; real data are daily, so $\phi$ is constant on hours $1$–$24$, $25$–$48$, $49$–$72$ of a block (the three gas days of the medoid) | MMBtu/MWh, $/MMBtu |
 | $VOM_r$ | variable O&M (storage: per MWh discharged) | $/MWh |
 | $C^{fix}_r$ | annualized fixed cost of new capacity $=\text{ANN}(I_r,\ldots)+FOM_r$ (§5) | $/MW-yr |
 | $C^{P}_r, C^{E}_r$ | storage annualized fixed cost, power / energy part | $/MW-yr, $/MWh-yr |
@@ -186,6 +196,22 @@ $Z^0 = \sum_r FOM_r K^0_r + \sum_{r\in\mathcal R^{ST}} (FOM^P_r P^0_r + FOM^E_r 
 decomposition (§8.4), but is **not** in the LP and **not** in the strong-duality check (§3 check 2).
 Sunk capex of existing units is excluded.
 
+### 2.4 Heat rate from a piecewise fuel curve (F-0.4, DECISIONS 57)
+The LP has one linear fuel cost per resource, $HR_r\,\phi\,g$. When the source gives a piecewise-linear fuel curve
+(RTS-GMLC `gen.csv`: breakpoints $P_0<\dots<P_N$ MW $=$ `Output_pct_k`$\times$PMax, $F_0=$ `HR_avg_0`$\cdot P_0$,
+$F_k=F_{k-1}+$ `HR_incr_k`$\cdot(P_k-P_{k-1})$, MMBtu/h after BTU/kWh ÷ 1000), the data layer maps it to
+$$HR_r=\begin{cases}\dfrac{F_N-F_0}{P_N-P_0} & F_N>F_0\quad\text{(secant incremental rate over the operating range)}\\[4pt]
+\dfrac{F_N}{P_N} & \text{otherwise (flat or degenerate curve, e.g. RTS nuclear: all `HR\_incr` = 0)}\end{cases}\quad[\text{MMBtu/MWh}]$$
+**No no-load term:** the intercept of the secant line, $NL_r=F_0-HR_rP_0$ (MMBtu/h), is carried as data (`x_noload_mmbtu_h`)
+for the UC gate (Gate 11, DECISIONS 43; §7.5 cost $NL\,n$) and never enters the LP before it. Dual meaning: at a
+`MARGINAL_UNIT`, $\pi=MC_r=HR_r\phi+VOM_r$ is the unit's average incremental cost over $[P_0,P_N]$. Provenance of the
+cell: `derived`, est_level 1, basis = this formula. Where only an average heat rate is known (EIA-923/860), $HR_r$ is that
+value under the data-sources.md hierarchy; this rule applies only when a curve is given.
+⚠ Accuracy: (a) $Z^{var}$ omits $\phi\,NL_r$ per online hour — the gate-4.md C2 "cost-basis gap" (4.9% in the PLEXOS
+window), reported, not judged; (b) PLEXOS prices step across segments (`HR_incr_1..3`) inside a unit's range, ours stay at
+the secant, so hourly prices are flatter and units of one tech may swap merit order where segment rates cross;
+(c) a unit with MC below the price is never held at a partial output by a segment boundary.
+
 ---
 
 ## 3. Dual interpretations and verifier checks
@@ -216,8 +242,9 @@ Stationarity relations used by tests and by §4 (from $s_j = c_j - \sum_i a_{ij}
 - Under `tx.model = dcpf` the rows `kvl`, `ref_angle`, `bal_sys`, `ptdf_flow` and the $f$/$\theta$ stationarity are in §7.4a.5.
 
 **Verifier checks (Gate 1 health checks; tolerances in `docs/gates/gate-1.md`):**
-1. `bal` residual $|\text{LHS}-D|$, measured in **unscaled MW**, every $(z,p,t)$: Gate 1 toy and random cases
-   require $\le 10^{-6}$ MW; all other runs use the §6.2 warn/fail thresholds ($10^{-3}$ / $10^{-1}$ MW).
+1. `bal` residual $|\text{LHS}-D|$, measured in **unscaled MW**, every $(z,p,t)$: threshold set by the case's audit
+   profile (below): `exact` $\le 10^{-6}$ MW (Gate 1 toy and random cases, every test system); `standard` the §6.2
+   warn/fail pair ($10^{-3}$ / $10^{-1}$ MW).
 2. Strong duality on the LP objective (i.e. excluding the constant $Z^0$): $|Z^{primal}-Z^{dual}|/|Z| \le 10^{-7}$, where
    $Z^{dual}=\sum_i b_i y_i + \sum_j (\text{bound}_j \cdot s_j)$ over active bounds.
 3. Complementary slackness on every row and bound: $|y_i \cdot \text{slack}_i| \le tol$.
@@ -244,10 +271,26 @@ Stationarity relations used by tests and by §4 (from $s_j = c_j - \sum_i a_{ij}
    loaded $\eta^c_r$, $\eta^d_r$, $\sigma_r$, never the coefficients of the assembled matrix — and the unscaled
    primal, recompute for every $(r,p,t)$, with the same cyclic $t^-$ as `st_soc` (§7.2 form when linked):
    $\;r^{soc}_{r,p,t} = e_{r,p,t} - (1-\sigma_r)e_{r,p,t^-} - \eta^c_r c_{r,p,t} + d_{r,p,t}/\eta^d_r$ (MWh).
-   Pass: $\max|r^{soc}| \le 10^{-6}$ MWh on Gate 1 toy and random cases; otherwise the §6.2 `bal` thresholds
+   Pass by audit profile (below): `exact` $\max|r^{soc}| \le 10^{-6}$ MWh; `standard` the §6.2 `bal` thresholds
    applied in MWh (warn $10^{-3}$, fail $10^{-1}$). Reason: checks 1–7 prove the solved LP is self-consistent, not
    that it encodes the case; a wrong `st_soc` coefficient (e.g. $\eta^c$ and $\eta^d$ swapped, audit mutation M4)
    leaves duality, CS and rent identities intact. Same principle as check 1, which recomputes `bal` from $D$.
+
+**Audit profile** (F-0.4, S3; closes F3-3). Top-level `case.yaml` key `audit_profile` ∈ {`exact`, `standard`}; **absent
+means `exact`**, any other value is a `DataError`. It sets the thresholds of exactly four recomputation checks, all
+measured in unscaled MW or MWh: `balance` (check 1), `storage.soc_recompute` (check 8), `kvl.recompute` and
+`ptdf.recompute` (§7.4a.6).
+| Profile | Pass | Warn | Fail | Use |
+|---|---|---|---|---|
+| `exact` | $\le 10^{-6}$ (or the `bal_residual_mw` / `kvl_residual_mw` key where one exists) | – | $>$ pass | test systems: T1–T4, `pjm5`, random, fixtures |
+| `standard` | $\le 10^{-3}$ | $>10^{-3}$ | $>10^{-1}$ | non-toy cases (RTS-GMLC from Gate 4; PJM). $10^{-1}$ MW is $10^{-5}$ of the 8.2 GW RTS peak |
+Every other threshold (duality, CS, dual sign, conditioning §6.2, rent and price checks) is the same in both profiles.
+Under `standard` the keys `bal_residual_mw` and `kvl_residual_mw` are not fields of the run's tolerance set, so giving
+one is a `DataError` (§7.4a.1 rule; one source per threshold). Output: under `standard` the four rows carry
+`tolerance` = the warn threshold and `detail` gains the suffix `; audit_profile=standard warn>0.001 fail>0.1` (format of
+the conditioning rows); under an explicit `exact` the suffix is `; audit_profile=exact`; with the key **absent** the rows are
+byte-identical to F-0.3. The key enters the fingerprint config only when present (absent stays absent, §7.4a.9), so
+T1–T4 and `pjm5` keep their outputs; it is an F-0.4 input (requires `formulation_version: F-0.4`, §7.4a.9).
 
 ---
 
@@ -386,6 +429,14 @@ $\tilde x = k_P x$; scaled objective $\tilde Z = k_C Z$; scaled cost coefficient
 (so $/MWh → M$/GWh and $/MW-yr → M$/GW-yr share the factor). Raw duals unscale with
 $S = k_P/k_C = 10^3$ (§3). Optional extra objective factor $s_{obj}$ (default 1) is divided out too.
 
+**Unscaling rule (F-0.4, S4; closes F3-12).** Every column $j$ has a scale $k_j$ ($\tilde x_j=k_jx_j$) and every row $i$ a
+scale $k_i$ (the scaled row is $k_i\times$ the I/O row); $\tilde Z=k_Cs_{obj}Z$. Then
+$$x_j=\tilde x_j/k_j,\quad s_j=\tilde s_j\,\frac{k_j}{k_Cs_{obj}},\qquad \text{activity}_i=\tilde a_i/k_i,\ \text{slack}_i=\widetilde{\text{slack}}_i/k_i,\quad y_i=\tilde y_i\,\frac{k_i}{k_Cs_{obj}}.$$
+MW/MWh columns and rows have $k=k_P$ (factor $S/s_{obj}$, as §3). The angle columns `theta` and the rows `ref_angle` have
+$k=k_\theta=1$ (rad, unscaled, §7.4a.2): $\theta$ reduced cost $=\tilde s_\theta/(k_Cs_{obj})$ (\$/rad-yr), `ref_angle`
+activity and slack in rad, dual $\tilde y/(k_Cs_{obj})$. All four are 0 at every optimum, so no output changes; the rule
+makes them correct in `duals_raw` when a mutation or a non-optimal basis makes them nonzero.
+
 Typical scaled magnitudes (PJM-size, $w_p\in[1,40]$; toys $w\le122$, same bounds hold within $\times4$):
 | Item | Range |
 |---|---|
@@ -476,8 +527,8 @@ Interfaces: `iface[i,p,t]`: $\sum_l \beta_{i,l}(f^+_l-f^-_l)\le \bar F_i$ (PJM t
 ### 7.4a DC power flow option (Gate 3; full spec F-0.3, DECISIONS 48) — switch `tx.model ∈ {transport (default), dcpf}`
 DECISIONS 29/47: `transport` is and stays the default everywhere; `dcpf` is an option. Lossless, linear (Schweppe et al.
 1988; Stott, Jardim & Alsaç 2009). Each node $n$ is a row of `zones.csv` (a bus in `pjm5`, a zone in zonal runs); each
-`links.csv` row is a line $l$. No losses, phase shifters, HVDC/transport links mixed with lines, angle limits or
-contingencies in this gate. A fixed-fleet run is the existing data rule ($X^{max}=0$ on every resource); no new mode.
+`links.csv` row is an AC line $l$, or (F-0.4) a controllable DC link when `link_type = dc` (§7.4a.12). No losses, phase
+shifters, angle limits or contingencies in this gate. A fixed-fleet run is the existing data rule ($X^{max}=0$ on every resource); no new mode.
 
 #### 7.4a.1 Switches (`case.yaml` → `switches`)
 | Key | Values | Default (key absent) | Meaning |
@@ -485,13 +536,15 @@ contingencies in this gate. A fixed-fleet run is the existing data rule ($X^{max
 | `tx.model` | `transport` \| `dcpf` | `transport` | network model; any other value is a load error |
 | `tx.dcpf_form` | `angle` \| `ptdf` | `angle` | LP form under `dcpf` (identical optimum, §7.4a.4) |
 | `tx.ref_bus` | zone id, or non-empty list of zone ids (≤ 1 per island) | per island: first zone of the island in `zones.csv` row order | reference bus $n_0(i)$ |
+| `tx.dc_links` (F-0.4) | `controllable` \| `exclude` | `controllable` | treatment of `link_type = dc` rows under `dcpf` (§7.4a.12); a load error under `transport` |
 
 `tx.dcpf_form` and `tx.ref_bus` are ignored under `transport` (they still enter the fingerprint as config). The builder
 never writes a default into `case.config`: an absent key stays absent (needed for §7.4a.9).
 **Keys (amendment 2):** a `switches` key the code does not implement is a load error (`DataError` naming the key),
 whatever its value — this includes keys data-schema reserves for later gates (`tx.losses`, `reserves.enabled`, …), which
 become valid in their own gate. Implemented at Gate 3: `tx.model`, `tx.dcpf_form`, `tx.ref_bus`, `scaling` (bool, default
-true = §6.1 scaling on). `tx.ref_bus` must be a string or a list of strings. **Empty `tx.ref_bus` (amendment 3):** `[]` is a `DataError` ("names no zone; omit the key for the default"), as is any entry that is not a zone id (incl. `""`). A non-empty list may leave islands unnamed; those take the default. Reason: absent and `[]` would be two configs (two fingerprints, §7.4a.9) for one LP, and an empty list is more likely a script's empty selection than a request for the default. A `tolerances` key that is not a field of the
+true = §6.1 scaling on); added at Gate 4: `tx.dc_links` (valid only with `tx.model: dcpf`; under `transport` or with
+`tx.model` absent it is a `DataError`, block contract A1 sub-switch rule). `audit_profile` (§3) is a top-level key, not a switch. `tx.ref_bus` must be a string or a list of strings. **Empty `tx.ref_bus` (amendment 3):** `[]` is a `DataError` ("names no zone; omit the key for the default"), as is any entry that is not a zone id (incl. `""`). A non-empty list may leave islands unnamed; those take the default. Reason: absent and `[]` would be two configs (two fingerprints, §7.4a.9) for one LP, and an empty list is more likely a script's empty selection than a request for the default. A `tolerances` key that is not a field of the
 run's tolerance set (Gate 1 keys; plus the §7.4a.6 keys only under `dcpf`) is likewise a `DataError`, never a Python
 `TypeError`. Reason: a typo (`tx.dcpf_formm`) or a not-yet-built feature (`tx.losses: true`) must not run silently as the default.
 
@@ -501,32 +554,35 @@ run's tolerance set (Gate 1 keys; plus the §7.4a.6 keys only under `dcpf`) is l
 | $\mathcal N$, $\mathcal L$ | nodes (`zones.csv`), lines (`links.csv`); $o(l)$, $e(l)$ = `zone_from`, `zone_to` | – |
 | $a_{l,n}$ | incidence: $+1$ if $n=o(l)$, $-1$ if $n=e(l)$, else 0 | – |
 | $b_l$ | susceptance $= \texttt{base\_mva}_l/\texttt{reactance\_pu}_l$ | MW/rad |
-| $F_l$ | rating $=$ `ntc_fwd_mw` $=$ `ntc_rev_mw` (must be equal under `dcpf`); blank $\Rightarrow +\infty$ | MW |
-| $\mathcal I$, $i(n)$, $i(l)$ | electrical islands = connected components of the graph $(\mathcal N,\mathcal L)$, from case data only (static, not per hour; an isolated node is its own island). Ids `i1, i2, …` ordered by the smallest `zones.csv` row index of their nodes | – |
+| $F_l$ | AC rating $=$ `ntc_fwd_mw` $=$ `ntc_rev_mw` (must be equal under `dcpf`); blank $\Rightarrow +\infty$. DC links: $F^+_k$, $F^-_k$, may differ (§7.4a.12) | MW |
+| $\mathcal I$, $i(n)$, $i(l)$ | electrical islands = connected components of the graph $(\mathcal N,\mathcal L^{AC})$ (F-0.4: AC lines only; a DC link never joins islands electrically), from case data only (static, not per hour; an isolated node is its own island). Ids `i1, i2, …` ordered by the smallest `zones.csv` row index of their nodes | – |
 | $n_0(i)$ | reference bus of island $i$ (§7.4a.1) | – |
-| $\text{inj}_{n,p,t}$ | net injection $\sum_{r\in\mathcal R_n\setminus\mathcal R^{ST}} g + \sum_{r\in\mathcal R_n\cap\mathcal R^{ST}}(d-c) + u_n - D_n$ | MW |
+| $\text{inj}_{n,p,t}$ | net injection $\sum_{r\in\mathcal R_n\setminus\mathcal R^{ST}} g + \sum_{r\in\mathcal R_n\cap\mathcal R^{ST}}(d-c) + u_n - D_n$ (resources only; excludes DC flows, "residual" injection of §7.4a.12) | MW |
+| $\text{inj}^{AC}_{n,p,t}$ | injection into the AC network $=\text{inj}_n+\sum_{k\in\mathcal L^{DC}:e(k)=n}f_k-\sum_{k:o(k)=n}f_k$ ($=\text{inj}_n$ with no DC link) | MW |
 | $H_{l,n}$ | PTDF $=\partial f_l/\partial\,\text{inj}_n$ with the balancing withdrawal at $n_0(i(n))$; $H_{l,n}=0$ if $i(l)\ne i(n)$ and $H_{l,n_0}=0$ | – (MW/MW) |
 
-**PTDF construction** (per island; Wood, Wollenberg & Sheblé 2014): $B^i=\sum_{l\in i} b_l\,a_l a_l^\top$ ($|i|\times|i|$, MW/rad);
+**PTDF construction** (per island, AC lines only; Wood, Wollenberg & Sheblé 2014): $B^i=\sum_{l\in i} b_l\,a_l a_l^\top$ ($|i|\times|i|$, MW/rad);
 delete row/column $n_0(i)$, $X^i = (B^i_{red})^{-1}$ padded with a zero row/column at $n_0$; $H = \mathrm{diag}(b)\,A\,X$
 (rows of $A$ are $a_l^\top$). Entries $|H_{l,n}|\le10^{-10}$ are set to exactly 0 (inversion noise); no other truncation.
 **Scaling (§6.1):** flows in GW as before; angles $\theta$ in rad, **unscaled** ($k_\theta=1$); `kvl` coefficient
 $\tilde b_l = k_P b_l$ (GW/rad; $=0.1/x_l$ at 100 MVA: 3.3–15.6 for `pjm5`); $H$ is dimensionless and unscaled. Per-unit
 values never appear inside the LP; `base_mva` is used only to form $b_l$. `kvl`, `bal_sys`, `ptdf_flow` are MW rows (duals
-unscale with $S$, §3); `ref_angle` is a rad row whose dual is identically 0, so it needs no unscaling factor.
+unscale with $S$, §3); `ref_angle` is a rad row whose dual is identically 0 at an optimum; it and the $\theta$ reduced
+costs are still unscaled by the §6.1 rule with $k=1$ (F-0.4, S4).
 
 #### 7.4a.3 Angle form (`tx.dcpf_form = angle`)
 New column `theta[zone,p,t]` ($\theta_{n,p,t}$, free, rad). `bal`, `flow` and all Gate 1 rows unchanged; `flow` bounds
 $-F_l \le f_{l,p,t}\le F_l$ (column bounds `flow_lb`/`flow_ub`; infinite when unlimited). New rows (equalities):
-- **`kvl[l,p,t]`**: $\; f_{l,p,t} - b_l\,(\theta_{o(l),p,t}-\theta_{e(l),p,t}) = 0$
+- **`kvl[l,p,t]`**, $l\in\mathcal L^{AC}$: $\; f_{l,p,t} - b_l\,(\theta_{o(l),p,t}-\theta_{e(l),p,t}) = 0$ (a DC link has no `kvl` row, §7.4a.12)
 - **`ref_angle[i,p,t]`**: $\; \theta_{n_0(i),p,t} = 0$ — always a **row** (never a column bound), exactly one per island-hour.
-Size per hour: $|\mathcal N|$ extra columns, $|\mathcal L| + |\mathcal I|$ extra rows, $3|\mathcal L|+|\mathcal I|$ extra nonzeros.
+Size per hour: $|\mathcal N|$ extra columns, $|\mathcal L^{AC}| + |\mathcal I|$ extra rows, $3|\mathcal L^{AC}|+|\mathcal I|$ extra nonzeros.
 
 #### 7.4a.4 PTDF form (`tx.dcpf_form = ptdf`)
 No `bal` rows and no `theta` columns; `flow` columns and their bounds are kept (so $\mu$ is read exactly as in the angle
 form and **no ranged rows are written**: gate-3.md §4 "Ranged rows" is satisfied vacuously; F5 is not exercised). Rows:
 - **`bal_sys[i,p,t]`**: $\; \sum_{n\in i}\big(\sum_{r\in\mathcal R_n\setminus\mathcal R^{ST}} g + \sum_{r\in\mathcal R_n\cap\mathcal R^{ST}}(d-c) + u_n\big) = \sum_{n\in i} D_{n,p,t}$
-- **`ptdf_flow[l,p,t]`**: $\; f_{l,p,t} - \sum_{n\in i(l)} H_{l,n}\big(\sum g + \sum(d-c) + u_n\big) = -\sum_{n\in i(l)} H_{l,n} D_{n,p,t}$
+- **`ptdf_flow[l,p,t]`**, $l\in\mathcal L^{AC}$: $\; f_{l,p,t} - \sum_{n\in i(l)} H_{l,n}\big(\sum g + \sum(d-c) + u_n\big) = -\sum_{n\in i(l)} H_{l,n} D_{n,p,t}$
+- (F-0.4) DC flows enter both rows as injections at their end buses (hook H1, §7.4a.12).
 Both forms define the same feasible set in $(g,c,d,u,f)$ (KVL ⇔ $f=H\,\text{inj}$ given island balance), hence the same
 optimum; LMPs agree wherever duals are unique. Size per hour: rows $|\mathcal L|+|\mathcal I|$, nonzeros $\approx|\mathcal L|\cdot$(injection
 columns per island): dense, so `angle` is the default; `ptdf` is for checks and, later, for small zonal networks.
@@ -562,6 +618,7 @@ the reference bus; totals are reference-free (cf. Cheng & Overbye 2005 for refer
 **Congestion rent identity** (per island-hour): from $\pi=\lambda\mathbf 1-H^\top\mu$, $\sum_{n\in i}\text{inj}_n=0$ and $f=H\,\text{inj}$:
 $$\sum_n \pi_{n,p,t}\,(-\text{inj}_{n,p,t}) = \sum_l \mu_{l,p,t}\,f_{l,p,t}\quad(\$/\text{h};\ \ge0).$$
 Annual merchandising surplus $=\sum_p w_p\sum_t\sum_l\mu f$ (T4 is the two-bus transport case of the same identity).
+With DC links (F-0.4) the identity holds per **rent component** and gains $\sum_k\mu_kf_k$ (§7.4a.12).
 
 #### 7.4a.6 Health checks under `dcpf` (emitted only when `tx.model = dcpf`)
 Recomputations use the **case data** route of `capex.audit.network` (§7.4a.10), never the LP matrix (same principle as
@@ -569,23 +626,27 @@ Recomputations use the **case data** route of `capex.audit.network` (§7.4a.10),
 present only under `dcpf` (so the `tolerances` fingerprint component is unchanged under `transport`).
 | `check_id` | Value | Pass (tolerance key, default) |
 |---|---|---|
-| `kvl.recompute` | $\max_{l,p,t}\lvert f - b_l^{case}(\theta_o-\theta_e)\rvert$ MW, $\theta$ from output `angles` (angle form: LP $\theta$; PTDF form: recomputed, see `angles`) | ≤ `kvl_residual_mw` = 1e-6 |
-| `ptdf.recompute` | $\max\lvert f - f^{rc}\rvert$ MW; $f^{rc}$: solve $B^i_{red}\theta=\text{inj}$ (case $b$, solved inj, `numpy.linalg.solve`, no PTDF matrix), $f^{rc}_l=b_l(\theta_o-\theta_e)$ | ≤ `kvl_residual_mw` |
+| `kvl.recompute` | $\max_{l\in\mathcal L^{AC},p,t}\lvert f - b_l^{case}(\theta_o-\theta_e)\rvert$ MW (DC links skipped), $\theta$ from output `angles` (angle form: LP $\theta$; PTDF form: recomputed, see `angles`) | audit profile (§3): `exact` ≤ `kvl_residual_mw` = 1e-6; `standard` warn > 1e-3, fail > 1e-1 |
+| `ptdf.recompute` | $\max_{l\in\mathcal L^{AC}}\lvert f - f^{rc}\rvert$ MW; $f^{rc}$: solve $B^i_{red}\theta=\text{inj}^{AC}$ (case $b$, solved inj **plus the solved DC flows at their end buses**, `numpy.linalg.solve`, no PTDF matrix), $f^{rc}_l=b_l(\theta_o-\theta_e)$ | as `kvl.recompute` |
 | `lmp.decomposition` | $\max_{n,p,t}\lvert \pi_n - (\lambda_{i(n)} - \sum_l H^{case}_{l,n}\mu_l)\rvert$ \$/MWh | ≤ `lmp_decomposition_usd_mwh` = 1e-6 |
-| `congestion_rent` | $\max_{i,p,t}\lvert\sum_{n\in i}\pi(-\text{inj})-\sum_{l\in i}\mu f\rvert / \max(1,\lvert\sum_{l\in i}\mu f\rvert)$ (per island-hour, amendment 2: residuals of two islands must not cancel) | ≤ `congestion_rent_rel` = 1e-7 |
-| `dcpf.line_duals` | max of $\lvert\mu_l\rvert$ over line-hours with $\lvert f\rvert < F_l - $ `binding_slack` (all hours of unlimited lines) and of $\max(0,-\mu_l\,\mathrm{sgn} f_l)$ at a rating | ≤ `line_dual_usd_mwh` = 1e-6 |
+| `congestion_rent` | $\max_{C,p,t}\lvert\sum_{n\in C}\pi(-\text{inj})-\sum_{l\in C}\mu f\rvert / \max(1,\lvert\sum_{l\in C}\mu f\rvert)$ per **rent component** $C$-hour (F-0.4, §7.4a.12; $l$ over AC lines and DC links of $C$; with no DC link $C$ = island, amendment 2: residuals of two components must not cancel) | ≤ `congestion_rent_rel` = 1e-7 |
+| `dcpf.line_duals` | (F-0.4: AC lines and DC links; at a rating the sign is that of the active bound, $\mu\ge0$ forward, $\le0$ reverse) max of $\lvert\mu_l\rvert$ over line-hours with $\lvert f\rvert < F_l - $ `binding_slack` (all hours of unlimited lines) and of $\max(0,-\mu_l\,\mathrm{sgn} f_l)$ at a rating | ≤ `line_dual_usd_mwh` = 1e-6 |
 | `dcpf.islands` | count of violations: per island-hour exactly one **active** reference row — angle: a `ref_angle` row with lo = hi = 0 whose only nonzero is on $\theta_{n_0(i)}$, and $\lvert\theta_{n_0}\rvert\le10^{-9}$; PTDF: one `bal_sys` row with lo = hi $=\sum_{n\in i}D$; island count from case data. `detail` = e.g. `2 islands: i1 ref A; i2 ref C` | = 0 |
 | `price_setter.loop_alpha` (family `price_setter`) | max over `CONGESTION_LOOP` bus-hours with weights of $\max(\lvert\sum_m\alpha_{n,m}-1\rvert, \lvert\pi_n-\sum_m\alpha_{n,m}c_m\rvert)$ | ≤ `loop_alpha` = 1e-6 |
+| `price_setter.loop_interval` (F-0.4, S2; family `price_setter`) | count over case-(c) bus-hours of: interval solves that end in a failed status (§7.4a.7 status map, incl. a solved point that violates a row), plus bus-hours with $\pi_n\notin[\text{lo}-tol_\pi,\text{hi}+tol_\pi]$. `detail` notes `storage rows conditional on solved v` when any storage row was used | = 0 (no tolerance key) |
 
-Non-toy runs use the §6.2 warn/fail thresholds ($10^{-3}$/$10^{-1}$ MW) for the two MW checks, as for `balance`.
-(Amendment 2:) every Gate 3 case (T1–T4, `pjm5`, random) is a test system and uses the 1e-6 MW pass rule above. The
-non-toy split is not built yet for any of `balance`, `storage.soc_recompute`, `kvl.recompute`, `ptdf.recompute` (only
-`conditioning.bal_residual_mw` carries §6.2 for `bal`); it is specified once for all four, with a machine-readable
-test-system flag, in Gate 4 (first non-toy case).
+MW-check thresholds (F-0.4, S3, closes F3-3): `kvl.recompute` and `ptdf.recompute` follow the case's **audit profile** (§3,
+after check 8), as `balance` and `storage.soc_recompute` do; every Gate 3 case is `exact` (key absent). The row
+`price_setter.loop_interval` is written only under `dcpf`; on a case with no case-(c) bus-hour its value is 0 and its
+detail empty. It is new in F-0.4, so P5a–P5f golden comparisons skip this one row (it does not exist in the Gate 3 golden).
 Gate 1 checks under `dcpf`: `balance` = nodal KCL recomputed from the primal ($\text{inj}_n - \sum_l a_{l,n}f_l$, both
 forms; `zone_hourly.bal_residual_mw` likewise); `strong_duality`, `comp_slack`, `dual_sign` cover the new families with the
 signs above; `price_setter.link_inconsistent` is reported with value 0 and detail `n/a under dcpf (see lmp.decomposition,
-dcpf.line_duals)`. Conditioning (§6.2) unchanged; `pjm5` must give no `warn`.
+dcpf.line_duals)` **when the run has no DC link** (bytes as F-0.3). With DC links (F-0.4) it is evaluated on the DC links
+only, by the §4 Step 0 rule (a DC link-hour with $\lvert\pi_{e(k)}-\pi_{o(k)}\rvert>tol_\pi$ must sit at the limit in the
+low→high price direction with $\lvert\mu_k-(\pi_{e(k)}-\pi_{o(k)})\rvert\le tol_\pi$); value = count of flagged DC link-hours,
+detail `DC links only under dcpf (AC lines: see lmp.decomposition, dcpf.line_duals)`. Conditioning (§6.2) unchanged;
+`pjm5` must give no `warn`.
 
 #### 7.4a.7 Price-setter under `dcpf` (replaces §4 Step 0 for congested islands)
 Loop flow makes $\Delta\pi\ne0$ on unconstrained lines, so §4's price islands do not apply. Per island-hour $(i,p,t)$:
@@ -619,9 +680,38 @@ For $n\in\mathcal B$, (a) gives $\alpha_n=e_n$, consistent with `MARGINAL_UNIT`.
 $\lambda-\sum_{l\in\mathcal K}H_{l,n}\mu_l$ over $(\lambda,\mu_{\mathcal K})$ subject to $\Phi[\lambda;\mu]=c_{\mathcal B}$, $\mu_l\,\mathrm{sgn}f_l\ge0$, and for every
 resource at a bound at bus $m$ of $i$: $\pi_m(\lambda,\mu)\ge c_r$ at its upper bound, $\le c_r$ at zero (unserved at 0
 with $D>0$: $\le$ VOLL; unserved at $D$: $\ge$ VOLL) — a tiny LP solved through the solver adapter; unbounded sides are
-$\pm\infty$. Case (c) is not expected in Gate 3 (no candidates, no storage); P5a–P5e are case (a). Gate 3 limit
-(amendment 2): storage at a bound adds no row (its inequality involves $v$; specified with the first `dcpf` case that
-has storage), so the interval can only be wider, never falsely tight.
+$\pm\infty$. Case (c) is not expected in Gate 3 (no candidates, no storage); P5a–P5e are case (a). (The Gate 3 limit
+"storage at a bound adds no row" of amendment 2 is replaced by S2 below.)
+
+**Storage rows in the interval LP (F-0.4, S2; closes F3-9).** Each storage unit $r$ at bus $m$ of the island that is
+**not** in $\mathcal M_i$ and has $P_r>tol_q$ adds one inequality, using the §4 setter costs at the **solved** water value
+$v_{r,p,t}$ (§3): $c^d_r=VOM_r+v_{r,p,t}/\eta^d_r$, $c^c_r=\eta^c_rv_{r,p,t}$. States are read from the unscaled primal:
+| State | Condition | Row | From stationarity (§3) |
+|---|---|---|---|
+| idle | $c\le tol_q$ and $d\le tol_q$ | $c^c_r-tol_\pi\le\pi_m(\lambda,\mu)\le c^d_r+tol_\pi$ (two-sided) | $s_c\ge0$, $s_d\ge0$, `st_pwr` slack ($\rho^P=0$) |
+| discharging at the `st_pwr` limit | $d\ge P_r-tol_q$ | $\pi_m(\lambda,\mu)\ge c^d_r-tol_\pi$ | $\pi=c^d+\rho^P$, $\rho^P\ge0$ |
+| charging at the `st_pwr` limit | $c\ge P_r-tol_q$ | $\pi_m(\lambda,\mu)\le c^c_r+tol_\pi$ | $\pi=c^c-\rho^P$ |
+| any other state (interior but failing its class check; simultaneous $c,d>tol_q$ below the limit) | – | no row | (interval only wider) |
+$\pi_m(\lambda,\mu)=\lambda_{i(m)}-\sum_{l\in\mathcal K}H_{l,m}\mu_l$ as above. Storage at $P_r\le tol_q$ is dual-degenerate (§3 check 7)
+and adds no row. The interval is therefore **conditional on $v$** (the solved `st_soc` duals are taken as given, not
+re-optimised), which `detail` of `price_setter.loop_interval` states. It is narrower than the F-0.3 interval and no longer
+"only wider", but it cannot give a false fail: the solved $(\lambda,\mu_{\mathcal K})$ satisfies every row by stationarity of
+$c$, $d$ (up to the $tol_\pi$ relaxation). Storage that meets `STORAGE_DIS`/`STORAGE_CH` and passes its price check is in
+$\mathcal M_i$ as in F-0.3 and adds no S2 row.
+
+**Interval-LP solves and status (F-0.4, closes F3-13).** The min and the max are two LPs through the solver adapter. First
+the solved point $(\lambda_i,\mu_{\mathcal K})$ (λ = LMP at $n_0(i)$, μ from `flows`) is checked against every row at $tol_\pi$;
+a violation counts as one failed solve (it means the case-(c) system is mis-built, e.g. mutation M13). The adapter maps
+the solver status to an enum, per side:
+| Adapter status | Side value |
+|---|---|
+| `OPTIMAL` | the objective value |
+| `UNBOUNDED`, `UNBOUNDED_OR_INFEASIBLE` | $-\infty$ (min) / $+\infty$ (max) — the LP is feasible (the solved point passed), so the second status can only mean unbounded |
+| anything else (`INFEASIBLE`, time/iteration limit, error), or a side value that is NaN after the map | failed solve: counted in `price_setter.loop_interval`; side value written as the empty cell, never NaN, and the bus-hour keeps class `CONGESTION_LOOP`/`DEGENERATE` with flag `UNEXPLAINED` |
+A bus-hour with $\pi_n\notin[\text{lo}-tol_\pi,\text{hi}+tol_\pi]$ is `UNEXPLAINED` (§4 Step 2) and also counted.
+
+**DC links (F-0.4):** with `dc` rows the island-hour above becomes the **price component**-hour and $\phi_n$ gains one
+λ-column per island of the component; see §7.4a.12 (with no DC link it is exactly the text above).
 
 Outputs per `CONGESTION_LOOP` row of `price_setter` (list order per §4 "List cells"): `setter_ids` = ids of $\mathcal M_i$;
 `setter_zone` = buses $\mathcal B$; `setter_cost` = $\sum\alpha c$ (case (c): `price_lo`); `residual` = $\pi-$`setter_cost`; `binding_links` =
@@ -652,7 +742,12 @@ from `assumptions.md` the lines starting `- run_id: ` and `- fingerprint: `; fin
 environment differs, and — only when the key is written explicitly — `config.switches["tx.model"]`. Golden files:
 `tests/golden/gate2/<case>/` (canonical outputs + `components.json`), generated once by the verifier from `main` at the
 Gate-2 merge commit, recorded in `tests/golden/gate2/SOURCE.txt`. The loader accepts case `formulation_version` ∈
-{`F-0.2`, `F-0.3`} (F-0.3 is a superset); `tx.model = dcpf` requires `F-0.3`. T1–T4 `case.yaml` stay `F-0.2`.
+{`F-0.2`, `F-0.3`, `F-0.4`} (each a superset of the previous); `tx.model = dcpf` requires `F-0.3` or `F-0.4`. **F-0.4
+inputs** — a `link_type` column in `links.csv`, the switch `tx.dc_links`, the top-level key `audit_profile` — require
+`F-0.4` (`DataError` otherwise, naming the input). T1–T4 `case.yaml` stay `F-0.2`, `pjm5` stays `F-0.3`; the code's
+`capex.FORMULATION_VERSION` becomes `F-0.4`, so every fingerprint changes once (as DECISIONS 52(2)) while canonical
+outputs stay identical. Gate 4 golden identity for `pjm5` (P5a–P5f, and H1d) compares against the Gate 3 outputs by the
+§8.10a rule after removing the one health row new in F-0.4 (`price_setter.loop_interval`, §7.4a.6).
 
 #### 7.4a.10 Audit hooks and mutation points (M7–M10)
 Builder-side network code lives in `capex/network.py`: `susceptance_mw_rad(case) -> ndarray (L,)`, `islands(case)`,
@@ -667,6 +762,14 @@ make at least one check FAIL (not raise), with a control run and a vacuity guard
 | M10 | wrap `capex.solver.HighsSolver.solve` | negate `col_dual` of `flow[de,p1,t1]` (guard: nonzero) | `dual_sign`, `dcpf.line_duals`, `lmp.decomposition`, `congestion_rent` |
 
 `ab` carries ≈250 MW in P5a, so M7/M8 move its residual far above 1e-6 MW.
+
+F-0.4 mutation points (gate-4.md §4; M11/M12 are reserved for `ra.prm`):
+| ID | Hook | Fault | Expected to fail (any of) |
+|---|---|---|---|
+| M13 | patch the S2 row builder of the case-(c) interval LP | flip the sense of one storage row (≥ ↔ ≤) | `price_setter.loop_interval` |
+| M14 | wrap `capex.run.build_lp` | give DC link $k$ a `kvl` row with $x=0.01$ pu | `price_setter.link_inconsistent` (DC) |
+| M15 | wrap `capex.run.build_lp` (PTDF form) | drop the $-(H_{l,e(k)}-H_{l,o(k)})f_k$ terms from `ptdf_flow` | `ptdf.recompute` |
+| M16 | patch the adapter status map | map `UNBOUNDED_OR_INFEASIBLE` to NaN | `price_setter.loop_interval` (never a silent `UNEXPLAINED`) |
 
 #### 7.4a.11 Resolutions of the `SPEC-GAP` notes in `tests/draft/test_pjm5bus.py`
 | Gap | Resolution |
@@ -694,6 +797,61 @@ make at least one check FAIL (not raise), with a control run and a vacuity guard
 voltage limits; for zonal runs, zone-to-zone "reactances" are equivalents and loop flows between zones are only
 indicative. Zonal PJM runs keep `transport` unless Gate 10 (zonal transmission) shows `dcpf` improves the scoreboard
 (complexity-ledger row `tx.model`).
+
+#### 7.4a.12 Controllable DC links (F-0.4, S1; DECISIONS 55(3), 56) — sub-switch `tx.dc_links`
+Block shape follows the draft feature-block contract (docs/drafts/architecture-spec.md §A, A1–A10) as a checklist only;
+that contract is not adopted by this section.
+- **Switch (A1).** `tx.dc_links` ∈ {`controllable`, `exclude`}, valid only under `tx.model: dcpf` (load error otherwise).
+  **Absent = `controllable`** — a deviation from A1's "off is default" (owner, DECISIONS 55(3)): the block is activated by
+  data (`dc` rows), it is inert on every earlier case (none has a `dc` row), and silently dropping links the user supplied
+  would contradict the strict-input rule (DECISIONS 51(a)). `exclude` is the ablation: after validation the loader drops
+  every `dc` row (and its `provenance_cells` overrides) before anything downstream (LP, audit, outputs, assumptions
+  book), so the run equals the same case without those rows; the dropped ids are listed in `run.json` `excluded_links`
+  (non-canonical). Under `transport`, `link_type` is validated but ignored: a `dc` row is an ordinary transport link and
+  transport outputs are identical to the same case with `link_type` blank.
+- **Inputs (A2).** `links.csv` `link_type` ∈ {`ac`, `dc`}, blank or column absent = `ac` (data-schema §3.2, rule 11).
+  A `dc` row has blank `reactance_pu` and `base_mva`; `ntc_fwd_mw` $=F^+_k$ and `ntc_rev_mw` $=F^-_k$ may differ; each is
+  $>0$ or blank ($=+\infty$); 0 in either direction is a `DataError` (delete the row to open the link). Losses are not
+  modelled: a source resistance (RTS-GMLC DC1 `R Line`) is ignored and the assumptions book says so.
+- **Sets.** $\mathcal L=\mathcal L^{AC}\cup\mathcal L^{DC}$, $k\in\mathcal L^{DC}$ with $o(k)$, $e(k)$. Islands $\mathcal I$ are the
+  components of $(\mathcal N,\mathcal L^{AC})$ (§7.4a.2); a DC link may join two islands or lie inside one (RTS 113–316).
+  **Rent components** $\mathcal C$: components of the graph (islands, all DC links). **Price components** $\mathcal C^\pi_{p,t}$:
+  components of (islands, DC links strictly inside their limits, i.e. $-F^-_k+tol_q<f_k<F^+_k-tol_q$), per hour.
+- **Variables (A3).** None new: $k$ is a `flow` column, $-F^-_k\le f_{k,p,t}\le F^+_k$ (bounds `flow_lb`/`flow_ub`), zero cost.
+- **Rows (A4), hook H1 only.** Angle form: `bal` carries $+f_k$ at $e(k)$ and $-f_k$ at $o(k)$ exactly as a transport
+  link; **no `kvl` row**. PTDF form: `bal_sys[i]` gains $\sum_{k:e(k)\in i}f_k-\sum_{k:o(k)\in i}f_k$, and `ptdf_flow[l]`
+  ($l\in\mathcal L^{AC}$) gains $-(H_{l,e(k)}-H_{l,o(k)})f_k$ ($H_{l,n}=0$ for $n\notin i(l)$). Size: $|\mathcal L^{DC}|$ columns
+  per hour, no rows; PTDF nonzeros $\le|\mathcal L^{DC}|(2+2|\mathcal L^{AC}|)$ per hour. Both forms keep the same feasible set.
+- **Objective (A5).** No term (lossless, no hurdle until Gate 8).
+- **Duals (A6).** Stationarity of $f_k$: angle $s_f=y^{bal}_{o(k)}-y^{bal}_{e(k)}$; PTDF the same in terms of $\pi$. Hence
+  $\mu_k:=-s_f/w_p=\pi_{e(k)}-\pi_{o(k)}$, signed as §7.4a.5 ($>0$ at $F^+$, $<0$ at $F^-$, $\mu_kf_k\ge0$), nonzero only at
+  a limit; output in `flows.congestion_rent_usd_mwh`. The decomposition $\pi_n=\lambda_{i(n)}-\sum_{l\in\mathcal L^{AC}}H_{l,n}\mu_l$ is
+  unchanged ($\mu_k$ does not enter it; it shows up as $\lambda_i\ne\lambda_{i'}$ across a binding inter-island link, or as
+  AC congestion components inside an island).
+- **Congestion rent.** Per rent component $C$ and hour, with inj the resource injection (excludes DC flows):
+  $$\sum_{n\in C}\pi_n(-\text{inj}_n)=\sum_{l\in\mathcal L^{AC}\cap C}\mu_lf_l+\sum_{k\in\mathcal L^{DC}\cap C}\mu_kf_k\qquad(\$/\text{h}),$$
+  from $\sum_{n\in i}\text{inj}^{AC}_n=0$ per island and $\mu_k=\pi_{e(k)}-\pi_{o(k)}$. With no DC link it is the F-0.3 identity.
+- **Health checks (A7).** Case-data recomputation: `ptdf.recompute` adds the solved DC flows to the injections;
+  `kvl.recompute` skips DC links; `congestion_rent` per rent component; `dcpf.line_duals` covers DC links;
+  `price_setter.link_inconsistent` is evaluated on DC links (§7.4a.6). `balance` (nodal KCL) includes DC flows like
+  any link.
+- **Price-setter (A8).** No new class. Per **price component**-hour $(C^\pi,p,t)$: congested iff some AC line of $C^\pi$
+  has $\lvert\mu_l\rvert>tol_\pi$. Uncongested: §4 Steps 1–2 with island := $C^\pi$ (all its LMPs are equal). Congested:
+  §7.4a.7 with unknowns one $\lambda_i$ per island of $C^\pi$ and $\mu_{\mathcal K}$ (binding AC lines of $C^\pi$),
+  $\phi_n=[\,e^\top_{i(n)},\ -H^\top_{\mathcal K,n}\,]$ ($e_{i}$ = unit vector over the islands of $C^\pi$), and
+  $\hat\Phi$ = rows $\phi_b$, $b\in\mathcal B$ (RHS $c_b$), plus rows $\phi_{e(k)}-\phi_{o(k)}$ (RHS 0) for each free DC link
+  $k\in\mathcal D^{free}$ of $C^\pi$. Cases (a)/(b)/(c) compare $|\mathcal B|+|\mathcal D^{free}|$ (rows) and $r=\operatorname{rank}\hat\Phi$ with
+  #islands$(C^\pi)+|\mathcal K|$ (columns); $\alpha_n^\top=\phi_n\hat\Phi^{+}$ and $\pi_n=\sum_b\alpha_{n,b}c_b$ (free-DC rows have RHS 0,
+  so their weights carry no cost and are not written to `price_setter_loop`). Summing the island columns gives
+  $\sum_b\alpha_{n,b}=1$, so `price_setter.loop_alpha` is unchanged. The case-(c) interval LP adds the free-DC equalities;
+  a DC link at a limit is not a row (it separates price components). `binding_links` = $\mathcal K$ plus every DC link at a
+  limit with $\lvert\mu_k\rvert>tol_\pi$ and an end in $C^\pi$ (`links.csv` order); such a link adds flag `CONGESTED`.
+- **Outputs, audit, mutation (A9).** No new table: DC links appear in `flows` like any link (`at_bound` per $F^\pm_k$);
+  `islands`/`angles` unchanged (AC islands). Audit hook §8.12 reads rent per rent component. Mutations M14, M15 (§7.4a.10).
+- **Identity (A10).** No `dc` row, or `exclude`: LP and canonical outputs as F-0.3 (H1d vs P5a golden, §7.4a.9 rule).
+- ⚠ Accuracy: lossless (≈1–3% loss on long HVDC is ignored), no ramp or setpoint-schedule limits; a merchant link
+  dispatched on price spreads is the right analogue for PJM controllable ties (verify per tie), not for scheduled
+  interchange, which is a fixed injection (`imports.csv`, Gate 12).
 
 ### 7.5 Clustered linear UC (Gate 9) — switches `uc.enabled`, `uc.min_updown`, `uc.ramps`
 Palmintier & Webster (2014, 2016): per cluster $r$ of identical units of size $\bar P_r$, commitment
@@ -742,7 +900,7 @@ demand curve as stepped benefit segments with ELCC-accredited supply $\sum_r \te
 7. **Price-setter report** (§4) and `UNEXPLAINED` count; marginal fuel shares per zone.
 8. **Curtailment** and **unserved energy** by zone/period, weighted annual totals.
 9. **Conditioning report** (§6.2).
-10. **Run fingerprint**: SHA-256 over (canonical input tables: sorted, fixed float repr; config incl. all switches; formulation version string `F-x.y` of the **code** (`capex.FORMULATION_VERSION`, the version of this file the code implements — `F-0.3` from Gate 3; `run.json` `formulation_version` is the case's declared version, amendment 2 of F-0.3); git commit + dirty-diff hash; solver name, version, all options; Python and package versions; clustering seed); stored with run id, timestamps, solve time, model size. Same fingerprint ⇒ byte-identical **canonical outputs**
+10. **Run fingerprint**: SHA-256 over (canonical input tables: sorted, fixed float repr; config incl. all switches; formulation version string `F-x.y` of the **code** (`capex.FORMULATION_VERSION`, the version of this file the code implements — `F-0.3` from Gate 3, `F-0.4` from Gate 4; `run.json` `formulation_version` is the case's declared version, amendment 2 of F-0.3); git commit + dirty-diff hash; solver name, version, all options; Python and package versions; clustering seed); stored with run id, timestamps, solve time, model size. Same fingerprint ⇒ byte-identical **canonical outputs**
     expected (amendment 4). Canonical outputs = every file written to `outputs/<run_id>/` except `run.json`, with
     `assumptions.md` compared after deleting its one line that starts `- run_id: `. Per-run values (run_id,
     timestamps, solve time) may appear only in those two places; every other file, including `health_report.md`,
@@ -768,8 +926,8 @@ demand curve as stepped benefit segments with ELCC-accredited supply $\sum_r \te
    the header adds the banner line "Toy case: all inputs assumed; numbers are illustrative, not PJM estimates."
    (amendment 3).
 12. **Network (`tx.model = dcpf` only, §7.4a.6–8):** islands and reference buses, bus angles, LMP decomposition
-   (energy / congestion / loss = 0) per bus-hour, congestion rent per hour and annual (read from `flows`:
-   $\sum_l\mu f$ per hour, $\sum_p w_p\sum_t\sum_l\mu f$ per year; no separate table, amendment 2), `kvl.recompute` /
+   (energy / congestion / loss = 0) per bus-hour, congestion rent per hour and annual (read from `flows`, per rent
+   component when DC links exist, §7.4a.12: $\sum_l\mu f$ per hour, $\sum_p w_p\sum_t\sum_l\mu f$ per year; no separate table, amendment 2), `kvl.recompute` /
    `ptdf.recompute` residuals from case data, line-dual complementary slackness, `CONGESTION_LOOP` weights $\alpha$.
 
 ---
@@ -785,6 +943,10 @@ demand curve as stepped benefit segments with ELCC-accredited supply $\sum_r \te
 - **Q6 Storage inverter.** `st_pwr` uses $c+d\le P$ (single inverter). OK for batteries; pumped hydro may need separate pump/turbine ratings.
 - Risk: lossless transport and no intra-zonal congestion bias east/west spreads low until G8.
 - Risk: no min-gen/UC until G9 → off-peak prices too high, nuclear/coal cycling absent.
+- Risk (F-0.4, §2.4): secant heat rate with no no-load term → variable cost understated by the no-load fuel (RTS window:
+  4.9%), flatter intra-unit price steps. Revisit at the UC gate, where $NL_r$ enters.
+- Risk (F-0.4, §7.4a.7 S2): the storage interval is conditional on the solved water value; a different optimal $v$
+  could give a different interval. Reported, not judged.
 
 ---
 
@@ -848,3 +1010,6 @@ $Z = 39\,420\,000$.
 - Cheng, X., Overbye, T.J. (2006). An energy reference bus independent LMP decomposition algorithm. *IEEE Trans. Power Syst.* 21(3).
 - Wood, A.J., Wollenberg, B.F., Sheblé, G.B. (2014). *Power Generation, Operation, and Control*, 3rd ed. Wiley (PTDF/sensitivity factors).
 - Li, F., Bo, R. (2010). Small test systems for power system economic studies. *IEEE PES General Meeting* (PJM 5-bus).
+- Zimmerman, R.D., Murillo-Sánchez, C.E., Thomas, R.J. (2011). MATPOWER: steady-state operations, planning, and analysis tools for power systems research and education. *IEEE Trans. Power Syst.* 26(1) (DC lines as paired injections, `toggle_dcline`; verify).
+- Brown, T., Hörsch, J., Schlachtberger, D. (2018). PyPSA: Python for Power System Analysis. *J. Open Research Software* 6(1) (`Link` vs `Line`).
+- Barrows, C. et al. (2020). The IEEE Reliability Test System: a proposed 2019 update. *IEEE Trans. Power Syst.* 35(1) (RTS-GMLC fuel curves; verify).

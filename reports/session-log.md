@@ -301,3 +301,8 @@ Next: P12 (gate-4.md draft).
 - Tests: docs only, none run. src/capex/ untouched.
 - Needs owner: approve/amend gate-4.md, answer O1–O7 (336-h window, 73-bus nodal dcpf variant, HVDC default, prices reported not judged, PLEXOS-aligned fleet w/o CSP+storage, storage interval, [P] tolerances). Prep list now empty.
 - 2026-11-27 (live owner reply): owner "Approve all" → Gate 4 criteria approved, O1–O7 yes (DECISIONS 55). Created `gate-4` from `gate-3` with gate-4.md + architecture-spec draft; PLAN STATUS IN_PROGRESS, items G4-1..G4-8 added. Next: G4-1.
+
+## 2026-11-27 — G4-1 (gate-4, formulation lead Opus)
+- Item: W-spec S1–S5 → formulation F-0.4 (DC link block, storage in interval LP, audit_profile, unscaling rule, heat-rate §2.4), data-schema, benchmarks §6 G4 row; DECISIONS 56–57.
+- Tests: spec only, none run; src/capex/ and tests/ untouched.
+- Needs owner (at G4-8): pjm5/Gate 3 golden identity now drops the one new `price_setter.loop_interval` health row — small change to gate-4.md §6 wording.

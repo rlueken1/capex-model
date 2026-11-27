@@ -8,6 +8,9 @@ G3-1 (DECISIONS 48, formulation F-0.3): `links.csv` network fields, `tx.*` switc
 All additive (no rename, no unit change), so the schema string stays `S-0.1`.
 G3-6-fix1 (DECISIONS 51, formulation F-0.3 amendment 2): `switches`/`tolerances` key rules, `formulation_version`
 (case vs code), `price_setter` list cells and `island_id` aligned with the formulation. Rules/wording only; `S-0.1` stays.
+G4-1 (DECISIONS 56–57, formulation F-0.4): `links.link_type`, switch `tx.dc_links`, top-level `audit_profile`, the
+F-0.4 version rule, `run.json` `excluded_links`, check `price_setter.loop_interval`, heat-rate derivation note. All
+additive (absent column/key = previous behaviour), so the schema string stays `S-0.1`.
 
 ## 0. Global conventions
 - **Formats.** CSV (UTF-8, header row, `.` decimal, ISO-8601 dates, empty = null) for G1–G4 and any table
@@ -52,17 +55,18 @@ G3-6-fix1 (DECISIONS 51, formulation F-0.3 amendment 2): `switches`/`tolerances`
 |---|---|---|
 | `case_id`, `description` | str | label |
 | `schema_version` | str | `S-0.1`; loader refuses mismatch |
-| `formulation_version` | str | `F-0.2` or `F-0.3` (loader accepts both; `tx.model: dcpf` requires `F-0.3`, formulation §7.4a.9). This declared value is what `run.json` `formulation_version` reports; the fingerprint carries the **code's** version `capex.FORMULATION_VERSION` (`F-0.3` from Gate 3), not this field (formulation §8.10, F-0.3 amendment 2) |
+| `formulation_version` | str | `F-0.2`, `F-0.3` or `F-0.4` (loader accepts all three; `tx.model: dcpf` requires `F-0.3` or `F-0.4`; the F-0.4 inputs `links.link_type`, `tx.dc_links` and `audit_profile` require `F-0.4`, else `DataError` naming the input; formulation §7.4a.9). This declared value is what `run.json` `formulation_version` reports; the fingerprint carries the **code's** version `capex.FORMULATION_VERSION` (`F-0.3` from Gate 3), not this field (formulation §8.10, F-0.3 amendment 2) |
 | `base_dollar_year` | int | $B$ (2024) |
 | `model_year` | int | $y$; fixes $D_y$ (365/366) |
 | `dt_h` | float | must be 1.0 (asserted, §1.1) |
 | `zones` / tables | list / map | `tables:` maps each logical table to a file with `sha256` (feeds fingerprint). Exception: the shared source registry `sources` (`data/common/sources.csv`) is listed **without** `sha256` (DECISIONS 40); its content still enters the run fingerprint as a canonical input table (formulation §8.10) |
-| `switches` | map | all ablation keys: `ts.mode`, `ts.n_periods`, `ts.features.*`, `ts.forced.*`, `storage.inter_period`, `reserves.enabled`, `reserves.ordc`, `tx.model` (`transport` default \| `dcpf`), `tx.dcpf_form` (`angle` default \| `ptdf`), `tx.ref_bus` (zone id or list, ≤ 1 per island; formulation §7.4a.1), `tx.losses/hurdle/expansion/interfaces`, `uc.*`, `policy.*`, `build.limits`, `retire.economic`, `calib.adders`, `deflate.monthly`, `scaling` (bool, default true = formulation §6.1 scaling on); absent = default-off. **Keys (F-0.3 amendment 2, formulation §7.4a.1):** a key the code does not implement is a load error (`DataError` naming the key) whatever its value, including the keys reserved above for later gates (`tx.losses`, `reserves.enabled`, …), which become valid in their own gate. Implemented at Gate 3: `tx.model`, `tx.dcpf_form`, `tx.ref_bus`, `scaling`. `tx.ref_bus` must be a string or a non-empty list of strings (else `DataError`; `[]` is an error, omit the key for the default; F-0.3 amendment 3) |
+| `switches` | map | all ablation keys: `ts.mode`, `ts.n_periods`, `ts.features.*`, `ts.forced.*`, `storage.inter_period`, `reserves.enabled`, `reserves.ordc`, `tx.model` (`transport` default \| `dcpf`), `tx.dcpf_form` (`angle` default \| `ptdf`), `tx.ref_bus` (zone id or list, ≤ 1 per island; formulation §7.4a.1), `tx.dc_links` (`controllable` default \| `exclude`; only with `tx.model: dcpf`, formulation §7.4a.12), `tx.losses/hurdle/expansion/interfaces`, `uc.*`, `policy.*`, `build.limits`, `retire.economic`, `calib.adders`, `deflate.monthly`, `scaling` (bool, default true = formulation §6.1 scaling on); absent = default-off. **Keys (F-0.3 amendment 2, formulation §7.4a.1):** a key the code does not implement is a load error (`DataError` naming the key) whatever its value, including the keys reserved above for later gates (`tx.losses`, `reserves.enabled`, …), which become valid in their own gate. Implemented at Gate 3: `tx.model`, `tx.dcpf_form`, `tx.ref_bus`, `scaling`; added at Gate 4: `tx.dc_links` (a `DataError` unless `tx.model: dcpf`). `tx.ref_bus` must be a string or a non-empty list of strings (else `DataError`; `[]` is an error, omit the key for the default; F-0.3 amendment 3) |
+| `audit_profile` | str | F-0.4 (formulation §3 "Audit profile"): `exact` (default when absent) \| `standard`; any other value is a `DataError`. Sets the thresholds of `balance`, `storage.soc_recompute`, `kvl.recompute`, `ptdf.recompute`: `exact` pass ≤ 1e-6 MW/MWh; `standard` warn > 1e-3, fail > 1e-1. Test systems omit it; RTS-GMLC and PJM cases set `standard`. Enters the fingerprint config only when present |
 | `voll_usd_mwh` | float | VOLL ($Z^{use}$, §2.3); G7+: backstop only (DECISIONS 24) |
 | `finance_default` | str | `finance_class` used when a resource gives none |
 | `solver` | map | name, options (algorithm, tolerances, crossover=true); all in fingerprint |
 | `seed` | int | clustering seed (G5) |
-| `tolerances` | map | `tol_q_mw`, `tol_pi_usd_mwh`, etc. (§4); under `dcpf` also `kvl_residual_mw`, `lmp_decomposition_usd_mwh`, `line_dual_usd_mwh`, `loop_alpha` (1e-6 each), `congestion_rent_rel` (1e-7) (formulation §7.4a.6). A key that is not a field of the run's tolerance set (Gate 1 keys; plus the §7.4a.6 keys only under `dcpf`) is a load error (`DataError`), never a Python `TypeError` (F-0.3 amendment 2) |
+| `tolerances` | map | `tol_q_mw`, `tol_pi_usd_mwh`, etc. (§4); under `dcpf` also `kvl_residual_mw`, `lmp_decomposition_usd_mwh`, `line_dual_usd_mwh`, `loop_alpha` (1e-6 each), `congestion_rent_rel` (1e-7) (formulation §7.4a.6). A key that is not a field of the run's tolerance set (Gate 1 keys; plus the §7.4a.6 keys only under `dcpf`) is a load error (`DataError`), never a Python `TypeError` (F-0.3 amendment 2). Under `audit_profile: standard` the keys `bal_residual_mw` and `kvl_residual_mw` are not in the tolerance set (`DataError`; F-0.4) |
 
 ### 1.2 `scenarios.csv` — G4 (single-scenario cases omit it)
 | Column | Type | Meaning |
@@ -121,7 +125,8 @@ Feeds $\mathcal Z$. (Not value-bearing for G1 toy; P optional there, required fr
 | `zone_from`, `zone_to` | str | | 1 | $o(l)$, $e(l)$ (must differ) |
 | `ntc_fwd_mw`, `ntc_rev_mw` | float >= 0, `inf` or blank | MW | 1 | $F^+_l$, $F^-_l$ (`transport`); under `dcpf` the line rating $F_l$ (both equal). Blank = `inf` = unlimited (G3, both models) |
 | `reactance_pu` | float > 0 | pu on `base_mva` | 3 | series reactance $x_l$; $b_l=\texttt{base\_mva}/x_l$ MW/rad (formulation §7.4a.2). Required under `dcpf`; ignored (type-checked only) under `transport` |
-| `base_mva` | float > 0 | MVA | 3 | per-unit base of `reactance_pu` (100 for `pjm5`); required under `dcpf` |
+| `base_mva` | float > 0 | MVA | 3 | per-unit base of `reactance_pu` (100 for `pjm5`); required under `dcpf` (AC rows) |
+| `link_type` | enum `ac`\|`dc`, blank = `ac` | | 4 | F-0.4 (formulation §7.4a.12). Column optional; absent or blank = `ac`, so existing cases are unchanged. `dc` = controllable DC link: under `dcpf` a `flow` column with no `kvl` row, not part of any island; under `transport` validated, then treated as an ordinary link. A `dc` row must have blank `reactance_pu` and `base_mva`, and may have `ntc_fwd_mw` ≠ `ntc_rev_mw` |
 | `loss_frac` | float [0,1) | – | 8 | $\lambda_l$ |
 | `hurdle_usd_mwh` | float >= 0 | $/MWh | 8 | $h_l$ |
 | `capex_usd_mw`, `fom_usd_mw_yr`, `life_yr`, `finance_class`, `x_max_mw` | | | 8 | expansion $y_l$, ANN |
@@ -144,7 +149,7 @@ Optional `interfaces.csv` + `interface_links.csv` (G8): `iface_id, limit_mw_fwd,
 | `e0_mwh` | float >= 0 | MWh | ST | $E^0_r$ |
 | `xmax_mw` | float >= 0 or `inf` | MW | TH,VRE; ST | $X^{max}_r$; ST: $X^{P,max}_r$ |
 | `xmax_mwh` | float >= 0 or `inf` | MWh | ST | $X^{E,max}_r$ |
-| `heat_rate_mmbtu_mwh` | float > 0 | | TH w/ fuel | $HR_r$ |
+| `heat_rate_mmbtu_mwh` | float > 0 | | TH w/ fuel | $HR_r$ (incremental). From a piecewise fuel curve: secant $(F_N-F_0)/(P_N-P_0)$, or full-load average $F_N/P_N$ if the curve is flat, no no-load term; cell provenance `derived`, est_level 1 (formulation §2.4, DECISIONS 57). Intercept kept in `x_noload_mmbtu_h` for the UC gate |
 | `vom_usd_mwh` | float >= 0 | $/MWh | TH,ST | $VOM_r$ (ST: per MWh discharged) |
 | `mc_override_usd_mwh` | float | $/MWh | TH,VRE | optional; if set replaces $HR\phi+VOM$ (toys T1–T4 use it: $MC=20$ etc.). VRE without it: $MC=0$ (zero fuel cost, no VOM; never perturbed, formulation §6.1e), whether or not `fuel` is given |
 | `fom_usd_mw_yr` | float >= 0 | $/MW-yr | all | $FOM_r$ ($FOM^P_r$ for ST) |
@@ -231,7 +236,7 @@ runs adds `run_id` from `run.json`. Raw duals use the canonical convention (§1.
 
 | File | Gate | Key | Columns | Notes (audit §8) |
 |---|---|---|---|---|
-| `run.json` | 1 | – | `run_id`, `fingerprint` (SHA-256), `case_id`, `scenario_id`, `formulation_version` (the case's declared `case.yaml` value; the fingerprint hashes the code's `capex.FORMULATION_VERSION` instead, F-0.3 amendment 2), `schema_version`, `git_commit`, `dirty_diff_hash`, `solver`, `solver_version`, `solver_options`, python/package versions, `seed`, timestamps, `solve_time_s`, `rows`, `cols`, `nnz`, `status`, `valid` (false if any conditioning fail), `crossover_ran` | §8.10; same fingerprint => identical outputs |
+| `run.json` | 1 | – | (F-0.4) `excluded_links` (ids of `dc` rows dropped by `tx.dc_links: exclude`; empty list otherwise; non-canonical), `run_id`, `fingerprint` (SHA-256), `case_id`, `scenario_id`, `formulation_version` (the case's declared `case.yaml` value; the fingerprint hashes the code's `capex.FORMULATION_VERSION` instead, F-0.3 amendment 2), `schema_version`, `git_commit`, `dirty_diff_hash`, `solver`, `solver_version`, `solver_options`, python/package versions, `seed`, timestamps, `solve_time_s`, `rows`, `cols`, `nnz`, `status`, `valid` (false if any conditioning fail), `crossover_ran` | §8.10; same fingerprint => identical outputs |
 | `dispatch.parquet` | 1 | `resource_id,period_id,t` | `g_mw`, `curtail_mw`, `charge_mw`, `discharge_mw`, `soc_mwh` (unserved energy is in `zone_hourly`) | primal; $w_p$ in `weights` join |
 | `zone_hourly.parquet` | 1 | `zone,period_id,t` | `demand_mw`, `unserved_mw`, `lmp_usd_mwh` ($\pi=y/w_p$), `bal_residual_mw`, `weight_hours` | prices & balance check |
 | `flows.parquet` | 1 | `link_id,period_id,t` | `flow_mw`, `congestion_rent_usd_mwh` ($\mu$), `at_bound` | under `dcpf`: same columns; $\mu=-s_f/w$, signed, $\mu f\ge0$ (formulation §7.4a.5) |
@@ -249,7 +254,7 @@ runs adds `run_id` from `run.json`. Raw duals use the canonical convention (§1.
 | `binding.parquet` | 1 | `family` | `n_rows`, `n_binding`, `weighted_share_binding`, plus bound list | §8.3 |
 | `storage.parquet` | 1 | `resource_id,period_id,t` | `soc_mwh`, `water_value_usd_mwh` ($v$), `simul_chdis` flag; per-period `cyclic_closure_residual` | §8.6 |
 | `curtail_unserved.parquet` | 1 | `zone|resource,...` | weighted annual MWh by zone/period | §8.8 |
-| `health.parquet` | 1 | `check_id` | `family` (`balance`,`strong_duality`,`comp_slack`,`dual_sign`,`zero_profit`,`revenue_identity`,`price_setter`,`conditioning`,`storage`,`decomposition`, `network` (G3, dcpf only)), `status` (`pass|warn|fail`), `value`, `tolerance`, `detail` | gate evidence |
+| `health.parquet` | 1 | `check_id` | `family` (`balance`,`strong_duality`,`comp_slack`,`dual_sign`,`zero_profit`,`revenue_identity`,`price_setter`,`conditioning`,`storage`,`decomposition`, `network` (G3, dcpf only)); F-0.4 adds check `price_setter.loop_interval` (dcpf only, value = count, pass 0), `status` (`pass|warn|fail`), `value`, `tolerance`, `detail` | gate evidence |
 | `conditioning.json` | 1 | – | §6.2 metrics (matrix/obj/RHS ranges, ratios, tiny-coefficient count, max infeasibilities, residual) | |
 | `assumptions.md` + `assumptions_cells.parquet` | 1 (full G16) | – | see `docs/data-sources.md` "Assumptions book" | |
 | `reserve_prices.parquet` | 7 | `product,area,p,t` | `price_usd_mwh`, `shortfall_mw` | |
@@ -288,7 +293,12 @@ Errors abort the run before the LP is built; warnings go to `health.parquet`. ID
     `tx.ref_bus` entry is a zone id and at most one per island, and a list is non-empty (`[]` = `DataError`, F-0.3 amendment 3); `switches` keys only from the implemented set and
     `tolerances` keys only from the run's tolerance set (§1.1 `case.yaml` rows; unknown key = `DataError`, F-0.3 amendment 2). Under `dcpf` (errors): every link has `reactance_pu > 0`
     and `base_mva > 0`; `ntc_fwd_mw == ntc_rev_mw` (both blank or equal; symmetric rating); a rating of 0 is an error
-    (delete the row to open a line); `formulation_version: F-0.3`. Under `dcpf` (warn): $b_l > 10^{6}$ MW/rad
+    (delete the row to open a line); `formulation_version: F-0.3` or `F-0.4`. **DC links (G4, F-0.4, formulation §7.4a.12;
+    errors in both network models):** `link_type` not in {`ac`, `dc`, blank}; a `dc` row with a non-blank `reactance_pu` or
+    `base_mva`; a `dc` row with `ntc_fwd_mw` or `ntc_rev_mw` = 0 (each must be > 0 or blank = unlimited); `tx.dc_links` not
+    in {`controllable`, `exclude`}, or given without `tx.model: dcpf`; any F-0.4 input with `formulation_version` ≠ `F-0.4`.
+    Under `dcpf` the AC-only rules above (reactance, `base_mva`, symmetric rating) apply to `ac` rows only, and islands are
+    built from `ac` rows only. `audit_profile` not in {`exact`, `standard`} is a `DataError`. Under `dcpf` (warn): $b_l > 10^{6}$ MW/rad
     (`reactance_pu` tiny vs base) or $\max b/\min b > 10^{4}$ (conditioning, §6.2). Under `transport`: `reactance_pu`,
     `base_mva` may be blank; if present they must parse as floats; never used.
 12. **Policy (G10):** state tiers' `target_frac in [0,1]`; `zone_state_share` sums to 1 per zone; RGGI membership year ranges
