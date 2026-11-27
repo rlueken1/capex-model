@@ -850,15 +850,21 @@ def _mask_assumptions(text: str) -> str:
     return "".join(l for l in text.splitlines(keepends=True) if not l.startswith(("- run_id: ", "- fingerprint: ")))
 
 
-def _mask_components(comp: dict, golden: dict, drop_tx_model: bool = False) -> dict:
+def _same_env(a: dict, b: dict) -> bool:
+    return (a.get("python") == b.get("python") and a.get("packages") == b.get("packages")
+            and a.get("solver", {}).get("version") == b.get("solver", {}).get("version"))
+
+
+def _mask_components(comp: dict, golden: dict, drop_tx_model: bool = False, same_env: bool | None = None) -> dict:
     """Drop the fields 7.4a.9 allows to differ: formulation_version, git_commit, dirty_diff_hash; environment entries
     (python, packages, solver.version) only if the environment differs from the golden one; config.switches['tx.model']
-    only when the key is written explicitly."""
+    only when the key is written explicitly. `same_env` (if given) is decided once from the (new, golden) pair so both
+    sides are masked alike (G3-3-fix: masking only the new side failed whenever CI's Python differed from golden's)."""
     comp = json.loads(json.dumps(comp, sort_keys=True, default=str))
     for k in ("formulation_version", "git_commit", "dirty_diff_hash"):
         comp.pop(k, None)
-    same_env = (comp.get("python") == golden.get("python") and comp.get("packages") == golden.get("packages")
-                and comp.get("solver", {}).get("version") == golden.get("solver", {}).get("version"))
+    if same_env is None:
+        same_env = _same_env(comp, golden)
     if not same_env:
         comp.pop("python", None), comp.pop("packages", None), comp.get("solver", {}).pop("version", None)
     if drop_tx_model:
@@ -893,8 +899,10 @@ def test_transport_canonical_outputs_byte_identical_to_gate2(canon, name):
 @pytest.mark.parametrize("name", CANON)
 def test_transport_fingerprint_components_equal_to_gate2(canon, name):
     g = _golden_components(name)
-    new = _mask_components(canon(name).fp.components, g)
-    assert new == _mask_components(g, g)
+    raw = canon(name).fp.components
+    env = _same_env(raw, g)
+    new = _mask_components(raw, g, same_env=env)
+    assert new == _mask_components(g, g, same_env=env)
     assert "tx.model" not in canon(name).fp.components["config"]["switches"]                       # builder writes no default
 
 
@@ -908,8 +916,9 @@ def test_transport_explicit_key_changes_only_the_tx_model_component(tmp_path, na
     (cd / "case.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False))
     _sv, _h, fp = run_case(cd, tmp_path / "out")
     g = _golden_components(name)
-    new = _mask_components(fp.components, g, drop_tx_model=True)
+    env = _same_env(fp.components, g)
+    new = _mask_components(fp.components, g, drop_tx_model=True, same_env=env)
     assert fp.components["config"]["switches"]["tx.model"] == "transport"
-    assert new == _mask_components(g, g)
+    assert new == _mask_components(g, g, same_env=env)
     for f in (p.name for p in (GOLDEN / name).glob("*.csv")):
         assert (tmp_path / "out" / f).read_bytes() == (GOLDEN / name / f).read_bytes(), f

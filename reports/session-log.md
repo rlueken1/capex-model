@@ -227,3 +227,8 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 K1: verify_artifact.py --print + workflow step prints provenance.json and per-file sha256 to the job log. K3: Actions bumped to checkout@v6, setup-python@v6, upload-artifact@v7, download-artifact@v8.
 Tests: check_workflows ok; 614 pass / 14 fail locally AND in CI run 45952295488 — same 14 fail with change stashed; CI red since G3-3 (not green as reported). Node 20 warning gone. Added fix item G3-3-fix before G3-5.
 Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
+
+2026-11-27 07:3x UTC — G3-3-fix (verifier role; test ruled wrong), branch `gate-3`
+- Cause: transport fingerprint test masked environment fields only on the new side; CI Python 3.12 ≠ golden 3.13 → 14 fails. Fixed masking to be symmetric (§7.4a.9). No src/ change, golden untouched.
+- Seed-dependent health diff (run 142) not reproduced: run 144 compare green, local seeds identical 7/7.
+- Tests: 628 pass / 0 fail locally; CI on this push is the judge. Owner: nothing needed.
