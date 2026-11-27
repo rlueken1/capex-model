@@ -201,3 +201,11 @@
     runtime in `reports/performance-ledger.md`; Gate 7 adds a synthetic PJM-scale stress case; targets [P] pending owner.
     (e) Every feature is one block with a switch, labelled rows, audit hooks, a price-setter class and an off-identity test.
     Spec drafting: prep items P11 (architecture spec) and P12 (gate-4.md draft).
+45. Owner reply to 44 (2026-11-27): **no operations mode.** Capacity expansion and prices both come from weighted
+    representative 3-day periods (DECISIONS 3 unchanged). Primary price check: the weighted rep-period price duration
+    curve (each modeled hour counts w_p real hours), plus monthly means and daily spreads from the same periods, mapped
+    to the real-world PDC (benchmarks.md M1.4, M1.1, M1.5). Full-year fixed-fleet dispatch stays the one-off check of
+    period selection only. Reverts 44(a) and 44(b): Gate 4 keeps its original scope; Gate 5 adds the PDC comparison
+    instead of revenue reconciliation; UC (Gate 11) is in the expansion LP, switch default off unless the ledger shows it
+    changes builds or PDC fit. 44(c) PRM at Gate 7, (d) performance budget, (e) block contract stand. Note: before
+    Gate 9 (ORDC) prices at capacity-bound hours are non-unique, so the PDC upper tail is judged from Gate 9 on.

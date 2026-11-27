@@ -3,7 +3,8 @@
 Owner asked (live): will the plan give a crisp, lightweight optimization design, in line with industry and academic
 practice, that solves capacity expansion, price formation and dispatch efficiently as the model grows into the basis of
 a consulting practice? Reviewer: main session (Opus), reading PLAN.md, formulation.md F-0.2, gate-3/gate-5 drafts,
-multi-year draft, benchmarks.md, src/capex layout. Outcome: DECISIONS 44.
+multi-year draft, benchmarks.md, src/capex layout. Outcome: DECISIONS 44, **amended by DECISIONS 45 (owner reply): gaps 1–2 withdrawn — no operations mode; prices and
+the PDC check come from the weighted representative periods. Items below marked (withdrawn) do not apply.**
 
 ## What is already right (keep)
 - One LP, own code, HiGHS, solver-agnostic; sparse block builder with labelled rows (`model.py` Block) — the GenX/PyPSA pattern.
@@ -13,12 +14,12 @@ multi-year draft, benchmarks.md, src/capex layout. Outcome: DECISIONS 44.
 - Test ladder (toys → 5-bus → RTS-GMLC → GenX → PJM) and multi-year before the expensive features (Gates 7–8).
 
 ## Gaps (each fixed below without new gates)
-1. **No first-class dispatch model.** Industry practice separates *plan* (capex, rep periods, LP) from *operate*
+1. (withdrawn, DECISIONS 45) **No first-class dispatch model.** Industry practice separates *plan* (capex, rep periods, LP) from *operate*
    (chronological fixed-fleet dispatch, full year, rolling horizon): PLEXOS LT→ST, Aurora LT→hourly, ReEDS→PLEXOS,
    GenX→PCM, RESOLVE→SERVM. The plan has dispatch only as "a one-off full-year check" (DECISIONS 3), yet benchmarks.md §2
    already needs hourly prices from it, and clients buy hourly prices, spreads and storage revenue. Capex-mode hourly duals
    are degenerate at capacity (§9 Q2) and exist only on rep periods. → Make **operations mode** a product.
-2. **UC in the expansion LP multiplies size** (× years × periods) for little investment-decision value; its main effect is
+2. (withdrawn, DECISIONS 45: UC stays in the expansion LP, default off unless the ledger says otherwise) **UC in the expansion LP multiplies size** (× years × periods) for little investment-decision value; its main effect is
    on hourly prices and cycling, i.e. on dispatch. → UC lives in operations mode; in plan mode it is an option, default off
    unless the ledger shows it changes builds.
 3. **No resource-adequacy constraint until the VRR curve (old 14, now 16).** Every multi-year planning model (ReEDS PRM,
@@ -29,7 +30,7 @@ multi-year draft, benchmarks.md, src/capex layout. Outcome: DECISIONS 44.
    scaling problem at PJM zonal is the expensive failure. → A **performance budget** in every gate from Gate 4 and a
    synthetic PJM-scale stress case at Gate 7.
 
-## Trade-offs accepted
+## Trade-offs accepted (first three bullets withdrawn, DECISIONS 45)
 - Two modes share one formulation and one builder (same blocks, same labels, same audit) — not two models. Plan mode
   = rep periods, multi-year, LP, investment duals; operations mode = one year, full chronology, fixed fleet, rolling
   windows (e.g. 7 days + 1-day look-ahead), optional UC. Consistency check: plan-mode block-average prices and unit
@@ -52,5 +53,5 @@ multi-year draft, benchmarks.md, src/capex layout. Outcome: DECISIONS 44.
 
 ## Proposed performance targets [P] (laptop-class, HiGHS, single thread unless noted)
 - Plan mode, PJM single node, 1 year, ~20 periods: ≤ 2 min. PJM zonal (~20 zones, 50+ clusters), 4 model years: ≤ 30 min.
-- Operations mode, PJM zonal full year (rolling windows, LP): ≤ 20 min; with UC ≤ 60 min.
+- PJM zonal, 4 model years, with UC on: ≤ 60 min. (Operations-mode targets withdrawn, DECISIONS 45.)
 - CI stays ≤ 10 min (Gate 2 C8). Every gate reports rows/cols/nnz/time vs the previous gate; >2× growth needs a ledger reason.
