@@ -286,3 +286,7 @@ T1–T4 golden + pjm5 unchanged. Next: G3-7 (gate-3 review). Nothing needs the o
 `reports/gate-3-review.md`: all Gate 3 criteria pass (P5f reported); CI #166 green on last code commit; 671 pass; history clean.
 Markets reviewer yes; 6 forward notes (Gate 4: storage under dcpf, HVDC link outside §7.4a, UC/reserve gaps vs RTS-GMLC reference).
 No tests run this item (review only). STATUS → AWAITING_OWNER_REVIEW. Owner: 10 yes/no items (incl. merge gate-3, delete g2-7b-broken-hash).
+
+2026-11-27 18:2x UTC — owner live reply "Approve proceed" to the Gate 3 review.
+Recorded DECISIONS 54 (yes to all 10 items); merged `gate-3` into `main` (8ba64d2); Gate 3 DONE. Gate 4 notes added to P12.
+Branch `g2-7b-broken-hash` delete refused from this workspace — owner deletes at GitHub. Next: prep P11, then P12 (gate-4.md).
