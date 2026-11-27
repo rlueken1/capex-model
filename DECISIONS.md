@@ -189,3 +189,15 @@
     retirement; 11→13 PJM one-zone slice; 12→14 scoreboard v0; 13→15 PJM single node; 14→16 capacity market;
     15→17 storage value study; 16→18 full data pipeline; 17→19 calibration + hold-out; 18→20 PJM zonal (multi-year
     now from Gates 7–8, applied at PJM scale); 19→21 local web UI; 20→22 continuous accuracy.
+44. Design review (owner asked 2026-11-27 for a crisp, lightweight, best-practice design; docs/design-review-2026-11-27.md).
+    Kept: one LP, block builder, 3-day rep periods, Kotzur SOC, clustered linear UC, ORDC, audit layer, test ladder.
+    Changed, no new gates: (a) **one formulation, two modes** — plan (rep periods, multi-year, LP, investment duals) and
+    operations (one year, full chronology, fixed fleet, rolling windows, optional UC); client hourly prices, spreads and
+    storage revenue come from operations mode; Gate 4 builds operations mode (extends DECISIONS 3's "one-off" dispatch
+    check into a mode; no 8760 *expansion* still holds); Gate 5 adds plan-vs-operations revenue reconciliation.
+    (b) UC (Gate 11) is built in operations mode first; plan-mode UC optional, ledger sets the default.
+    (c) ELCC-accredited planning reserve margin `ra.prm` enters at Gate 7; economic retirement (Gate 12) allowed with it
+    on; Gate 16's VRR curve replaces the hard PRM row. (d) Performance budget from Gate 4: every gate reports size and
+    runtime in `reports/performance-ledger.md`; Gate 7 adds a synthetic PJM-scale stress case; targets [P] pending owner.
+    (e) Every feature is one block with a switch, labelled rows, audit hooks, a price-setter class and an off-identity test.
+    Spec drafting: prep items P11 (architecture spec) and P12 (gate-4.md draft).
