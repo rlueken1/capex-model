@@ -201,3 +201,4 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 - Full-history audit: no secrets, no downloaded raw data (vendored test-system data owner-approved). CI #121 green on last completed commit; ~63 s/run.
 - Markets reviewer: verdict yes; should-fix for later gates (log provenance/hashes, case5.m hash test, revised-data vintage policy, >90-day storage, hub gas source).
 - STATUS: AWAITING_OWNER_REVIEW. Needs owner: answer the 9 items; delete branch g2-7b-broken-hash.
+- 2026-11-27 (live, owner instruction): Gate 2 merged gate-2 → main; g2-7b-broken-hash neutralized (not deletable, 403); branch protection pending owner.

@@ -1,7 +1,8 @@
 # PLAN
 
 STATUS: AWAITING_OWNER_REVIEW
-CURRENT GATE: 2 (CI + data-download workflow), branch `gate-2`
+CURRENT GATE: 3 (PJM 5-bus) — not started: waiting for owner approval of docs/gates/gate-3.md (draft); branch `gate-3` to be created from `gate-2` on approval
+GATE 2: approved by owner 2026-11-27 (DECISIONS 42); merged into `main` 2026-11-27 on owner instruction (live session)
 GATE 1: approved by owner 2026-11-26 (DECISIONS 33, 37); merged into `main` 2026-11-26 on owner instruction
 GATE 0: approved by owner 2026-11-24 (DECISIONS 26–30); merged into `main` 2026-11-24 on owner go-ahead
 
@@ -149,6 +150,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+Gate 2 DONE 2026-11-27: merged `gate-2` → `main` on owner instruction. Throwaway branch `g2-7b-broken-hash` neutralized (correct hash restored, 3a8872a) but not deleted (403) — owner deletes when at GitHub. Branch protection on `main` still owner action. Next: owner approves gate-3.md (incl. 0.01 MW dispatch tolerance, P5e load scan), then PM writes Gate 3 items (add markets a/b + Actions bump, DECISIONS 42).
 Owner answered Gate 2 review 2026-11-27: yes to all 9 (DECISIONS 42). Remaining owner actions before Gate 2 DONE: delete `g2-7b-broken-hash`, enable branch protection on `main` (require `ci`), merge `gate-2` → `main`. Then: PM drafts Gate 3 items (incl. markets a/b, Actions bump).
 G2-8 done 2026-11-27 on `gate-2`: `reports/gate-2-review.md` — all C1–C9, D1–D8, F3–F5, P1-a/b pass (D4/D5/D7 carried limitations); history audit clean (no secrets, no downloaded raw data); markets reviewer yes, 6 forward should-fix notes. STATUS: AWAITING_OWNER_REVIEW — 9 yes/no items for the owner. Next: owner review; prep lane only.
 G2-7b done 2026-11-27 on `gate-2` (440fe60, 3f58682): Actions runs 45916594450 + 45916775025 (gate-2, pjm5) both success, all_verified=True with identical pinned file hashes (D5 pass; zip digests differ, likely provenance timestamps/run id — not inspected); run 45916853288 on throwaway branch fails at "Fetch and verify" (HASH MISMATCH case5.m), later steps skipped, 0 artifacts (D3 pass). D1–D8 pass (D2/D8 local, D4 partial: artifact contents/step summary not readable here, blob 403). Throwaway branch NOT deleted (403) → Needs owner. Next: G2-8.
@@ -189,6 +191,7 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
+- 2026-11-27 Gate 3: approve docs/gates/gate-3.md draft (open: dispatch tolerance 0.01 vs 0.1 MW, rec 0.01; keep P5e load scan, rec yes). Also still open: delete `g2-7b-broken-hash` (neutralized), enable branch protection on `main` requiring `ci`.
 - (answered 2026-11-27, yes to all, DECISIONS 42) 2026-11-27 G2-8: Gate 2 review — 9 yes/no decisions in reports/gate-2-review.md (all rec yes; delete `g2-7b-broken-hash` before merging; enable branch protection on `main`).
 - 2026-11-27 G2-7b: please delete throwaway branch `g2-7b-broken-hash` (origin, 6894418; only corrupts the case5.m hash in `data/manifests/pjm5.csv`) — deletion returned HTTP 403 from the cloud workspace. Never merge it. Optional: glance at artifact `data-pjm5-default-45916594450` provenance.json (not readable from here) to close D4 fully.
 - (answered 2026-11-26, done: copied to `main` at 9671c02 in a live session on owner instruction) 2026-11-26 G2-7a: fixed `.github/workflows/data-download.yml` is on `gate-2` (fc90b77) but could not be copied to `main` — the unattended run's push to `main` was blocked, and the scheduled prompt forbids working on main (conflicts with DECISIONS 41). Please either copy it yourself (`git checkout origin/gate-2 -- .github/workflows/data-download.yml` on main, commit "copy fixed data-download.yml to main (DECISIONS 41)", push) or amend the scheduled prompt to allow exactly this. G2-7b waits on it. rec: copy it yourself.
