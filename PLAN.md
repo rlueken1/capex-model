@@ -117,7 +117,7 @@ One per session, strictly in order; claim before work (CLAUDE.md).
   `ci.yml` step that parses every `.github/workflows/*.yml` (PyYAML `safe_load`) and fails on error. No verifier tests here.
   Then copy **only** that fixed file onto `main` (commit "copy fixed data-download.yml to main (DECISIONS 41)"; owner-approved
   2026-11-26, DECISIONS 41 — the one exception to "never touch main"; no other file, no merge) and confirm the dispatch API accepts it.
-- [ ] G2-7b Verifier [Sonnet]: unblocked — fixed data-download.yml copied to `main` 2026-11-26 (9671c02, owner live approval; workflow registered as `data-download`, active). Dispatch `data-download.yml` (ref `gate-2`,
+- [~] G2-7b (claimed 2026-11-27T00:24:47Z) Verifier [Sonnet]: unblocked — fixed data-download.yml copied to `main` 2026-11-26 (9671c02, owner live approval; workflow registered as `data-download`, active). Dispatch `data-download.yml` (ref `gate-2`,
   `source_id=pjm5`) twice (D5 equal hashes) and once from a throwaway branch with a corrupted manifest hash (D3 fails,
   nothing uploaded; delete the branch after); fill gate-2-evidence.md §3–§4 and the D table.
 - [ ] G2-8 PM [Sonnet] + markets reviewer [Sonnet] (1 subagent): `reports/gate-2-review.md` pass/fail table and owner yes/no
