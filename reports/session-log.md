@@ -202,3 +202,4 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 - Markets reviewer: verdict yes; should-fix for later gates (log provenance/hashes, case5.m hash test, revised-data vintage policy, >90-day storage, hub gas source).
 - STATUS: AWAITING_OWNER_REVIEW. Needs owner: answer the 9 items; delete branch g2-7b-broken-hash.
 - 2026-11-27 (live, owner instruction): Gate 2 merged gate-2 → main; g2-7b-broken-hash neutralized (not deletable, 403); branch protection pending owner.
+- 2026-11-27T02:24Z skipped: nothing claimable (STATUS AWAITING_OWNER_REVIEW; Gate 3 not started; prep P1–P10 all done)
