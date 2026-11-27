@@ -1,7 +1,8 @@
 # PLAN
 
 STATUS: AWAITING_OWNER_REVIEW
-CURRENT GATE: 3 (PJM 5-bus, DC power flow option), branch `gate-3` (from `gate-2`); criteria approved 2026-11-27 (DECISIONS 47)
+CURRENT GATE: 4 (RTS-GMLC) — criteria not yet drafted: prep P11 then P12 (`docs/gates/gate-4.md`, incl. DECISIONS 54(10) notes), then owner approval; until then runs take prep items
+GATE 3: approved by owner 2026-11-27 (DECISIONS 54); merge `gate-3` → `main` approved by owner (live session)
 GATE 2: approved by owner 2026-11-27 (DECISIONS 42); merged into `main` 2026-11-27 on owner instruction (live session)
 GATE 1: approved by owner 2026-11-26 (DECISIONS 33, 37); merged into `main` 2026-11-26 on owner instruction
 GATE 0: approved by owner 2026-11-24 (DECISIONS 26–30); merged into `main` 2026-11-24 on owner go-ahead
@@ -181,10 +182,13 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   row (ELCC × capacity ≥ peak × (1+IRM), dual = capacity shadow price, price-setter class) for Gate 7; the weighted
   rep-period PDC construction (each modeled hour counts w_p hours) and its mapping to benchmarks.md M1.4/M1.5.
 - [ ] P12 Formulation lead [Opus], branch `prep`: draft `docs/gates/gate-4.md` (RTS-GMLC fixed-fleet dispatch vs PLEXOS
-  reference, first performance-ledger rows). Needs P11 done.
+  reference, first performance-ledger rows). Needs P11 done. Must include (DECISIONS 54(10), gate-3-review §4 a–c): storage
+  under `dcpf` (close F3-9/F3-13), RTS-GMLC HVDC link 113–316 (§7.4a excludes DC links mixed with lines), UC/reserve gaps vs
+  the PLEXOS reference (compare cost and mix, label LMP gaps as expected); also carried F3-3, F3-12 (DECISIONS 52).
 
 
 ## Next
+Gate 3 approved 2026-11-27: owner yes to all 10 review items (DECISIONS 54), incl. merge `gate-3` → `main` and deleting `g2-7b-broken-hash`. Next: prep P11 (formulation lead, Opus), then P12 drafts gate-4.md for owner approval; then PM writes Gate 4 items on `gate-4` (from `gate-3`).
 G3-7 done 2026-11-27 on `gate-3`: `reports/gate-3-review.md` — all P5a–P5e, §4 health, M7–M10, K1–K3 pass (P5f reported); CI #166 green on last code commit `b250c3b`, 671 pass; history clean (no secrets, no downloaded raw data); markets reviewer (Opus) yes, 6 forward should-fix notes (Gate 4: storage F3-9/F3-13, HVDC link 113–316 outside §7.4a, UC/reserve gaps in RTS-GMLC reference). STATUS: AWAITING_OWNER_REVIEW — 10 yes/no items for the owner. Next: owner review; prep lane (P11, then P12).
 G3-6-fix5 done 2026-11-27 on `gate-3` (builder Sonnet + verifier Sonnet): `audit/network.py` `ptdf`/`angles_from_injection` skip the solve on an empty reduced block (single-node island: θ = 0 at its own reference, PTDF zero, rent 0); loader raises `DataError` on `tx.ref_bus: []` or `""` ("names no zone; omit the key for the default"), absent key = default rule. Verifier removed both G3-6-fix3 strict xfails (docstring cites DECISIONS 53). 671 pass / 0 xfail / 0 fail; check_markers ok; T1–T4 golden + pjm5 unchanged. CI on push is the judge. Next: G3-7 (PM + markets reviewer [Opus]: gate-3 review, STATUS → AWAITING_OWNER_REVIEW).
 G3-6-fix4 done 2026-11-27 on `gate-3` (formulation lead, Opus): ruling — `tx.ref_bus: []` is a `DataError` ("names no zone; omit the key for the default"); default reference rule only by omitting the key; non-empty partial lists still default the unnamed islands. F-0.3 amendment 3 (§7.4a.1, header), data-schema `switches` row + rule 11, DECISIONS 53. Spec only; the strict xfail in `tests/test_g3_fix3.py` is right as written (no verifier change). Next: G3-6-fix5 (builder: isolated-node crash + raise on `[]`; verifier removes both xfails).

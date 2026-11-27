@@ -300,3 +300,11 @@
     Rejected: `[]` = default (silent, and the fingerprint split). Effect: the strict xfail
     `test_loader_empty_ref_bus_list_is_rejected` in `tests/test_g3_fix3.py` is right as written (no verifier change);
     G3-6-fix5 builder makes the loader raise, verifier removes the xfail marker. Found by G3-6-fix3.
+
+2026-11-27 (owner, live reply "Approve proceed" to reports/gate-3-review.md)
+54. Owner answered **yes to all 10 Gate 3 review items**: (1) P5a–P5f within tolerance, LMPs matched at 0.01 (published row
+    reproduced independently; Li & Bo table not read); (2) health checks, UNEXPLAINED = 0, CONGESTION_LOOP α correct; (3) M7–M10
+    caught; (4) `transport` default and Gate 1 results unchanged; (5) §7.4a / F-0.3 amendments 1–3 accepted; (6) `pjm5` provenance
+    accepted, licence `verify` = internal test use only, never shipped to clients; (7) `dcpf` kept as an option for Gate 4
+    RTS-GMLC, `transport` stays default; (8) merge `gate-3` → `main`, Gate 3 DONE; (9) delete branch `g2-7b-broken-hash`;
+    (10) markets notes (a)–(c) go into the Gate 4 criteria draft (P12), (d)–(f) are later-gate notes (PJM zonal gates).
