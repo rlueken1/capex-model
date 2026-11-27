@@ -1,3 +1,3 @@
 source_id,vintage,file,url,sha256,bytes,auth_env,enabled,note
-pjm5,matpower-b6c85b0,case5.m,https://raw.githubusercontent.com/MATPOWER/matpower/b6c85b0323d20fb801cab3377c803a285d730847/data/case5.m,0000000000000000000000000000000000000000000000000000000000000000,1921,,true,pinned commit; same bytes as cases/raw/pjm5bus/case5.m (P3)
+pjm5,matpower-b6c85b0,case5.m,https://raw.githubusercontent.com/MATPOWER/matpower/b6c85b0323d20fb801cab3377c803a285d730847/data/case5.m,ed9072089d080debde2aa029ed8a95491c311b08ff4f45ad7bf06882d86fe279,1921,,true,pinned commit; same bytes as cases/raw/pjm5bus/case5.m (P3)
 pjm5,matpower-b6c85b0,LICENSE_MATPOWER,https://raw.githubusercontent.com/MATPOWER/matpower/b6c85b0323d20fb801cab3377c803a285d730847/LICENSE,5d14c09b3e4f2adf62c0373e6320163697aa4603186f8925c07c6b84201e1750,2074,,true,licence text travels with the data
