@@ -171,3 +171,9 @@
 41. Owner answered yes to G2-7's question (V2-1): once G2-7a fixes `.github/workflows/data-download.yml` on `gate-2`, the
     run doing G2-7a copies that one file alone onto `main` (as DECISIONS 39), so G2-7b can dispatch it. Only that
     file; no merge; Gate 2 stays not merged and not done.
+42. Owner answered yes to all 9 Gate 2 review items (reports/gate-2-review.md, 2026-11-27): C1–C9 pass; D1–D8 pass with
+    D4/D5/D7 as carried limitations; F3–F5, P1-a/b closed; pinned versions (requirements-ci.txt, ubuntu-24.04) are the
+    supported environment; DECISIONS 38–41 and data-schema §5/§6.1 accepted; owner enables branch protection on `main`
+    requiring `ci`; merge `gate-2` → `main` and mark Gate 2 DONE after `g2-7b-broken-hash` is deleted (never merged);
+    markets items (a) log provenance/hashes and (b) case5.m hash test go into Gate 3 criteria, (c)–(f) are later-gate notes
+    (Gate 4/11/16); bump Actions majors (Node 20 deprecation) in Gate 3.
