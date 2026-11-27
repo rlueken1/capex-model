@@ -138,7 +138,7 @@ One per session, strictly in order; claim before work (CLAUDE.md). Default netwo
   `CONGESTION_LOOP` with α weights and `DEGENERATE` sub-tag), data-schema `links.csv` validation; DECISIONS entry; version → F-0.3. Spec only.
 - [x] G3-2 Verifier [Sonnet]: tests from the amended spec only — promote `tests/draft/test_pjm5bus.py` (P5a–P5f, §4 checks, M7–M10;
   14,957.28 → .29 fix in gate-3.md §2) and K2 (case5.m hash = manifest). Expected red until G3-3/G3-4 (strict xfail citing Gate 3).
-- [ ] G3-3 Builder [Sonnet]: `tx.model=dcpf` angle + PTDF forms, `pjm5` case in `cases/pjm5bus/` with provenance, fixed-fleet run,
+- [~] G3-3 Builder [Sonnet]: `tx.model=dcpf` angle + PTDF forms, `pjm5` case in `cases/pjm5bus/` with provenance, fixed-fleet run, (claimed 2026-11-27T05:23:48Z)
   price-setter `CONGESTION_LOOP`, new health checks. Do not edit verifier tests. CI green.
 - [ ] G3-4 Builder [Sonnet]: carried K1 (print provenance.json + hashes in data-download log) and K3 (bump Actions off Node 20). No verifier tests here.
 - [ ] G3-5 Verifier [Sonnet]: `reports/gate-3-evidence.md` (gate-3.md §5), incl. a `pjm5` dispatch for K1/K3 and the performance-ledger row `tx.model`.
