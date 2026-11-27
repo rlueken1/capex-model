@@ -202,3 +202,87 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 - Markets reviewer: verdict yes; should-fix for later gates (log provenance/hashes, case5.m hash test, revised-data vintage policy, >90-day storage, hub gas source).
 - STATUS: AWAITING_OWNER_REVIEW. Needs owner: answer the 9 items; delete branch g2-7b-broken-hash.
 - 2026-11-27 (live, owner instruction): Gate 2 merged gate-2 → main; g2-7b-broken-hash neutralized (not deletable, 403); branch protection pending owner.
+- 2026-11-27T02:24Z skipped: nothing claimable (STATUS AWAITING_OWNER_REVIEW; Gate 3 not started; prep P1–P10 all done)
+
+2026-11-27 — G3-1 (formulation lead, Opus), branch gate-3
+- formulation.md → F-0.3: full §7.4a dcpf spec (angle + PTDF forms, islands, μ sign, LMP decomposition, CONGESTION_LOOP α + DEGENERATE, 7 network check ids, M7–M10 hooks, SPEC-GAP table); data-schema links.csv reactance_pu/base_mva + rule 11; DECISIONS 48; gate-3.md surplus 14,957.29.
+- Tests: 547 pass / 30 skip / 0 fail (spec only, no code change).
+- Owner: Gate-2 output key column names vs schema (later bump?); uppercase pjm5 zone ids OK?
+
+2026-11-27 — owner reply (live): yes to both G3-1 questions → DECISIONS 49 (column rename later; uppercase pjm5 zone ids OK).
+
+2026-11-27 — G3-2 (verifier, Sonnet subagent), branch `gate-3`
+- Promoted `tests/test_pjm5bus.py` from draft; 44 strict xfails (Gate 3 G3-3) for P5a–P5f, §4 checks, loader rules, M7–M10; K2 case5.m hash test passes.
+- Golden Gate-2 outputs in `tests/golden/gate2/` (from main 450f29c) + byte-identity test under `transport`: passes.
+- Tests: 578 pass / 44 xfail / 0 fail; check_markers exit 0.
+- Open (non-blocking): multi-element `binding_links` format unspecified; K1/K3 untested ("current majors" undefined); golden made on Python 3.13 vs CI 3.12 (version components compared only if equal).
+
+2026-11-27 — G3-3 (builder, Sonnet subagent; verifier Sonnet subagent removed markers), branch `gate-3`
+- `tx.model=dcpf` angle + PTDF, `cases/pjm5bus/` with provenance, CONGESTION_LOOP α weights, new health checks; transport golden byte-identical.
+- pjm5: LMPs 16.98/26.38/30.00/39.94/10.00, D–E binding at 240 MW (μ −62.32); health pass.
+- Tests: 628 pass / 0 fail (44 former strict xfails now pass, markers removed by verifier); check_markers exit 0.
+- Open (non-blocking, for G3-5/G3-6): F-0.2 fingerprint constant; §7.4a.6 non-toy warn/fail split missing; pjm5 sources.csv/periods.csv provenance columns thin.
+
+2026-11-27 06:3x UTC — G3-4 (builder, Sonnet) on `gate-3`.
+K1: verify_artifact.py --print + workflow step prints provenance.json and per-file sha256 to the job log. K3: Actions bumped to checkout@v6, setup-python@v6, upload-artifact@v7, download-artifact@v8.
+Tests: check_workflows ok; 614 pass / 14 fail locally AND in CI run 45952295488 — same 14 fail with change stashed; CI red since G3-3 (not green as reported). Node 20 warning gone. Added fix item G3-3-fix before G3-5.
+Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
+
+2026-11-27 07:3x UTC — G3-3-fix (verifier role; test ruled wrong), branch `gate-3`
+- Cause: transport fingerprint test masked environment fields only on the new side; CI Python 3.12 ≠ golden 3.13 → 14 fails. Fixed masking to be symmetric (§7.4a.9). No src/ change, golden untouched.
+- Seed-dependent health diff (run 142) not reproduced: run 144 compare green, local seeds identical 7/7.
+- Tests: 628 pass / 0 fail locally; CI on this push is the judge. Owner: nothing needed.
+
+2026-11-27 08:2x UTC — G3-5 claimed (verifier), branch `gate-3`; not started, claim released.
+- Pre-check: CI run 146 (G3-3-fix commit) is red: 10 fail / 618 pass (e.g. explicit-key transport test [T4]); health.csv differs from golden only by last-ulp float noise (1.8e-16 vs 0.0). Passes locally 7/7.
+- Evidence would only record a fail, so added G3-3-fix2 (formulation lead [Opus]: rule on byte identity across environments in §7.4a.9 + verifier test change) before G3-5.
+- Tests: local `-k explicit_key` 7 pass. Owner: nothing needed.
+
+2026-11-27 ~09:50 UTC — G3-3-fix2 (formulation lead [Opus] ruling + verifier [Sonnet] test change), branch `gate-3`.
+- Ruling: F-0.3 amendment 1, formulation §8.10a + DECISIONS 50 — health `value` fields compared at 1e-12 abs-or-rel; every other byte exact. Root cause: CPU-dependent BLAS reduction order (only strong_duality ~1e-16 vs 0 differed, CI run 148).
+- Verifier: `_canonical_diff` in tests/test_pjm5bus.py (+7 self-tests), same rule in scripts/compare_runs.py (C7) + tests/test_compare_runs.py.
+- Tests: 637 pass / 0 fail (Py 3.12 venv, CI pins); check_markers 0. CI on push decides.
+- Owner: yes/no at Gate-3 review on reading Gate-2 C7 "byte-identical" per §8.10a.
+
+## 2026-11-27 ~10:50 UTC — G3-5 (verifier, Sonnet)
+- `reports/gate-3-evidence.md`: 22 criteria pass, P5f reported, 0 fail; `reports/complexity-ledger.md` started (`tx.model` rows); pytest log kept.
+- Tests: local 637 pass / 0 fail; CI run 150 green; data-download `pjm5` dispatch run 45981948446 success (K1 print + hashes = pins, no Node 20 warning → K3).
+- 7 findings for G3-6 (FORMULATION_VERSION F-0.2, unknown switch keys accepted, §7.4a.6 split missing, thin pjm5 provenance cols, ntc blanks, bus-D α, setter_ids format).
+- Owner: nothing new; MATPOWER licence still "verify".
+## 2026-11-27 ~11:40 UTC — G3-6 (formulation lead, Opus)
+- `reports/gate-3-spec-trace.md`: §7.4a + dual/sign trace, 15 findings (0 blocker, 8 should-fix, 5 carry to Gate 4, 2 narrative); audit route independent of builder code.
+- Spec F-0.3 amendment 2 + DECISIONS 51; new items G3-6-fix1 (docs), fix2 (builder), fix3 (verifier) before G3-7.
+- Tests: 637 pass / 0 fail locally (no src/tests changes).
+- Owner: 3 yes/no questions (strict switch keys, fingerprint bump to F-0.3, carry list) in Needs owner.
+
+- 2026-11-27 12:3x UTC — G3-6-fix1 (formulation lead, done in-session, no subagents), branch `gate-3`.
+  `docs/data-schema.md` aligned with formulation F-0.3 amendment 2 / DECISIONS 51: switches key rule (+`scaling`),
+  tolerances key rule, `formulation_version` case vs code (run.json vs fingerprint), price_setter list cells + island_id.
+  Docs only; local pytest 637 pass / 0 fail. Nothing for the owner. Next: G3-6-fix2 (builder).
+
+2026-11-27 — owner reply (live): yes to all four G3-6 questions (strict keys, fingerprint → F-0.3, carry F3-3/9/12/13, C7 per §8.10a) → DECISIONS 52.
+
+- 2026-11-27 G3-6-fix2 (builder + verifier, Sonnet): F3-1 fingerprint F-0.3; F3-2 strict switch/tolerance keys → DataError; F3-8 BLACKOUT out of 𝓜_i, case-(c) bound π ≥ VOLL; F3-10 congestion_rent per island-hour.
+  Verifier: test_health_fingerprint.py :217 → F-0.3, :150 unimplemented switch replaced by `tx.dcpf_form: ptdf` (per amendment 2).
+  Tests: 637 pass / 0 fail locally; check_markers ok; golden T1–T4 and pjm5 unchanged. CI on push is the judge.
+  Owner: nothing needed. Next: G3-6-fix3 (verifier).
+
+- 2026-11-27 G3-6-fix3 (verifier, Sonnet): `tests/test_g3_fix3.py`, 34 spec-derived tests (strict keys, fingerprint F-0.3, list cells, per-island congestion_rent, CONGESTION_LOOP (b) α vs numpy pinv, (c) total-blackout bound π ≥ VOLL).
+  Tests: 669 pass / 2 strict xfail / 0 fail locally; check_markers ok. No src change.
+  Findings → new items: G3-6-fix4 (spec ruling: empty `tx.ref_bus` list), G3-6-fix5 (builder: isolated node crashes audit `angles_from_injection`, §7.4a.2).
+  Owner: nothing needed. Next: G3-6-fix4 (formulation lead, Opus).
+
+2026-11-27 15:2x UTC — G3-6-fix4 (formulation lead, Opus, no subagents), branch gate-3.
+Ruling: empty `tx.ref_bus` list = `DataError`; default reference only by omitting the key. F-0.3 amendment 3 in
+formulation §7.4a.1 + data-schema rule 11; DECISIONS 53. Spec only, no src/tests change; check_markers ok (suite not
+runnable here: highspy missing in this workspace; CI is the judge). Next: G3-6-fix5 (builder). Nothing needs the owner.
+
+2026-11-27 16:2x UTC — G3-6-fix5 (builder Sonnet + verifier Sonnet, 2 subagents), branch gate-3.
+Isolated node = own island now runs (audit `ptdf`/`angles_from_injection` skip empty reduced block); `tx.ref_bus: []`
+→ `DataError` per DECISIONS 53. Verifier removed both G3-6-fix3 strict xfails. 671 pass / 0 fail; check_markers ok;
+T1–T4 golden + pjm5 unchanged. Next: G3-7 (gate-3 review). Nothing needs the owner.
+
+2026-11-27 17:3x UTC — G3-7 (PM + markets reviewer Opus, 1 subagent), branch gate-3.
+`reports/gate-3-review.md`: all Gate 3 criteria pass (P5f reported); CI #166 green on last code commit; 671 pass; history clean.
+Markets reviewer yes; 6 forward notes (Gate 4: storage under dcpf, HVDC link outside §7.4a, UC/reserve gaps vs RTS-GMLC reference).
+No tests run this item (review only). STATUS → AWAITING_OWNER_REVIEW. Owner: 10 yes/no items (incl. merge gate-3, delete g2-7b-broken-hash).

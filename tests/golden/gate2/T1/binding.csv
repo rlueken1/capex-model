@@ -1,0 +1,14 @@
+family,n_rows,n_binding,weighted_share_binding
+bal,72,72,1.0
+gen_max,144,48,0.33333333333333326
+st_pwr,0,0,0.0
+st_soc,0,0,0.0
+st_emax,0,0,0.0
+st_dur_lo,0,0,0.0
+st_dur_hi,0,0,0.0
+x_ub,0,0,0.0
+xP_ub,0,0,0.0
+xE_ub,0,0,0.0
+flow_ub,0,0,0.0
+flow_lb,0,0,0.0
+use_ub,72,0,0.0

@@ -77,3 +77,17 @@ times from `list_triggers` (Claude_Code_Remote) if that tool is available — na
 with "capex"; convert cron (CRON_TZ=America/New_York) to the next 7 days — and refresh the
 `cadence` rows if the cron changed. If it isn't available, keep the existing times. The PM
 scrum always rebuilds the full 7-day list.
+
+## Model results tab — refresh after any change to model code or cases
+The dashboard's "Model results" tab reads 8 JSON files made by `scripts/export_dashboard.py`
+(datasets `cases`, `prices`, `prices_large`, `resources`, `setters`, `links`, `binding`, `health`).
+When an item changes `src/capex/` or anything under `cases/`, as its last step before the dashboard
+update:
+1. `python scripts/export_dashboard.py <dir>` (solves all cases; RTS-GMLC takes ~5 min — pass
+   `--cases T1,T2a,...` to skip it only if nothing it uses changed, and then keep its old rows by
+   re-running it later the same day).
+2. If the session has the artifact asset-upload tool: upload the 8 files to the dashboard artifact
+   and point each `datasets/<id>` `source.url` at the new `/_blob/…` url, with
+   `updated: {at: <ISO UTC>, by: "export_dashboard.py @ <branch> <commit>"}` (use `update`, not `set`).
+   If it does not, add a line to the run report's `needs_owner`: "Model results tab is stale since <commit>".
+Never edit `files/*` (the page) — only the datasets' `source.url` and `updated`.

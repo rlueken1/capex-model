@@ -1,0 +1,2 @@
+finance_class,mode,wacc_real_frac,source_id,vintage,retrieved,method,confidence,basis
+pjm5_unused,simple_crf,0.07,pjm5,matpower-b6c85b0,2026-11-26,assumed,low,"placeholder required by loader; fixed-fleet case, no candidates, never used"

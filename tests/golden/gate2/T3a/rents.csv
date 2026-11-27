@@ -1,0 +1,3 @@
+resource_id,kind,energy_revenue,variable_cost,rent_cap_usd_mw_yr,rent_pwr,rent_en,cfix,fixed_cost,profit,build_status,excess_rent,zero_profit_ok,revenue_identity_residual,rent_note
+g,TH,32898666.66666667,21097000.000000004,118016.6666666667,,,0.0,0.0,11801666.666666668,existing,,True,-1.862645149230957e-09,
+peaker,TH,0.0,0.0,109500.00000000003,,,150000.0,0.0,0.0,at_zero,-40499.99999999997,True,0.0,non-unique (bound)

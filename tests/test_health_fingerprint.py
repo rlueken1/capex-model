@@ -147,7 +147,7 @@ def test_input_float_perturbation_1e12_changes_fingerprint(tmp_path_factory, bas
 
 
 def test_switch_changes_fingerprint(tmp_path_factory, baseline):
-    fp = _variant(tmp_path_factory.mktemp("sw"), lambda man, t: man["switches"].update({"audit.verifier_flag": True}))
+    fp = _variant(tmp_path_factory.mktemp("sw"), lambda man, t: man["switches"].update({"tx.dcpf_form": "ptdf"}))
     assert fp.sha256 != baseline.sha256
     fp2 = _variant(tmp_path_factory.mktemp("sw2"), lambda man, t: man["switches"].update({"scaling": False}))
     assert fp2.sha256 != baseline.sha256 and fp2.sha256 != fp.sha256
@@ -214,7 +214,7 @@ def test_package_and_python_versions_are_recorded(baseline):
     c = baseline.components
     assert c["python"] and set(c["packages"]) >= {"numpy", "scipy", "pandas", "highspy"}
     assert c["solver"]["name"] == "highs" and c["solver"]["version"] and c["solver"]["options"]
-    assert c["formulation_version"] == "F-0.2" and "seed" in c and c["git_commit"]
+    assert c["formulation_version"] == "F-0.3" and "seed" in c and c["git_commit"]
 
 
 # ---------------------------------------------------------------- conditioning fail invalidates

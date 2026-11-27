@@ -9,6 +9,8 @@ import pandas as pd
 from . import conditioning as cond
 from . import duals, economics
 from .duality import DualityReport, duality_report
+from .loopsetter import alpha_residual, dcpf_price_setter
+from .network import NetworkReport, network_report
 from .pricesetter import PriceSetter, price_setter
 from .solved import Solved
 
@@ -31,10 +33,18 @@ class Audit:
     soc_residual: float
     curtail_unserved: dict[str, pd.DataFrame]
     price_setter: PriceSetter | None      # None when the solution has no valid basis
+    network: NetworkReport | None = None  # dcpf only
+
+
+def _setter(sv: Solved, eco: duals.Economics, net: NetworkReport | None) -> PriceSetter | None:
+    if not sv.sol.basis_valid:
+        return None
+    return price_setter(sv, eco) if net is None else dcpf_price_setter(sv, eco, net)
 
 
 def run_audit(sv: Solved) -> Audit:
     eco = duals.economic_duals(sv)
+    net = network_report(sv, eco) if sv.case.dcpf else None
     return Audit(
         economics=eco, balance_residual=duals.balance_residuals(sv), duality=duality_report(sv),
         conditioning=cond.conditioning_report(sv), raw_duals=duals.raw_duals(sv), reduced_costs=duals.reduced_costs(sv),
@@ -43,7 +53,7 @@ def run_audit(sv: Solved) -> Audit:
         storage=economics.storage_report(sv, eco), storage_rc_residual=economics.storage_reduced_cost_residual(sv, eco),
         soc_residual=economics.soc_recompute_residual(sv),
         curtail_unserved=economics.curtailment_unserved(sv),
-        price_setter=price_setter(sv, eco) if sv.sol.basis_valid else None)
+        price_setter=_setter(sv, eco, net), network=net)
 
 
 def _check(check_id: str, family: str, value: float, tolerance: float, detail: str = "") -> dict:
@@ -68,10 +78,32 @@ def _price_setter_checks(sv: Solved, audit: Audit) -> list[dict]:
         return [{"check_id": "price_setter.basis", "family": "price_setter", "status": "fail", "value": np.nan,
                  "tolerance": np.nan, "detail": "no valid basis; price-setter skipped (section 4)"}]
     share = ps.summary.groupby("zone")["share_weighted_hours"].sum()
-    return [_check("price_setter.unexplained", "price_setter", ps.unexplained, 0, "UNEXPLAINED zone-hours"),
-            _check("price_setter.link_inconsistent", "price_setter", ps.link_inconsistent, 0,
-                   "link-hours with inconsistent price gap / bound / congestion rent"),
-            _check("price_setter.shares_sum_to_one", "price_setter", float(np.abs(share - 1.0).max()), 1e-9)]
+    link_detail = "link-hours with inconsistent price gap / bound / congestion rent"
+    checks = [_check("price_setter.unexplained", "price_setter", ps.unexplained, 0, "UNEXPLAINED zone-hours"),
+              _check("price_setter.link_inconsistent", "price_setter", ps.link_inconsistent, 0,
+                     "n/a under dcpf (see lmp.decomposition, dcpf.line_duals)" if sv.case.dcpf else link_detail),
+              _check("price_setter.shares_sum_to_one", "price_setter", float(np.abs(share - 1.0).max()), 1e-9)]
+    if sv.case.dcpf:
+        checks.append(_check("price_setter.loop_alpha", "price_setter", alpha_residual(ps),
+                             sv.case.tolerances.loop_alpha, "max(|sum alpha - 1|, |pi - sum alpha c|) over CONGESTION_LOOP"))
+    return checks
+
+
+def _network_checks(sv: Solved, audit: Audit) -> list[dict]:
+    """Formulation 7.4a.6: recomputations from case data (dcpf only)."""
+    rep, tol = audit.network, sv.case.tolerances
+    m = rep.metrics
+    return [_check("kvl.recompute", "network", m["kvl"], tol.kvl_residual_mw,
+                   "max |f - b(theta_o - theta_e)| MW, case b, theta from output angles"),
+            _check("ptdf.recompute", "network", m["ptdf"], tol.kvl_residual_mw,
+                   "max |f - f_rc| MW, f_rc from B_red theta = inj (case b, solved inj)"),
+            _check("lmp.decomposition", "network", m["lmp"], tol.lmp_decomposition_usd_mwh,
+                   "max |pi - (lambda - sum_l H mu)| $/MWh, H from case data"),
+            _check("congestion_rent", "network", m["rent"], tol.congestion_rent_rel,
+                   "max |sum pi (-inj) - sum mu f| / max(1, |sum mu f|)"),
+            _check("dcpf.line_duals", "network", m["line_duals"], tol.line_dual_usd_mwh,
+                   "mu != 0 only at a rating, mu sgn f >= 0"),
+            _check("dcpf.islands", "network", rep.island_violations, 0, rep.island_detail)]
 
 
 def _rent_checks(sv: Solved, audit: Audit) -> list[dict]:
@@ -113,7 +145,7 @@ def health_checks(sv: Solved, audit: Audit) -> pd.DataFrame:
                "st_soc residual recomputed from case eta_c, eta_d, sigma, MWh"),
         _info("storage.simul_chdis", "storage", n_simul, "hours with simultaneous charge and discharge (not an error)"),
         _check("basis_valid", "price_setter", float(not sv.sol.basis_valid), 0, "basic solution required (section 4)"),
-        *_price_setter_checks(sv, audit), *_conditioning_checks(audit)]
+        *_price_setter_checks(sv, audit), *_conditioning_checks(audit), *(_network_checks(sv, audit) if sv.case.dcpf else [])]
     return pd.DataFrame(checks)
 
 

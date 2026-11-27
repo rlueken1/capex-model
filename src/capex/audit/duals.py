@@ -26,10 +26,18 @@ class Economics:
     mu_use: np.ndarray    # (Z,P,T) blackout rent (use_ub), <= 0 side only
 
 
+def nodal_price(sv: Solved) -> np.ndarray:
+    """pi_{n,p,t}: dual of a unit injection at n, $/MWh. Sums coefficient x dual over every row that touches the
+    column use[n]: `bal` (transport, angle form) or `bal_sys` + `ptdf_flow` (PTDF form, formulation 7.4a.5)."""
+    use = sv.lp.cols["use"]
+    touching = sv.lp.a[:, use.offset:use.offset + use.size]
+    return (touching.T @ sv.y).reshape(use.shape) / sv.case.w[None, :, None]
+
+
 def economic_duals(sv: Solved) -> Economics:
     w = sv.case.w[None, :, None]
     return Economics(
-        pi=sv.row_dual("bal") / w, rho=-sv.row_dual("gen_max") / w, rho_p=-sv.row_dual("st_pwr") / w,
+        pi=nodal_price(sv), rho=-sv.row_dual("gen_max") / w, rho_p=-sv.row_dual("st_pwr") / w,
         rho_e=-sv.row_dual("st_emax") / w, v=-sv.row_dual("st_soc") / w, mu_link=-sv.col_dual("flow") / w,
         mu_use=-np.minimum(sv.col_dual("use"), 0.0) / w)
 
@@ -71,7 +79,7 @@ def reduced_costs(sv: Solved) -> pd.DataFrame:
 
 def economic_table(sv: Solved, eco: Economics) -> pd.DataFrame:
     """Hourly prices and balance residuals per (zone, period, t) (output zone_hourly)."""
-    blk = sv.lp.rows["bal"]
+    blk = sv.lp.cols["use"]
     return _frame(blk, demand_mw=sv.case.demand, unserved_mw=sv.var("use"), lmp_usd_mwh=eco.pi,
                   bal_residual_mw=balance_residuals(sv), weight_hours=sv.weights(blk)).drop(columns="label")
 

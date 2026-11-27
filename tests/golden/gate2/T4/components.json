@@ -1,0 +1,114 @@
+{
+ "config": {
+  "base_dollar_year": 2024,
+  "case_id": "T4",
+  "description": "two zones, binding link A->B",
+  "dt_h": 1.0,
+  "finance_default": "toy_simple",
+  "formulation_version": "F-0.2",
+  "model_year": 2025,
+  "schema_version": "S-0.1",
+  "seed": 0,
+  "solver": {
+   "name": "highs"
+  },
+  "switches": {},
+  "tables": {
+   "deflator": {
+    "file": "../../data/common/deflator.csv",
+    "sha256": "c1fc4b6c9f000aa97d6821cf43f4d20daf61cadb31ab71239a911aa9733b153f"
+   },
+   "finance": {
+    "file": "finance.csv",
+    "sha256": "a296e4eaa2cd88912af61d161a4f4c278c700f61f5b6f166dd01a80942e5c394"
+   },
+   "links": {
+    "file": "links.csv",
+    "sha256": "8fec4b1f0c75048a8b76aeb67ae2a47a0340f90a8b8b5ad70417d0f620595840"
+   },
+   "load": {
+    "file": "load.csv",
+    "sha256": "5325fd1f92de2c95842fbb6d85d1cda32dbc53d638efcfbe7734252a7ec0cd0e"
+   },
+   "load_meta": {
+    "file": "load_meta.csv",
+    "sha256": "e35a44169d727b9360a4207b25e6f2570778f8bd14e4ac5753c491e1aa1e8ba7"
+   },
+   "periods": {
+    "file": "periods.csv",
+    "sha256": "f529fc444f4ab4b953137e20d49ab90ba639849da0bc01caf3a0fb8106c3d708"
+   },
+   "resources": {
+    "file": "resources.csv",
+    "sha256": "d6215f7dbee2782a09ddfdba20e643a7f53450ec5206642e8638b1794706b755"
+   },
+   "sources": {
+    "file": "../../data/common/sources.csv"
+   },
+   "zones": {
+    "file": "zones.csv",
+    "sha256": "3bb279431db46d1e462fd5ae65a43aa675c8af64373135a049299905a35ffd45"
+   }
+  },
+  "voll_dollar_year": 2024,
+  "voll_usd_mwh": 10000
+ },
+ "dirty_diff_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ "formulation_version": "F-0.2",
+ "git_commit": "450f29c6ac4c99233cb8c55ca2c6a3dfe56b0a79",
+ "packages": {
+  "capex": "0.1.0",
+  "highspy": "1.16.0",
+  "numpy": "2.5.3",
+  "pandas": "3.0.5",
+  "pyyaml": "6.0.3",
+  "scipy": "1.18.1"
+ },
+ "python": "3.13.18 (main, Oct 26 2026, 14:08:19) [Clang 23.1.3 ]",
+ "scaling": {
+  "k_c": 1e-06,
+  "k_p": 0.001,
+  "s_obj": 1.0
+ },
+ "seed": 0,
+ "solver": {
+  "name": "highs",
+  "options": {
+   "dual_feasibility_tolerance": 1e-09,
+   "parallel": "off",
+   "presolve": "off",
+   "primal_feasibility_tolerance": 1e-09,
+   "random_seed": 0,
+   "run_crossover": "on",
+   "simplex_strategy": 1,
+   "solver": "simplex",
+   "threads": 1
+  },
+  "version": "1.16.0"
+ },
+ "tables": {
+  "deflator": "a8bce09b00a69b916485aad20e968d925f33ca716747b55621d3814ce49e4f86",
+  "finance": "2ecf5ee7c8301fe3b75ccbd995bb24be168871e49197c734d093a98a618eeea4",
+  "links": "4053cd91e78337a54ce13e9128c34bd15396246ce3ab8818484e49f9ca34eb2a",
+  "load": "bdc6980aa73863fc09f40943b479bb1cf0f19a19572d0015a0899aed0ec02f30",
+  "load_meta": "2eaae1468c68dfc9e25f2922b3aeea625bedf448be086dfb0ff62c55f9f74ec4",
+  "periods": "ae3bda4f16d391006aa6f1741e98dc6e2ed13090f46118d30717d34a13175312",
+  "resources": "7c65470358c5f4b3780ad981588c02e4d178975cc69c59820a63ee61ae07b45c",
+  "sources": "83ffcf5a62144b5725bad47e8429ea30c2272e5779b262d76e56508a6036e5aa",
+  "zones": "1e84835e1317daa2f0effc092028bc3e0d64c44b0856ba072f411aa0606b185f"
+ },
+ "tolerances": {
+  "bal_residual_mw": 1e-06,
+  "binding_slack": 1e-06,
+  "comp_slack_scaled": 1e-08,
+  "decomposition_rel": 1e-09,
+  "dual_sign_scaled": 1e-09,
+  "revenue_identity_rel": 1e-06,
+  "strong_duality_rel": 1e-07,
+  "tol_pi_abs": 0.01,
+  "tol_pi_rel": 1e-05,
+  "tol_q_abs_mw": 0.001,
+  "tol_q_rel": 1e-06,
+  "zero_profit_rel": 1e-06
+ }
+}

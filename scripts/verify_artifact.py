@@ -7,7 +7,8 @@ Checks: every file listed in provenance.json exists with that sha256 and size; n
 files; and for manifest rows with a pinned sha256, provenance agrees with the manifest
 (so an artifact from an older manifest is caught). --against also requires each file's sha256 to equal
 the same-named file in a vendored directory. --summary prints a markdown provenance table (for
-$GITHUB_STEP_SUMMARY) and nothing else. Exit 0 ok, 1 mismatch, 2 bad input.
+$GITHUB_STEP_SUMMARY) and nothing else. --print writes provenance.json (pretty JSON) and one
+`sha256  size  path` line per file, recomputed from disk, to stdout (for the job log). Exit 0 ok, 1 mismatch, 2 bad input.
 """
 from __future__ import annotations
 
@@ -78,12 +79,24 @@ def summary_markdown(art: Path) -> str:
             f"<details><summary>provenance.json</summary>\n\n```json\n{text}```\n\n</details>\n")
 
 
+def log_text(art: Path) -> str:
+    """provenance.json as pretty JSON, then `sha256  size  path` per file recomputed from disk."""
+    prov = json.loads((art / "provenance.json").read_text())
+    lines = []
+    for f in prov["files"]:
+        digest, size = sha256_file(art / f["file"])
+        lines.append(f"{digest}  {size}  {art / f['file']}")
+    return json.dumps(prov, indent=2) + "\n" + "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("artifact_dir")
     p.add_argument("--manifest-dir", default="data/manifests")
     p.add_argument("--against", default=None, help="vendored directory whose same-named files must hash equal")
     p.add_argument("--summary", action="store_true", help="print a markdown provenance table and exit")
+    p.add_argument("--print", dest="log", action="store_true",
+                   help="print provenance.json and per-file sha256/size recomputed from disk, then exit")
     a = p.parse_args(argv)
     art = Path(a.artifact_dir)
     if not (art / "provenance.json").is_file():
@@ -91,6 +104,9 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     if a.summary:
         print(summary_markdown(art))
+        return 0
+    if a.log:
+        print(log_text(art))
         return 0
     problems = verify(art, Path(a.manifest_dir))
     if a.against:

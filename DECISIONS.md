@@ -177,3 +177,134 @@
     requiring `ci`; merge `gate-2` → `main` and mark Gate 2 DONE (owner later said to merge before the branch deletion; branch neutralized instead);
     markets items (a) log provenance/hashes and (b) case5.m hash test go into Gate 3 criteria, (c)–(f) are later-gate notes
     (Gate 4/11/16); bump Actions majors (Node 20 deprecation) in Gate 3.
+
+2026-11-27 (owner, live session)
+43. Gate restructure: multi-year optimization is a critical feature and gets its own gates, inserted right after Gate 6
+    (GenX cross-check). The owner let the formulation lead set the split: **two gates** — 7 Multi-year expansion core
+    (perfect foresight: model years, discounted year weights, vintages, lifetimes, horizon-end annuity truncation; toys +
+    RTS-GMLC) and 8 Foresight modes + per-year periods + GenX multi-stage cross-check. Design draft:
+    docs/drafts/multi-year-design.md (its O3–O12 stay open for the owner, due by the Gate 6 → 7 boundary). All gates
+    renumbered, sequential. **Old → new map** (every gate number in entries 1–42, docs/drafts/* and reports/* before this
+    date uses OLD numbers): 0–6 unchanged; 7→9 reserves/ORDC; 8→10 zonal transmission; 9→11 UC; 10→12 policy + build/
+    retirement; 11→13 PJM one-zone slice; 12→14 scoreboard v0; 13→15 PJM single node; 14→16 capacity market;
+    15→17 storage value study; 16→18 full data pipeline; 17→19 calibration + hold-out; 18→20 PJM zonal (multi-year
+    now from Gates 7–8, applied at PJM scale); 19→21 local web UI; 20→22 continuous accuracy.
+44. Design review (owner asked 2026-11-27 for a crisp, lightweight, best-practice design; docs/design-review-2026-11-27.md).
+    Kept: one LP, block builder, 3-day rep periods, Kotzur SOC, clustered linear UC, ORDC, audit layer, test ladder.
+    Changed, no new gates: (a) **one formulation, two modes** — plan (rep periods, multi-year, LP, investment duals) and
+    operations (one year, full chronology, fixed fleet, rolling windows, optional UC); client hourly prices, spreads and
+    storage revenue come from operations mode; Gate 4 builds operations mode (extends DECISIONS 3's "one-off" dispatch
+    check into a mode; no 8760 *expansion* still holds); Gate 5 adds plan-vs-operations revenue reconciliation.
+    (b) UC (Gate 11) is built in operations mode first; plan-mode UC optional, ledger sets the default.
+    (c) ELCC-accredited planning reserve margin `ra.prm` enters at Gate 7; economic retirement (Gate 12) allowed with it
+    on; Gate 16's VRR curve replaces the hard PRM row. (d) Performance budget from Gate 4: every gate reports size and
+    runtime in `reports/performance-ledger.md`; Gate 7 adds a synthetic PJM-scale stress case; targets [P] pending owner.
+    (e) Every feature is one block with a switch, labelled rows, audit hooks, a price-setter class and an off-identity test.
+    Spec drafting: prep items P11 (architecture spec) and P12 (gate-4.md draft).
+45. Owner reply to 44 (2026-11-27): **no operations mode.** Capacity expansion and prices both come from weighted
+    representative 3-day periods (DECISIONS 3 unchanged). Primary price check: the weighted rep-period price duration
+    curve (each modeled hour counts w_p real hours), plus monthly means and daily spreads from the same periods, mapped
+    to the real-world PDC (benchmarks.md M1.4, M1.1, M1.5). Full-year fixed-fleet dispatch stays the one-off check of
+    period selection only. Reverts 44(a) and 44(b): Gate 4 keeps its original scope; Gate 5 adds the PDC comparison
+    instead of revenue reconciliation; UC (Gate 11) is in the expansion LP, switch default off unless the ledger shows it
+    changes builds or PDC fit. 44(c) PRM at Gate 7, (d) performance budget, (e) block contract stand. Note: before
+    Gate 9 (ORDC) prices at capacity-bound hours are non-unique, so the PDC upper tail is judged from Gate 9 on.
+46. Owner (2026-11-27): full (integer/MIP) unit commitment is not used — the model stays an LP. The basis is
+    **linearized clustered UC** (Palmintier & Webster; continuous commitment, formulation §7.5), built at Gate 11 with
+    `uc.enabled` **default off**. The ledger reports its effect on builds and the PDC fit; switching it on by default is
+    considered no earlier than Gate 19 (calibration + hold-out) and needs an owner decision.
+47. Owner (2026-11-27): **Gate 3 criteria approved** (docs/gates/gate-3.md) with dispatch tolerance 0.01 MW and the P5e load
+    scan kept; carried items K1–K3 added (DECISIONS 42). The default network model is and stays **`tx.model = transport`
+    (pipe-and-bubble zonal transport)** everywhere, incl. PJM zonal; `dcpf` is an option only (reaffirms DECISIONS 29).
+    **Runtime targets confirmed:** PJM single node, 1 year (~20 periods) ≤ 2 min; PJM zonal (~20 zones, 50+ clusters),
+    4 model years ≤ 30 min — with or without linearized UC (no separate UC target: linearized UC is part of the zonal
+    LP); CI ≤ 10 min. Branch `gate-3` created from `gate-2`.
+
+2026-11-27 (formulation lead, G3-1 — W-spec, gate-3.md §6)
+48. Formulation **F-0.3**: §7.4a DC power flow option completed (spec only; `transport` stays the default, DECISIONS 29/47).
+    Switches `tx.model` (`transport`|`dcpf`), `tx.dcpf_form` (`angle` default|`ptdf`), `tx.ref_bus` (default: first zone of
+    each island in `zones.csv` order). Angle form: free `theta` (rad, unscaled; `kvl` coefficient $k_P b_l$, $b_l$ =
+    `base_mva`/`reactance_pu` MW/rad), rows `kvl` and one `ref_angle` **row** per island-hour (dual is 0 by construction).
+    PTDF form: per-island PTDF from the reduced B matrix; rows `bal_sys` + `ptdf_flow` with `flow` columns **kept**, so flow
+    limits stay column bounds (no ranged rows; F5 not exercised) and $\mu$ is read identically in both forms and in
+    `transport`: $\mu=-s_f/w$, signed, $\mu f\ge0$. LMP decomposition $\pi_n=\lambda_{ref}-\sum_l H_{l,n}\mu_l$ (+ loss 0);
+    components are reference-bus dependent, totals, $\mu$ and $\alpha$ are not. Congestion-rent identity per hour.
+    Checks (dcpf only): `kvl.recompute`, `ptdf.recompute` (case-data route, no shared builder code), `lmp.decomposition`,
+    `congestion_rent`, `dcpf.line_duals`, `dcpf.islands`, `price_setter.loop_alpha`. Price-setter: congested islands use
+    bus-local classes, then `CONGESTION_LOOP` with $\alpha_n^\top=\phi_n\Phi^+$ over marginal buses and binding lines
+    ($\sum\alpha=1$, not convex); `DEGENERATE` when weights are non-unique (min-norm) or not computable (interval from a
+    tiny restricted dual LP). Outputs: `zone_hourly` LMP components, `angles`, `islands`, `price_setter_loop`; `flows`
+    unchanged. Identity under `transport`: canonical outputs of T1–T4 byte-identical to golden Gate-2 outputs
+    (`tests/golden/gate2/`) with fingerprint/version/git fields masked; loader accepts case `F-0.2` and `F-0.3`.
+    data-schema `links.csv` validation (dcpf: x>0, base>0, symmetric rating, rating 0 an error, blank = unlimited).
+    Mutation hooks M7–M10 named (§7.4a.10). gate-3.md §2 surplus corrected 14,957.28 → 14,957.29 (arithmetic only;
+    gate-3.md is where the number is stated; criteria and tolerances unchanged). Rejected: `ref_angle` as a column bound
+    (M9 would be invisible); PTDF limits as ranged rows (extra adapter risk, μ read from a different place); convex
+    (non-negative) loop weights (wrong: P5a bus D has α = 1.497/−0.497).
+49. Owner (2026-11-27, live reply to the G3-1 questions): (a) **yes** — the Gate-2 output key columns (`zone,period,t`,
+    `link,period,t`, `resource,period,t`, `g_mw`) stay as they are through Gate 3 (transport byte-identity) and are
+    reconciled with data-schema (`period_id`, `link_id`, `resource_id`) in a later schema bump; (b) **yes** — the
+    `pjm5` test case keeps uppercase zone ids `A`–`E` (T4 precedent); real PJM data keeps lowercase ids.
+
+2026-11-27 (formulation lead, G3-3-fix2 — spec ruling on cross-machine float noise)
+50. Formulation F-0.3 **amendment 1** (comparison rule only; LP, outputs, fingerprint inputs and thresholds unchanged,
+    version string stays `F-0.3`): new §8.10a. When two runs' canonical outputs are compared (§7.4a.9 golden identity,
+    Gate-2 C7 two-job compare, later golden tests), the `value` field of `health.csv` and the value cell of the
+    `health_report.md` check table are equal at $|a-b|\le10^{-12}$ absolute or relative; every other byte of every
+    canonical output stays identical (row set/order, status, tolerance, detail; all decision outputs). Cause (CI run 148,
+    job 140393434312): only `strong_duality` differed, 1.7e-16 vs 0.0 on T1/T2b/T2c/T3a/T4, between the golden machine
+    and the CI runner. This workspace reproduces golden byte-identically on Py 3.13.18 and on Py 3.12.16 with the CI pins,
+    so the difference is the machine, not Python: BLAS/SIMD reduction order is CPU-dependent and not a fingerprint input. Explains run 142's "seed"
+    difference in `compare` (two runners). Rejected: (a) rounding health values in outputs — changes outputs, forces a
+    golden regeneration (SOURCE.txt forbids it to make a test pass) and a src change; (b) regenerating golden in CI from
+    the Gate-2 merge commit — doubles CI solves, weakens the fixed reference; (c) tolerance on all files — would hide
+    real drift in decision outputs. Possible later hardening (not required): exactly rounded sums (`math.fsum`) for
+    health diagnostics, which would make the values CPU-independent; it changes golden health values, so it needs its own
+    item and owner yes. This narrows how Gate-2 C7 "byte-identical" is read (two health values only) → owner yes/no in
+    the Gate-3 review.
+
+2026-11-27 (formulation lead, G3-6 code-vs-spec trace, reports/gate-3-spec-trace.md)
+51. Formulation F-0.3 **amendment 2** (rules/wording only; LP, duals, thresholds unchanged, version string stays `F-0.3`).
+    (a) §7.4a.1: a `switches` key the code does not implement is a `DataError` whatever its value (incl. reserved
+    later-gate keys); implemented at Gate 3: `tx.model`, `tx.dcpf_form`, `tx.ref_bus`, `scaling`; unknown `tolerances`
+    keys and a non-string `tx.ref_bus` are `DataError`, not `TypeError` (G3-5 found `tx.dcpf_formm: ptdf` silently ran
+    angle; this trace found `tx.losses: true` silently ignored). (b) §7.4a.6 `congestion_rent` per island-hour (was
+    summed over islands per hour; residuals of two islands could cancel). Non-toy MW warn/fail split stays unbuilt for
+    all four MW checks and is specified in Gate 4 (every Gate 3 case is a test system at 1e-6). (c) §7.4a.7: line
+    $tol_\pi$ = max of the end buses' $tol_\pi$, line $tol_q$ = `tol_q_abs_mw` (the code's reading); $\mathcal M_i$ members
+    must pass their class price check (code); `BLACKOUT` is **not** a marginal member (π = VOLL + μ^use is not a known
+    cost; the F-0.3 text was wrong) and becomes a case-(c) bound π ≥ VOLL; storage bounds in case (c) deferred (interval
+    only wider). (d) §4 "List cells": the Gate-2 code's join/order rules ratified (transport byte identity freezes them;
+    "sorted" in §7.4a.7 for `setter_ids`/`binding_links` was not what the code writes); `island_id` integer, 0-based
+    price island under `transport`, k of `ik` under `dcpf`. (e) §8.10: the fingerprint carries the **code's** version
+    (`capex.FORMULATION_VERSION`, F-0.3 from Gate 3; §7.4a.9 already masks it in the golden test); `run.json` keeps the
+    case's declared version. (f) §8.12: congestion rent per hour/year is read from `flows` (no table). Rejected: changing
+    `setter_ids` to sorted order (breaks transport golden); keeping the fingerprint at F-0.2 (hides the formulation
+    change; §7.4a.9 was written to let it differ). Code fixes: G3-6-fix2/fix3 in PLAN.md.
+52. Owner (2026-11-27, live reply to the G3-6 questions, `reports/gate-3-spec-trace.md` §4): **yes to all four.**
+    (1) Switch keys strict: a key the code does not implement is a `DataError` even at its default-off value (e.g.
+    `reserves.enabled: false`), per DECISIONS 51(a). (2) Every run fingerprint, T1–T4 included, changes once as the code's
+    `formulation_version` goes F-0.2 → F-0.3 (DECISIONS 51(e)); outputs stay byte-identical. (3) F3-3, F3-9, F3-12,
+    F3-13 carried to Gate 4 (F3-9/F3-13 wait for the first `dcpf` case with storage if dcpf is not kept for Gate 4).
+    (4) DECISIONS 50 / §8.10a accepted: Gate-2 C7 "byte-identical" reads with health `value` compared at 1e-12
+    abs-or-rel, all other bytes exact. G3-7 records these as answered in the Gate 3 decision list.
+
+2026-11-27 (formulation lead, G3-6-fix4 — spec ruling on an empty `tx.ref_bus` list)
+53. Formulation F-0.3 **amendment 3** (load rule only; LP, outputs, fingerprint inputs unchanged, version string stays
+    `F-0.3`): §7.4a.1 + data-schema rule 11 — `tx.ref_bus: []` is a `DataError` ("names no zone; omit the key for the
+    default"); an entry that is not a zone id (incl. `""`) already was. The default reference rule (first zone of each
+    island in `zones.csv` order) is asked for only by omitting the key; a non-empty list may still leave islands unnamed
+    (they take the default). Reasons: (a) one spelling per meaning — absent and `[]` would be two `case.config` values,
+    so two fingerprints (§7.4a.9 "absent stays absent") for the same LP; (b) consistent with the strict-key rule
+    (DECISIONS 51(a)/52(1)): an empty list is more likely a script's empty selection than a request for the default.
+    Rejected: `[]` = default (silent, and the fingerprint split). Effect: the strict xfail
+    `test_loader_empty_ref_bus_list_is_rejected` in `tests/test_g3_fix3.py` is right as written (no verifier change);
+    G3-6-fix5 builder makes the loader raise, verifier removes the xfail marker. Found by G3-6-fix3.
+
+2026-11-27 (owner, live reply "Approve proceed" to reports/gate-3-review.md)
+54. Owner answered **yes to all 10 Gate 3 review items**: (1) P5a–P5f within tolerance, LMPs matched at 0.01 (published row
+    reproduced independently; Li & Bo table not read); (2) health checks, UNEXPLAINED = 0, CONGESTION_LOOP α correct; (3) M7–M10
+    caught; (4) `transport` default and Gate 1 results unchanged; (5) §7.4a / F-0.3 amendments 1–3 accepted; (6) `pjm5` provenance
+    accepted, licence `verify` = internal test use only, never shipped to clients; (7) `dcpf` kept as an option for Gate 4
+    RTS-GMLC, `transport` stays default; (8) merge `gate-3` → `main`, Gate 3 DONE; (9) delete branch `g2-7b-broken-hash`;
+    (10) markets notes (a)–(c) go into the Gate 4 criteria draft (P12), (d)–(f) are later-gate notes (PJM zonal gates).

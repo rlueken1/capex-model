@@ -1,0 +1,9 @@
+component,id,fuel,value_usd_yr
+Z_inv,g,,0.0
+Z_inv,peaker,,0.0
+Z_var,g,none,21097000.000000004
+Z_var,peaker,none,0.0
+Z_use,A,,2433333.3333333326
+Z0,g,,0.0
+Z0,peaker,,0.0
+total,,,23530333.333333336

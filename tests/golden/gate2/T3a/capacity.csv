@@ -1,0 +1,3 @@
+resource_id,existing_mw,new_mw,existing_mwh,new_mwh,at_xmax,x_reduced_cost_usd_mw_yr
+g,100.0,0.0,,,False,-118016.6666666667
+peaker,0.0,0.0,,,False,40499.99999999999

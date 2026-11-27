@@ -1,0 +1,109 @@
+{
+ "config": {
+  "base_dollar_year": 2024,
+  "case_id": "T1",
+  "description": "screening curve, two candidate thermals + VOLL (formulation 10, T1)",
+  "dt_h": 1.0,
+  "finance_default": "toy_simple",
+  "formulation_version": "F-0.2",
+  "model_year": 2025,
+  "schema_version": "S-0.1",
+  "seed": 0,
+  "solver": {
+   "name": "highs"
+  },
+  "switches": {},
+  "tables": {
+   "deflator": {
+    "file": "../../data/common/deflator.csv",
+    "sha256": "c1fc4b6c9f000aa97d6821cf43f4d20daf61cadb31ab71239a911aa9733b153f"
+   },
+   "finance": {
+    "file": "finance.csv",
+    "sha256": "a296e4eaa2cd88912af61d161a4f4c278c700f61f5b6f166dd01a80942e5c394"
+   },
+   "load": {
+    "file": "load.csv",
+    "sha256": "92c0059127322a67b08a6ba5e3be49608c9bcb94669a4739c970f87a9e358ccd"
+   },
+   "load_meta": {
+    "file": "load_meta.csv",
+    "sha256": "16d4f983ae488b769f03bda77c10d8055345393a939e498e66692b4774ab773b"
+   },
+   "periods": {
+    "file": "periods.csv",
+    "sha256": "f529fc444f4ab4b953137e20d49ab90ba639849da0bc01caf3a0fb8106c3d708"
+   },
+   "resources": {
+    "file": "resources.csv",
+    "sha256": "e17cccd1fcc90cf2f52af629300d918f5e7982722e6ee39b276bd4587c1ed7bf"
+   },
+   "sources": {
+    "file": "../../data/common/sources.csv"
+   },
+   "zones": {
+    "file": "zones.csv",
+    "sha256": "5fe9fcc7739b622d3c05de9b433bcbf748f5352e792d8217845b577f765275c3"
+   }
+  },
+  "voll_dollar_year": 2024,
+  "voll_usd_mwh": 10000
+ },
+ "dirty_diff_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ "formulation_version": "F-0.2",
+ "git_commit": "450f29c6ac4c99233cb8c55ca2c6a3dfe56b0a79",
+ "packages": {
+  "capex": "0.1.0",
+  "highspy": "1.16.0",
+  "numpy": "2.5.3",
+  "pandas": "3.0.5",
+  "pyyaml": "6.0.3",
+  "scipy": "1.18.1"
+ },
+ "python": "3.13.18 (main, Oct 26 2026, 14:08:19) [Clang 23.1.3 ]",
+ "scaling": {
+  "k_c": 1e-06,
+  "k_p": 0.001,
+  "s_obj": 1.0
+ },
+ "seed": 0,
+ "solver": {
+  "name": "highs",
+  "options": {
+   "dual_feasibility_tolerance": 1e-09,
+   "parallel": "off",
+   "presolve": "off",
+   "primal_feasibility_tolerance": 1e-09,
+   "random_seed": 0,
+   "run_crossover": "on",
+   "simplex_strategy": 1,
+   "solver": "simplex",
+   "threads": 1
+  },
+  "version": "1.16.0"
+ },
+ "tables": {
+  "deflator": "a8bce09b00a69b916485aad20e968d925f33ca716747b55621d3814ce49e4f86",
+  "finance": "2ecf5ee7c8301fe3b75ccbd995bb24be168871e49197c734d093a98a618eeea4",
+  "load": "ac48f490b82e40db6cf27f62b18d293e0a10538b88d1cdc177662ca9dca239ce",
+  "load_meta": "df92d622d72c686cb327cc6e6fdf0901131ba9adeb1b331b243b4c3a729e7f5a",
+  "periods": "ae3bda4f16d391006aa6f1741e98dc6e2ed13090f46118d30717d34a13175312",
+  "resources": "e151e32ddd051663fe73d19db32b89993e62d2da7324ff073230901a00cc21cb",
+  "sources": "83ffcf5a62144b5725bad47e8429ea30c2272e5779b262d76e56508a6036e5aa",
+  "zones": "250378616db89eb36d171b919435145994f551a299e62e5ec9d492f7f8597d59"
+ },
+ "tolerances": {
+  "bal_residual_mw": 1e-06,
+  "binding_slack": 1e-06,
+  "comp_slack_scaled": 1e-08,
+  "decomposition_rel": 1e-09,
+  "dual_sign_scaled": 1e-09,
+  "revenue_identity_rel": 1e-06,
+  "strong_duality_rel": 1e-07,
+  "tol_pi_abs": 0.01,
+  "tol_pi_rel": 1e-05,
+  "tol_q_abs_mw": 0.001,
+  "tol_q_rel": 1e-06,
+  "zero_profit_rel": 1e-06
+ }
+}

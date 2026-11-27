@@ -1,6 +1,7 @@
 # Gate 3 — PJM 5-bus (DC power flow option): exit criteria
 
-Status: **DRAFT (prep item P2, 2026-11-26) — not approved. Owner approves (or amends) at the Gate 2 → Gate 3 boundary.**
+Status: **APPROVED by owner 2026-11-27 (DECISIONS 47)** — dispatch tolerance 0.01 MW, P5e load scan kept, §4a carried items added.
+Gate numbers use the renumbering of DECISIONS 43. Default network model stays `transport` (pipe-and-bubble); `dcpf` is an option only.
 Criteria are frozen once approved (docs/gates/README.md). Branch `gate-3`, created from `gate-2`.
 Spec: formulation §7.4a (`tx.model ∈ {transport, dcpf}`), which this gate must first **complete** (see §6, item W-spec).
 DECISIONS 29: DC power flow is built here only as an **option**; `transport` stays the default everywhere.
@@ -10,7 +11,7 @@ In: `tx.model = dcpf` in angle form (required) and PTDF form (required, equal re
 class and the LMP decomposition (energy + congestion, lossless); `links.csv` network fields `reactance_pu`, `base_mva`
 (data-schema §3.2, reserved since G0); the `pjm5` case (`cases/pjm5bus/`, built from `cases/raw/pjm5bus/`, prep item P3)
 with provenance; a fixed-fleet (no-build) run mode for test systems if not already supported.
-Out: losses, hurdles, interfaces, expansion (Gate 8), reserves (Gate 7), UC (Gate 9), any PJM market data.
+Out: losses, hurdles, interfaces, expansion (Gate 10), reserves (Gate 9), UC (Gate 11), any PJM market data.
 
 ## 2. Reference case `pjm5` (source: Li & Bo 2010; MATPOWER `case5`)
 Values below were written from memory and **reproduced in this draft by an independent scipy `linprog(highs)` DC-OPF**
@@ -31,14 +32,15 @@ Values below were written from memory and **reproduced in this draft by an indep
 | Dispatch (MW) | Alta 40, Park City 170 | – | Solitude 323.49 | Sundance 0 | Brighton 466.51 |
 
 Binding: only D–E at its 240 MW limit (flow E→D). Hourly cost 17,479.90 $/h. Merchandising (congestion) surplus
-$\sum_n \pi_n(D_n-G_n)$ = 14,957.28 $/h, so the D–E shadow price is ≈ 62.32 $/MWh (derived here; verify).
+$\sum_n \pi_n(D_n-G_n)$ = 14,957.29 $/h, so the D–E shadow price is ≈ 62.32 $/MWh (derived here; verify).
+(G3-1: arithmetic corrected from 14,957.28 — the independent route gives 14,957.2901 = 62.32204 × 240; DECISIONS 48.)
 Marginal units: Solitude (C) and Brighton (E); A, B, D have no local marginal unit (loop-flow prices).
 
 ## 3. Known-answer tests (verifier, from the spec; expected values computed in the test by an independent route)
 Independent route = a DC-OPF written in the test from the case CSVs with `scipy.optimize.linprog(method="highs")`,
 never calling `capex` model-building code. Tolerances: objective rel 1e-7; dispatch abs 1e-4 MW; LMP abs 1e-4 $/MWh
 vs the independent route; and vs the **published rounded values** LMP abs 0.01 $/MWh, dispatch abs 0.01 MW
-(benchmarks.md §6 says 0.1 MW; tighten only if owner agrees, §7 item 1).
+(owner approved 0.01 MW for this case, DECISIONS 47; benchmarks.md §6's 0.1 MW stays the general default).
 
 | Case | Must reproduce | Expected price-setter report |
 |---|---|---|
@@ -66,6 +68,13 @@ Audit-mutation tests (verifier): require at least one check to fail for each of 
 the LP only; (M8) a `kvl` row sign flip; (M9) wrong reference bus row dropped (angles free → must be detected, not
 silently solved); (M10) one line's μ sign flipped in the adapter.
 
+## 4a. Carried items (DECISIONS 42, Gate 2 review items 8–9)
+| ID | Item | Pass rule |
+|---|---|---|
+| K1 | data-download job prints `provenance.json` and per-file sha256 to the job log | a `pjm5` dispatch log shows every field and hash |
+| K2 | verifier test: `cases/raw/pjm5bus/case5.m` sha256 equals `data/manifests/pjm5.csv` | test passes; fails if the file changes |
+| K3 | GitHub Actions bumped off Node 20 (`checkout`, `setup-python`, `upload/download-artifact` current majors) | CI and a `pjm5` dispatch green, no Node 20 warning |
+
 ## 5. Evidence file `reports/gate-3-evidence.md`
 As gate-1.md §5, plus: P5a–P5f expected vs obtained with margins; the per-bus LMP decomposition table for P5a;
 price-setter table with α weights; source-file hashes and P3 provenance for `pjm5`; the transport-vs-dcpf
@@ -86,6 +95,4 @@ UNEXPLAINED = 0, CONGESTION_LOOP weights correct? (3) mutation tests M7–M10 al
 Gate 1 results unchanged? (5) §7.4a completion and F-0.3 accepted? (6) `pjm5` provenance complete (P3 source and
 licence noted)? (7) keep `dcpf` as an option for Gate 4 RTS-GMLC (which has line data) — yes/no? (8) merge `gate-3`
 to `main` and mark Gate 3 DONE?
-Open for the owner when approving this draft: dispatch tolerance 0.01 MW vs benchmarks.md's 0.1 MW (rec 0.01 —
-the published dispatch has two decimals); whether P5e's load scan is wanted under the simplest-model rule (rec yes —
-it is the only case where price-setter classes change hour to hour; cost is one extra 72-hour case).
+Owner answers (2026-11-27, DECISIONS 47): dispatch tolerance 0.01 MW — yes; P5e load scan — keep.

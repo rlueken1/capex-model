@@ -1,0 +1,44 @@
+case_id: pjm5bus
+description: PJM 5-bus test system (Li & Bo 2010; MATPOWER case5), fixed fleet, one
+  72-hour period; Gate 3 DC power flow known-answer case
+schema_version: S-0.1
+formulation_version: F-0.3
+base_dollar_year: 2024
+model_year: 2025
+dt_h: 1.0
+voll_usd_mwh: 10000
+voll_dollar_year: 2024
+finance_default: pjm5_unused
+seed: 0
+solver:
+  name: highs
+switches:
+  tx.model: dcpf
+tables:
+  periods:
+    file: periods.csv
+    sha256: f529fc444f4ab4b953137e20d49ab90ba639849da0bc01caf3a0fb8106c3d708
+  zones:
+    file: zones.csv
+    sha256: 4d2a37f2914e19133629e9b290032ebe0f8a6cd139af0e1642521a15135c0b56
+  load:
+    file: load.csv
+    sha256: 3ff7c1d29bd7f7a9780175d8c2c042f14cccb909fc1c3b803784ae31737b3c53
+  load_meta:
+    file: load_meta.csv
+    sha256: 5c39a56a377c278f8a40d4a3b8892081f3ad1ed224d90be5ff4ccf53ef878156
+  resources:
+    file: resources.csv
+    sha256: e39006e130f7794587ff2011129e9170f45d87c003d2eb54af6dad548b667f6c
+  finance:
+    file: finance.csv
+    sha256: db9316969e6a4f8317a386a13a1e8604c4762470e4c1c54a4b6db24aeb3c0383
+  deflator:
+    file: ../../data/common/deflator.csv
+    sha256: c1fc4b6c9f000aa97d6821cf43f4d20daf61cadb31ab71239a911aa9733b153f
+  sources:
+    file: sources.csv
+    sha256: c59a5b2dbcc04193e8f81ad962cecca4cedd6edc740378d967f1e32fbe6fa443
+  links:
+    file: links.csv
+    sha256: f35b81a9e9047d6d0ee44a1b138bc601f35570f164750f4f0966a79b843d6c96

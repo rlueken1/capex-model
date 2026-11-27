@@ -44,3 +44,8 @@ Judgment (formulation lead + consulting reviewer; owner decides):
 - **Keep but default off** if it helps only some questions.
 - **Simplify or drop** if it adds compute with no measurable value.
 Results go in `reports/complexity-ledger.md`, one row per feature, kept current.
+
+## Performance budget (every gate from Gate 4; DECISIONS 44)
+Each gate reports, per benchmark case and mode (plan / operations): rows, columns, nonzeros, solve time, peak memory,
+solver method, vs the previous gate, in `reports/performance-ledger.md`. Growth above 2× needs a ledger reason
+(the feature's value) or a fix. Targets (owner-confirmed or [P]) are in docs/design-review-2026-11-27.md.
