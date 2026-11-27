@@ -136,7 +136,7 @@ One per session, strictly in order; claim before work (CLAUDE.md).
 One per session, strictly in order; claim before work (CLAUDE.md). Default network model stays `transport` (pipe-and-bubble).
 - [x] G3-1 Formulation lead [Opus]: W-spec — complete formulation §7.4a (`kvl`, `ref_angle`, PTDF + islands, μ sign under `dcpf`,
   `CONGESTION_LOOP` with α weights and `DEGENERATE` sub-tag), data-schema `links.csv` validation; DECISIONS entry; version → F-0.3. Spec only.
-- [ ] G3-2 Verifier [Sonnet]: tests from the amended spec only — promote `tests/draft/test_pjm5bus.py` (P5a–P5f, §4 checks, M7–M10;
+- [~] G3-2 Verifier [Sonnet]: tests from the amended spec only — promote `tests/draft/test_pjm5bus.py` (P5a–P5f, §4 checks, M7–M10; (claimed 2026-11-27T04:24:06Z)
   14,957.28 → .29 fix in gate-3.md §2) and K2 (case5.m hash = manifest). Expected red until G3-3/G3-4 (strict xfail citing Gate 3).
 - [ ] G3-3 Builder [Sonnet]: `tx.model=dcpf` angle + PTDF forms, `pjm5` case in `cases/pjm5bus/` with provenance, fixed-fleet run,
   price-setter `CONGESTION_LOOP`, new health checks. Do not edit verifier tests. CI green.
