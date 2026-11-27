@@ -259,3 +259,5 @@ Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
   `docs/data-schema.md` aligned with formulation F-0.3 amendment 2 / DECISIONS 51: switches key rule (+`scaling`),
   tolerances key rule, `formulation_version` case vs code (run.json vs fingerprint), price_setter list cells + island_id.
   Docs only; local pytest 637 pass / 0 fail. Nothing for the owner. Next: G3-6-fix2 (builder).
+
+2026-11-27 — owner reply (live): yes to all four G3-6 questions (strict keys, fingerprint → F-0.3, carry F3-3/9/12/13, C7 per §8.10a) → DECISIONS 52.

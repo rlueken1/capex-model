@@ -281,3 +281,10 @@
     case's declared version. (f) §8.12: congestion rent per hour/year is read from `flows` (no table). Rejected: changing
     `setter_ids` to sorted order (breaks transport golden); keeping the fingerprint at F-0.2 (hides the formulation
     change; §7.4a.9 was written to let it differ). Code fixes: G3-6-fix2/fix3 in PLAN.md.
+52. Owner (2026-11-27, live reply to the G3-6 questions, `reports/gate-3-spec-trace.md` §4): **yes to all four.**
+    (1) Switch keys strict: a key the code does not implement is a `DataError` even at its default-off value (e.g.
+    `reserves.enabled: false`), per DECISIONS 51(a). (2) Every run fingerprint, T1–T4 included, changes once as the code's
+    `formulation_version` goes F-0.2 → F-0.3 (DECISIONS 51(e)); outputs stay byte-identical. (3) F3-3, F3-9, F3-12,
+    F3-13 carried to Gate 4 (F3-9/F3-13 wait for the first `dcpf` case with storage if dcpf is not kept for Gate 4).
+    (4) DECISIONS 50 / §8.10a accepted: Gate-2 C7 "byte-identical" reads with health `value` compared at 1e-12
+    abs-or-rel, all other bytes exact. G3-7 records these as answered in the Gate 3 decision list.
