@@ -120,8 +120,8 @@ One per session, strictly in order; claim before work (CLAUDE.md).
 - [x] G2-7b Verifier [Sonnet]: unblocked — fixed data-download.yml copied to `main` 2026-11-26 (9671c02, owner live approval; workflow registered as `data-download`, active). Dispatch `data-download.yml` (ref `gate-2`,
   `source_id=pjm5`) twice (D5 equal hashes) and once from a throwaway branch with a corrupted manifest hash (D3 fails,
   nothing uploaded; delete the branch after); fill gate-2-evidence.md §3–§4 and the D table.
-- [ ] G2-8 PM [Sonnet] + markets reviewer [Sonnet] (1 subagent): `reports/gate-2-review.md` pass/fail table and owner yes/no
-  list; STATUS: AWAITING_OWNER_REVIEW.
+- [~] G2-8 PM [Sonnet] + markets reviewer [Sonnet] (1 subagent): `reports/gate-2-review.md` pass/fail table and owner yes/no
+  list; STATUS: AWAITING_OWNER_REVIEW. (claimed 2026-11-27T01:24:14Z)
 
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
 Use when STATUS is AWAITING_OWNER_REVIEW, or when the next gate item is already claimed by another run (owner, 2026-11-26). One item per session, in order. Drafts and raw data only:
