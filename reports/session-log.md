@@ -243,3 +243,9 @@ Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
 - Verifier: `_canonical_diff` in tests/test_pjm5bus.py (+7 self-tests), same rule in scripts/compare_runs.py (C7) + tests/test_compare_runs.py.
 - Tests: 637 pass / 0 fail (Py 3.12 venv, CI pins); check_markers 0. CI on push decides.
 - Owner: yes/no at Gate-3 review on reading Gate-2 C7 "byte-identical" per §8.10a.
+
+## 2026-11-27 ~10:50 UTC — G3-5 (verifier, Sonnet)
+- `reports/gate-3-evidence.md`: 22 criteria pass, P5f reported, 0 fail; `reports/complexity-ledger.md` started (`tx.model` rows); pytest log kept.
+- Tests: local 637 pass / 0 fail; CI run 150 green; data-download `pjm5` dispatch run 45981948446 success (K1 print + hashes = pins, no Node 20 warning → K3).
+- 7 findings for G3-6 (FORMULATION_VERSION F-0.2, unknown switch keys accepted, §7.4a.6 split missing, thin pjm5 provenance cols, ntc blanks, bus-D α, setter_ids format).
+- Owner: nothing new; MATPOWER licence still "verify".
