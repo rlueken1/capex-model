@@ -81,7 +81,7 @@ def storage_rents(sv: Solved, eco: Economics) -> pd.DataFrame:
     delta = np.nan_to_num(st.dur_lo)
     excess = (r_p + delta * r_e) - (st.cp + delta * st.ce)
     ok = np.where(fixed_dur, _zero_profit_ok(excess, st.cp + delta * st.ce, status, sv.case.tolerances.zero_profit_rel),
-                  np.where(candidate, _column_sign_ok(sv, status), True))
+                  np.where(candidate, _column_sign_ok(sv, status, _status(xe, st.xe_max, _tol_q(sv, e_cap))), True))
     fixed = st.cp * xp + st.ce * xe + st.fom0
     return pd.DataFrame({
         "resource_id": st.ids, "kind": "ST", "energy_revenue": energy_rev, "variable_cost": var_cost,
@@ -91,11 +91,14 @@ def storage_rents(sv: Solved, eco: Economics) -> pd.DataFrame:
         "revenue_identity_residual": energy_rev - var_cost - (r_p * p_cap + r_e * e_cap)})
 
 
-def _column_sign_ok(sv: Solved, status: np.ndarray) -> np.ndarray:
-    """Storage without a fixed duration: the solver's own reduced costs have the sign its build status requires."""
-    tol = sv.case.tolerances.zero_profit_rel
-    s = sv.col_dual("xP")
+def _sign_ok(s: np.ndarray, status: np.ndarray, tol: float) -> np.ndarray:
     return np.where(status == "interior", np.abs(s) <= tol, np.where(status == "at_zero", s >= -tol, s <= tol))
+
+
+def _column_sign_ok(sv: Solved, status_p: np.ndarray, status_e: np.ndarray) -> np.ndarray:
+    """Storage without a fixed duration: the solver's reduced costs s_xP and s_xE each have the sign their build status requires."""
+    tol = sv.case.tolerances.zero_profit_rel
+    return _sign_ok(sv.col_dual("xP"), status_p, tol) & _sign_ok(sv.col_dual("xE"), status_e, tol)
 
 
 def storage_reduced_cost_residual(sv: Solved, eco: Economics) -> float:

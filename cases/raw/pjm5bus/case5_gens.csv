@@ -1,0 +1,6 @@
+gen_idx,li_bo_name,bus,Pmax_MW,Pmin_MW,cost_model,c1_usd_per_MWh,c0_usd_per_h,case5_Pg_MW_as_published
+1,Alta,1,40.0,0.0,2,14.0,0.0,40.0
+2,Park City,1,170.0,0.0,2,15.0,0.0,170.0
+3,Solitude,3,520.0,0.0,2,30.0,0.0,323.49
+4,Sundance,4,200.0,0.0,2,40.0,0.0,0.0
+5,Brighton,5,600.0,0.0,2,10.0,0.0,466.51

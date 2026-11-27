@@ -145,3 +145,60 @@ Owner: workflow can only be dispatched once its file is on `main` (Gate 2 eviden
 - 9 schema gaps found. Owner: 10 yes/no items (Needs owner). Prep list now exhausted; runs will skip until W7b.
 
 2026-11-26T11:35Z — skipped: nothing claimable (AWAITING_OWNER_REVIEW; W7b owner-only; prep P1–P10 done)
+
+2026-11-26 — G2-1 (builder, Sonnet), branch `gate-2`
+- ci.yml: push all branches + PR into main; ubuntu-24.04, Py 3.12; exact pins in new requirements-ci.txt; version block (C3); pytest -v --disable-socket --junitxml + log artifacts 30 d (C4, C9); wall-time summary, warn >10 min (C8).
+- Local fresh 3.12 venv, network disabled: 481 pass / 29 skip / 1 xfail / 0 fail. CI result on GitHub: see next run on gate-2.
+- Nothing needs the owner. Next: G2-2.
+- 2026-11-26 G2-2 (builder, Sonnet): CI C5–C7 — xfail_strict, scripts/check_markers.py (+ --self-test), health-run matrix job (2 PYTHONHASHSEEDs, T1–T4, artifacts), compare job (scripts/compare_runs.py, byte-identical canonical outputs; --numeric for local vs CI). Commit d734cc5.
+  Tests: 481 pass / 29 skip / 1 xfail / 0 fail locally; health 7/7 pass; seed compare identical. Checker flags 1 verifier draft marker (tests/draft/test_pjm5bus.py:118, xfail without Gate ref) → new item G2-2-fix (verifier); CI test job red on C5 step until then (planned).
+  Needs owner: nothing.
+- 2026-11-26 G2-2-fix (verifier): tests/draft/test_pjm5bus.py congestion-surplus marker changed from strict xfail to skip citing "Gate 3" (draft 14,957.28 vs independent 14,957.29 note kept for Gate 3 approval).
+  Tests: check_markers.py exit 0, --self-test exit 1; full pytest 481 pass / 30 skip / 0 xfail / 0 fail locally (network disabled). CI: see next gate-2 run.
+  Needs owner: nothing. Next: G2-3 (builder, data-download workflow for pjm5).
+- 2026-11-26 G2-3 (builder, Sonnet): data-download workflow gate-grade for pjm5 (D1–D8): ubuntu-24.04, step-summary provenance, skip note; verify_artifact `--against`/`--summary`; new scripts/fetch_artifact.py consumer; tests/builder/test_data_download_smoke.py (16).
+  Tests: 497 pass / 30 skip / 0 fail locally (network disabled); check_markers clean. Live pjm5 fetch from workspace matched both pinned hashes. Not yet run on Actions.
+  Needs owner: data-download.yml must be on `main` before any dispatch (G2-7 evidence) — copy the file to main? rec yes. Next: G2-4.
+- 2026-11-26 owner (live): yes to copying data-download.yml onto main → done (main f123ad1, DECISIONS 39). G2-7 can now dispatch with --ref gate-2.
+
+2026-11-26 G2-4 (builder, Sonnet subagent), branch gate-2
+- Fixed carried findings F3 (eliminate_zeros in _triplets), F4 (free-duration storage checks s_xP and s_xE), F5 (scipy ranged-row dual no longer overwritten), P1-a (git_state NUL-separated untracked paths).
+- 4 builder smoke tests added; local 501 pass / 30 skip / 0 fail; check_markers OK; T1–T4 health runs ok, outputs unchanged.
+- No spec change; nothing needs the owner. Next: G2-5 verifier tests.
+
+## 2026-11-26 — G2-5 (verifier, Sonnet)
+- Added `tests/test_gate2_findings.py` (27 cases: F3, F4, F5, P1-a) and `tests/test_check_markers.py` (19 cases: C5), written from gate-2.md §2/§4 and formulation.md.
+- Result: 46/46 pass on gate-2; 10 F3–F5/P1-a cases fail on the pre-fix commit (faaa9cd^), so the tests catch the original bugs.
+- Full suite 547 pass / 30 skip / 0 fail (network off); check_markers exit 0. Nothing needs the owner. Next: G2-6 (Opus).
+
+## 2026-11-26 — G2-6 (formulation lead, Opus, no subagents)
+- P1-b decided: exclude `data/common/sources.csv` from case-manifest sha256 pins (DECISIONS 40); registry still hashed in the run fingerprint; ids append-only.
+- Edited T1–T4 `case.yaml` (dropped the `sources` sha256), data-schema §5 + §6 rule 1, gate-2.md P1-b row + [P] note, rts_gmlc README follow-up.
+- Full suite 547 pass / 30 skip / 0 fail (network off); check_markers exit 0. Nothing needs the owner. Next: G2-7 (verifier).
+
+2026-11-26 G2-7 (verifier, main session, no subagents): wrote `reports/gate-2-evidence.md`.
+CI #107 on c975ea4 green: 547 pass / 30 skip / 0 fail, ~63 s, version block = pins, 7/7 health cases identical across PYTHONHASHSEED 0/12345, objectives = local exactly.
+Data-download dispatch refused ("no workflow_dispatch trigger"): data-download.yml is invalid YAML at line 79 (V2-1), on main and gate-2. Local fetch/verify pass D2–D5. Added G2-7a (builder fix + workflow-parse CI step) and G2-7b (dispatch evidence) before G2-8.
+Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact downloads blocked in this workspace (C3 run.json / C7 π not inspected).
+
+2026-11-26 G2-7a (builder, Sonnet subagent) on `gate-2` fc90b77.
+- Fixed V2-1: data-download.yml line 79 `run:` → block scalar; both workflow files now parse.
+- New `scripts/check_workflows.py` + ci.yml step "Parse workflow files" (fails exit 1 on line-79 regression, demonstrated). Local 547 pass / 30 skip / 0 fail.
+- NOT done: copy to `main` (DECISIONS 41) — push to main blocked in this unattended run; scheduled prompt says never on main. Owner action; G2-7b waits.
+
+2026-11-26T22:24Z skipped: nothing claimable — G2-7b blocked (fixed data-download.yml still not on `main`, owner action in Needs owner); all prep items P1–P10 done.
+
+2026-11-26T23:25Z skipped: nothing claimable — G2-7b still blocked (main data-download.yml unchanged at f123ad1; owner action in Needs owner); prep P1–P10 done.
+2026-11-26T23:30Z live session (owner): copied fixed data-download.yml to `main` (9671c02, DECISIONS 41); workflow `data-download` registered/active. G2-7b unblocked.
+
+## 2026-11-27 — G2-7b (verifier, Sonnet)
+- Dispatched data-download (pjm5): runs 45916594450 + 45916775025 on gate-2 success, identical pinned hashes (D5 pass); broken-hash run 45916853288 fails at verify, 0 artifacts (D3 pass).
+- reports/gate-2-evidence.md §3–§4 + D table filled (440fe60, 3f58682). No code/tests changed.
+- Needs owner: delete branch `g2-7b-broken-hash` (403 from workspace); artifact contents/step summary not readable here (D4 partial).
+
+## 2026-11-27 — G2-8 (PM, main session + markets reviewer Sonnet)
+- Wrote reports/gate-2-review.md: pass/fail table (C1–C9, D1–D8, F3–F5, P1-a/b all pass; D4/D5/D7 carried limitations), PM checks, 9-item owner decision list.
+- Full-history audit: no secrets, no downloaded raw data (vendored test-system data owner-approved). CI #121 green on last completed commit; ~63 s/run.
+- Markets reviewer: verdict yes; should-fix for later gates (log provenance/hashes, case5.m hash test, revised-data vintage policy, >90-day storage, hub gas source).
+- STATUS: AWAITING_OWNER_REVIEW. Needs owner: answer the 9 items; delete branch g2-7b-broken-hash.
+- 2026-11-27 (live, owner instruction): Gate 2 merged gate-2 → main; g2-7b-broken-hash neutralized (not deletable, 403); branch protection pending owner.

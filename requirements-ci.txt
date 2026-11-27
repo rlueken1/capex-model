@@ -1,0 +1,16 @@
+# Pinned environment for CI and the documented local install (gate-2 C2).
+# Python 3.12. Install:  pip install -r requirements-ci.txt && pip install -e . --no-deps
+# Exact == pins for every direct and transitive runtime + test dependency.
+highspy==1.16.0
+iniconfig==2.3.1
+numpy==2.5.3
+packaging==26.4
+pandas==3.0.5
+pluggy==1.7.0
+Pygments==2.21.0
+pytest==9.1.1
+pytest-socket==0.8.1
+python-dateutil==4.0.0
+PyYAML==6.0.3
+scipy==1.18.1
+tzdata==2026.6

@@ -1,0 +1,388 @@
+table,row_key,column,source_id,vintage,retrieved,method,basis,confidence,est_level
+resources,101_ct_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,101_ct_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,101_steam_3,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,101_steam_4,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,102_ct_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,102_ct_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,102_steam_3,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,102_steam_4,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,107_cc_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,113_ct_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,113_ct_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,113_ct_3,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,113_ct_4,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,115_steam_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,115_steam_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,115_steam_3,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,116_steam_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,118_cc_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,123_steam_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,123_steam_3,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,123_ct_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,123_ct_4,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,123_ct_5,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,201_ct_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,201_ct_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,201_steam_3,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,202_ct_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,202_ct_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,202_steam_3,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,202_steam_4,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,207_ct_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,207_ct_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,213_cc_3,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,213_ct_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,213_ct_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,215_ct_4,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,215_ct_5,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,216_steam_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,218_cc_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,221_cc_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,223_steam_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,223_steam_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,223_steam_3,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,223_ct_4,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,223_ct_5,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,223_ct_6,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,301_ct_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,301_ct_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,301_ct_3,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,301_ct_4,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,302_ct_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,302_ct_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,302_ct_3,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,302_ct_4,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,307_ct_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,307_ct_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,313_cc_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,315_steam_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,315_steam_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,315_steam_3,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,315_steam_4,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,315_steam_5,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,315_ct_6,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,315_ct_7,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,315_ct_8,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,316_steam_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,318_cc_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,321_cc_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,322_ct_5,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,322_ct_6,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,323_cc_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,323_cc_2,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = secant incremental heat rate PMin..PMax; BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,121_nuclear_1,heat_rate_mmbtu_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,"derived from gen.csv HR_avg_0, HR_incr_1..3, Output_pct_*: fuel curve F0=HR_avg_0*P0, F_k=F_(k-1)+HR_incr_k*dP; HR = full-load average (secant slope is 0 for flat fuel curve); BTU/kWh/1000 = MMBtu/MWh",high,1.0
+resources,313_storage_1,e0_mwh,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: storage.csv head-reservoir Max Volume GWh * 1000 (tail reservoir equal); initial volume 0.075 GWh not representable (cyclic SOC closure per period),medium,1.0
+resources,313_storage_1,eta_c_frac,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,estimated,"estimated: published round-trip efficiency 85% (gen.csv) split symmetrically, eta = sqrt(0.85)",medium,4.0
+resources,313_storage_1,eta_d_frac,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,estimated,"estimated: published round-trip efficiency 85% (gen.csv) split symmetrically, eta = sqrt(0.85)",medium,4.0
+resources,313_storage_1,selfdis_frac_h,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed 0: no self-discharge/evaporation published for the RTS-GMLC pumped storage unit,low,
+resources,101_ct_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,101_ct_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,101_ct_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,101_ct_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,101_steam_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,101_steam_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,101_steam_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,101_steam_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,102_ct_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,102_ct_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,102_ct_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,102_ct_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,102_steam_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,102_steam_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,102_steam_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,102_steam_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,107_cc_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,107_cc_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,113_ct_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,113_ct_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,113_ct_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,113_ct_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,113_ct_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,113_ct_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,113_ct_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,113_ct_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,115_steam_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,115_steam_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,115_steam_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,115_steam_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,115_steam_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,115_steam_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,116_steam_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,116_steam_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,118_cc_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,118_cc_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,123_steam_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,123_steam_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,123_steam_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,123_steam_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,123_ct_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,123_ct_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,123_ct_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,123_ct_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,123_ct_5,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,123_ct_5,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,201_ct_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,201_ct_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,201_ct_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,201_ct_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,201_steam_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,201_steam_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,202_ct_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,202_ct_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,202_ct_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,202_ct_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,202_steam_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,202_steam_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,202_steam_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,202_steam_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,207_ct_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,207_ct_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,207_ct_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,207_ct_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,213_cc_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,213_cc_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,213_ct_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,213_ct_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,213_ct_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,213_ct_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,215_ct_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,215_ct_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,215_ct_5,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,215_ct_5,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,216_steam_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,216_steam_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,218_cc_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,218_cc_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,221_cc_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,221_cc_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,223_steam_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,223_steam_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,223_steam_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,223_steam_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,223_steam_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,223_steam_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,223_ct_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,223_ct_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,223_ct_5,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,223_ct_5,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,223_ct_6,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,223_ct_6,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,301_ct_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,301_ct_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,301_ct_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,301_ct_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,301_ct_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,301_ct_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,301_ct_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,301_ct_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,302_ct_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,302_ct_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,302_ct_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,302_ct_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,302_ct_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,302_ct_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,302_ct_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,302_ct_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,307_ct_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,307_ct_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,307_ct_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,307_ct_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_cc_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_cc_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,315_steam_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,315_steam_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,315_steam_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,315_steam_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,315_steam_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,315_steam_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,315_steam_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,315_steam_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,315_steam_5,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,315_steam_5,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,315_ct_6,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,315_ct_6,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,315_ct_7,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,315_ct_7,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,315_ct_8,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,315_ct_8,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,316_steam_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,316_steam_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,318_cc_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,318_cc_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,321_cc_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,321_cc_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,322_ct_5,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,322_ct_5,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,322_ct_6,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,322_ct_6,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,323_cc_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,323_cc_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,323_cc_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,323_cc_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,121_nuclear_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,121_nuclear_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,122_hydro_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,122_hydro_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,122_hydro_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,122_hydro_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,122_hydro_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,122_hydro_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,122_hydro_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,122_hydro_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,122_hydro_5,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,122_hydro_5,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,122_hydro_6,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,122_hydro_6,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,201_hydro_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,201_hydro_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,215_hydro_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,215_hydro_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,215_hydro_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,215_hydro_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,215_hydro_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,215_hydro_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,222_hydro_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,222_hydro_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,222_hydro_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,222_hydro_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,222_hydro_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,222_hydro_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,222_hydro_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,222_hydro_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,222_hydro_5,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,222_hydro_5,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,222_hydro_6,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,222_hydro_6,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,322_hydro_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,322_hydro_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,322_hydro_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,322_hydro_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,322_hydro_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,322_hydro_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,322_hydro_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,322_hydro_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,320_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,320_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,314_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,314_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,314_pv_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,314_pv_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,314_pv_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,314_pv_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,314_pv_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,314_pv_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_pv_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_pv_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,310_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,310_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,324_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,324_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,312_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,312_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,310_pv_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,310_pv_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,324_pv_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,324_pv_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,324_pv_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,324_pv_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,113_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,113_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,319_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,319_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,215_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,215_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,102_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,102_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,101_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,101_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,102_pv_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,102_pv_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,104_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,104_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,212_csp_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,212_csp_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,101_pv_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,101_pv_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,101_pv_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,101_pv_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,101_pv_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,101_pv_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,103_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,103_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,119_pv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,119_pv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,308_rtpv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,308_rtpv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_5,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_5,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_6,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_6,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_7,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_7,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_8,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_8,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_9,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_9,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_10,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_10,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_11,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_11,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_12,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_12,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,320_rtpv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,320_rtpv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,320_rtpv_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,320_rtpv_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,320_rtpv_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,320_rtpv_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_rtpv_13,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_rtpv_13,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,320_rtpv_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,320_rtpv_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,320_rtpv_5,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,320_rtpv_5,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,118_rtpv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,118_rtpv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,118_rtpv_2,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,118_rtpv_2,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,118_rtpv_3,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,118_rtpv_3,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,118_rtpv_4,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,118_rtpv_4,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,118_rtpv_5,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,118_rtpv_5,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,118_rtpv_6,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,118_rtpv_6,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,320_rtpv_6,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,320_rtpv_6,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,118_rtpv_7,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,118_rtpv_7,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,118_rtpv_8,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,118_rtpv_8,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,118_rtpv_9,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,118_rtpv_9,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,118_rtpv_10,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,118_rtpv_10,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,213_rtpv_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,213_rtpv_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,309_wind_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,309_wind_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,317_wind_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,317_wind_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,303_wind_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,303_wind_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,122_wind_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,122_wind_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0
+resources,313_storage_1,dollar_year,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,assumed: upstream states no dollar year for costs; treated as 2024$ (deflator factor 1; costs here are only VOM=0 and fuel prices),low,
+resources,313_storage_1,zone,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,derived: gen.csv Bus ID -> bus.csv Area,high,1.0

@@ -137,3 +137,43 @@
     code already omits it); stacking readers take it from `run.json`. Reason: DECISIONS 35(d) put the random run_id in
     the assumptions book, which made byte-identity impossible as worded. Rejected: a deterministic run_id (two runs
     would share an id) and dropping run_id from the book (undoes C2). Verifier updates its test in W6-fix1-test.
+
+2026-11-26 (owner)
+37. Gate 1 approved; owner instructed the merge of `gate-1` into `main` (done 2026-11-26; CLAUDE.md conflict resolved
+    with gate-1's version; 460 tests pass on main). `gate-2` created from `main`, prep branch P1–P10 merged into it.
+38. Owner answered yes to every open recommendation: P3 (MATPOWER case5.m used as an internal test system, vendored and
+    cited, not in client deliverables); P5 (append an `rts_gmlc` row to data/common/sources.csv and re-hash T1–T4
+    manifests in one commit at Gate 4; heat-rate choice gets its DECISIONS entry at Gate 4); P8 (M7.1 pass/fail years are
+    2024/25 and 2025/26; collar-capped years reported against PJM's uncollared simulation + MW shortfall); P9 (all 6
+    storage-study outline items, applied at Gate 15); P10 (all 10 EIA-mapping items); Gate 2 criteria
+    (docs/gates/gate-2.md) approved as drafted. Gate 3 and Gate 5 drafts stay DRAFT until their own boundary.
+
+2026-11-26 (owner)
+39. Owner answered yes to G2-3's question: `.github/workflows/data-download.yml` copied alone onto `main` (f123ad1) so GitHub
+    can dispatch it (dispatch needs the file on the default branch). Dispatch-only, `contents: read`; a run with
+    `--ref gate-2` uses gate-2's workflow and scripts. No other gate-2 work is on `main`; Gate 2 is not merged or done.
+
+2026-11-26 (formulation lead, G2-6 — P1-b, delegated by approved gate-2.md §4)
+40. P1-b: **exclude** the shared source registry `data/common/sources.csv` from per-file sha256 pinning in case manifests.
+    T1–T4 `case.yaml` list `sources` without `sha256`; every other table (incl. shared `deflator.csv`) stays pinned.
+    data-schema §5 and §6 rule 1 amended. Reason: the registry changes no number in the LP; it only gates provenance
+    (`source_id` must exist, data-schema §6 rule 7) and, later, licence checks. Pinning it made every registry append
+    (many coming at Gates 4, 16, 18) break every case until re-hashed — noise, not signal. Reproducibility is kept: the
+    run fingerprint already hashes the registry as a canonical input table (formulation §8.10), so a registry edit still
+    changes the fingerprint of every run that loads it. Rules: the registry is append-only for `source_id` (never delete
+    or rename an id a case cites); rows may gain columns/fields. Rejected: keep pinning (re-hash churn across all cases per
+    registry row); a case-local registry copy per case (drifts; the rts_gmlc copy is retired at Gate 4). Effect on
+    DECISIONS 38 (P5): at Gate 4 append the `rts_gmlc` row and point rts_gmlc at the common file; no T* re-hash needed.
+    Not an LP or formulation change (version stays F-0.2). T1–T4 fingerprints change once (manifest config component).
+    Local: 547 pass / 30 skip / 0 fail; check_markers exit 0.
+
+2026-11-26 (owner, live reply to G2-7's question)
+41. Owner answered yes to G2-7's question (V2-1): once G2-7a fixes `.github/workflows/data-download.yml` on `gate-2`, the
+    run doing G2-7a copies that one file alone onto `main` (as DECISIONS 39), so G2-7b can dispatch it. Only that
+    file; no merge; Gate 2 stays not merged and not done.
+42. Owner answered yes to all 9 Gate 2 review items (reports/gate-2-review.md, 2026-11-27): C1–C9 pass; D1–D8 pass with
+    D4/D5/D7 as carried limitations; F3–F5, P1-a/b closed; pinned versions (requirements-ci.txt, ubuntu-24.04) are the
+    supported environment; DECISIONS 38–41 and data-schema §5/§6.1 accepted; owner enables branch protection on `main`
+    requiring `ci`; merge `gate-2` → `main` and mark Gate 2 DONE (owner later said to merge before the branch deletion; branch neutralized instead);
+    markets items (a) log provenance/hashes and (b) case5.m hash test go into Gate 3 criteria, (c)–(f) are later-gate notes
+    (Gate 4/11/16); bump Actions majors (Node 20 deprecation) in Gate 3.

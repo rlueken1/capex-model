@@ -52,7 +52,7 @@ renamed or re-unit'd without bumping S-x.y and the loader).
 | `base_dollar_year` | int | $B$ (2024) |
 | `model_year` | int | $y$; fixes $D_y$ (365/366) |
 | `dt_h` | float | must be 1.0 (asserted, §1.1) |
-| `zones` / tables | list / map | `tables:` maps each logical table to a file with `sha256` (feeds fingerprint) |
+| `zones` / tables | list / map | `tables:` maps each logical table to a file with `sha256` (feeds fingerprint). Exception: the shared source registry `sources` (`data/common/sources.csv`) is listed **without** `sha256` (DECISIONS 40); its content still enters the run fingerprint as a canonical input table (formulation §8.10) |
 | `switches` | map | all ablation keys: `ts.mode`, `ts.n_periods`, `ts.features.*`, `ts.forced.*`, `storage.inter_period`, `reserves.enabled`, `reserves.ordc`, `tx.losses/hurdle/expansion/interfaces`, `uc.*`, `policy.*`, `build.limits`, `retire.economic`, `calib.adders`, `deflate.monthly`; absent = default-off |
 | `voll_usd_mwh` | float | VOLL ($Z^{use}$, §2.3); G7+: backstop only (DECISIONS 24) |
 | `finance_default` | str | `finance_class` used when a resource gives none |
@@ -246,7 +246,7 @@ runs adds `run_id` from `run.json`. Raw duals use the canonical convention (§1.
 ## 6. Validation rules (loader rejects; `capex.data.validate`)
 Errors abort the run before the LP is built; warnings go to `health.parquet`. IDs below refer to tables above.
 1. **Schema:** `schema_version` and `formulation_version` match; every required file/column present; no unknown columns
-   (unless prefixed `x_`); types parse; no NaN/null in non-nullable columns; keys unique; file `sha256` equals manifest.
+   (unless prefixed `x_`); types parse; no NaN/null in non-nullable columns; keys unique; file `sha256` equals manifest wherever the manifest gives one (every table except the `sources` registry, DECISIONS 40).
 2. **Units/ranges:** column suffix units only; `demand_mw >= 0`; `availability_frac in [0,1]`; `eta in (0,1]`;
    `selfdis in [0,1)`; capacities, NTC, costs, heat rates >= 0 (HR > 0 where fuel used); `loss_frac in [0,1)`;
    `dur_min <= dur_max`; `xmax` may be `inf` but never a large sentinel (>= 1e6 MW is an error; no big-M, §6.1c); `dt_h == 1`.

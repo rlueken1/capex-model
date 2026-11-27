@@ -1,0 +1,18 @@
+item,id,value
+cost_usd_per_h,total,17479.8969
+Pg_MW,Alta,40.0
+Pg_MW,Park City,170.0
+Pg_MW,Solitude,323.4948
+Pg_MW,Sundance,0.0
+Pg_MW,Brighton,466.5052
+LMP_usd_per_MWh,A,16.9774
+LMP_usd_per_MWh,B,26.3845
+LMP_usd_per_MWh,C,30.0
+LMP_usd_per_MWh,D,39.9427
+LMP_usd_per_MWh,E,10.0
+flow_MW_from_to,A-B,249.7168
+flow_MW_from_to,A-D,186.7884
+flow_MW_from_to,A-E,-226.5052
+flow_MW_from_to,B-C,-50.2832
+flow_MW_from_to,C-D,-26.7884
+flow_MW_from_to,D-E,-240.0

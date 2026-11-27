@@ -1,0 +1,5 @@
+link_id,zone_from,zone_to,ntc_fwd_mw,ntc_rev_mw,source_id,vintage,retrieved,method,confidence,basis,est_level
+ac_r1_r2,r1,r2,1175.0,1175.0,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,medium,"derived: sum of Cont Rating (MW) of inter-area AC branches AB1,AB2,AB3 in branch.csv; symmetric; DC power flow/reactance ignored (zonal transport model)",1.0
+ac_r1_r3,r1,r3,500.0,500.0,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,medium,derived: sum of Cont Rating (MW) of inter-area AC branches CA-1 in branch.csv; symmetric; DC power flow/reactance ignored (zonal transport model),1.0
+ac_r2_r3,r2,r3,500.0,500.0,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,derived,medium,derived: sum of Cont Rating (MW) of inter-area AC branches CB-1 in branch.csv; symmetric; DC power flow/reactance ignored (zonal transport model),1.0
+dc_r1_r3,r1,r3,100.0,100.0,rts_gmlc,rts_gmlc@3ece0d3,2026-11-26,assumed,low,assumed: DC link DC1 bus 113->316 (control mode Power); dc_branch.csv MW Load (scheduled setpoint) used as a symmetric rating,

@@ -107,7 +107,9 @@ def _triplets(parts: list[tuple[np.ndarray, np.ndarray, np.ndarray]], shape: tup
     rows = np.concatenate([p[0].ravel() for p in parts])
     cols = np.concatenate([p[1].ravel() for p in parts])
     vals = np.concatenate([np.broadcast_to(p[2], p[0].shape).ravel() for p in parts]).astype(float)
-    return sp.coo_matrix((vals, (rows, cols)), shape=shape).tocsr()
+    mat = sp.coo_matrix((vals, (rows, cols)), shape=shape).tocsr()
+    mat.eliminate_zeros()
+    return mat
 
 
 def _matrix(case: Case, cols: _Layout, rows: _Layout, dur_lo_ix: np.ndarray, dur_hi_ix: np.ndarray) -> sp.csr_matrix:
