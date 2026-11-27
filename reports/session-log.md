@@ -190,3 +190,8 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 
 2026-11-26T23:25Z skipped: nothing claimable — G2-7b still blocked (main data-download.yml unchanged at f123ad1; owner action in Needs owner); prep P1–P10 done.
 2026-11-26T23:30Z live session (owner): copied fixed data-download.yml to `main` (9671c02, DECISIONS 41); workflow `data-download` registered/active. G2-7b unblocked.
+
+## 2026-11-27 — G2-7b (verifier, Sonnet)
+- Dispatched data-download (pjm5): runs 45916594450 + 45916775025 on gate-2 success, identical pinned hashes (D5 pass); broken-hash run 45916853288 fails at verify, 0 artifacts (D3 pass).
+- reports/gate-2-evidence.md §3–§4 + D table filled (440fe60, 3f58682). No code/tests changed.
+- Needs owner: delete branch `g2-7b-broken-hash` (403 from workspace); artifact contents/step summary not readable here (D4 partial).
