@@ -219,3 +219,25 @@
     **Runtime targets confirmed:** PJM single node, 1 year (~20 periods) ≤ 2 min; PJM zonal (~20 zones, 50+ clusters),
     4 model years ≤ 30 min — with or without linearized UC (no separate UC target: linearized UC is part of the zonal
     LP); CI ≤ 10 min. Branch `gate-3` created from `gate-2`.
+
+2026-11-27 (formulation lead, G3-1 — W-spec, gate-3.md §6)
+48. Formulation **F-0.3**: §7.4a DC power flow option completed (spec only; `transport` stays the default, DECISIONS 29/47).
+    Switches `tx.model` (`transport`|`dcpf`), `tx.dcpf_form` (`angle` default|`ptdf`), `tx.ref_bus` (default: first zone of
+    each island in `zones.csv` order). Angle form: free `theta` (rad, unscaled; `kvl` coefficient $k_P b_l$, $b_l$ =
+    `base_mva`/`reactance_pu` MW/rad), rows `kvl` and one `ref_angle` **row** per island-hour (dual is 0 by construction).
+    PTDF form: per-island PTDF from the reduced B matrix; rows `bal_sys` + `ptdf_flow` with `flow` columns **kept**, so flow
+    limits stay column bounds (no ranged rows; F5 not exercised) and $\mu$ is read identically in both forms and in
+    `transport`: $\mu=-s_f/w$, signed, $\mu f\ge0$. LMP decomposition $\pi_n=\lambda_{ref}-\sum_l H_{l,n}\mu_l$ (+ loss 0);
+    components are reference-bus dependent, totals, $\mu$ and $\alpha$ are not. Congestion-rent identity per hour.
+    Checks (dcpf only): `kvl.recompute`, `ptdf.recompute` (case-data route, no shared builder code), `lmp.decomposition`,
+    `congestion_rent`, `dcpf.line_duals`, `dcpf.islands`, `price_setter.loop_alpha`. Price-setter: congested islands use
+    bus-local classes, then `CONGESTION_LOOP` with $\alpha_n^\top=\phi_n\Phi^+$ over marginal buses and binding lines
+    ($\sum\alpha=1$, not convex); `DEGENERATE` when weights are non-unique (min-norm) or not computable (interval from a
+    tiny restricted dual LP). Outputs: `zone_hourly` LMP components, `angles`, `islands`, `price_setter_loop`; `flows`
+    unchanged. Identity under `transport`: canonical outputs of T1–T4 byte-identical to golden Gate-2 outputs
+    (`tests/golden/gate2/`) with fingerprint/version/git fields masked; loader accepts case `F-0.2` and `F-0.3`.
+    data-schema `links.csv` validation (dcpf: x>0, base>0, symmetric rating, rating 0 an error, blank = unlimited).
+    Mutation hooks M7–M10 named (§7.4a.10). gate-3.md §2 surplus corrected 14,957.28 → 14,957.29 (arithmetic only;
+    gate-3.md is where the number is stated; criteria and tolerances unchanged). Rejected: `ref_angle` as a column bound
+    (M9 would be invisible); PTDF limits as ranged rows (extra adapter risk, μ read from a different place); convex
+    (non-negative) loop weights (wrong: P5a bus D has α = 1.497/−0.497).

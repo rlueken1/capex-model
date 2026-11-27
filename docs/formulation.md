@@ -1,6 +1,12 @@
 # Formulation spec — capex-model
 
-Version: **F-0.2** (Gate 0 patch, W3, 2026-11-22; F-0.1 was W1). Status: draft for owner review.
+Version: **F-0.3** (Gate 3, G3-1 W-spec, 2026-11-27, DECISIONS 48; F-0.2 was the Gate 0 patch W3, 2026-11-22; F-0.1 was W1).
+Status: draft for owner review.
+F-0.3 changes (DECISIONS 48): §7.4a DC power flow option completed — `tx.model ∈ {transport (default), dcpf}`, angle form
+(`kvl`, `ref_angle`) and PTDF form (`bal_sys`, `ptdf_flow`), islands and reference bus, $\mu$ sign and LMP decomposition
+(energy + congestion, loss 0), congestion-rent identity, network health checks, price-setter `CONGESTION_LOOP` with
+weights $\alpha$ and `DEGENERATE` sub-tag, outputs, `transport` identity rule, mutation hooks M7–M10. Under `transport`
+(the default) the LP and every output are unchanged from F-0.2.
 F-0.2 changes (DECISIONS 25): daily fuel price $\phi_{f,p,t}$; DECISIONS 22–24 applied (ATB-style PFF default,
 block-average price scoring, 2024\$ / ORDC backcast scarcity); `VOLL` class covers total blackout; tolerances,
 $Z^0$, $FOM^P/FOM^E$, weight range, remainder-day rule and basic-solution requirement made consistent;
@@ -198,6 +204,7 @@ Stationarity relations used by tests and by §4 (from $s_j = c_j - \sum_i a_{ij}
 - $e$: $-y^{soc}_t + (1-\sigma) y^{soc}_{t^+} - y^{emax}_t = s_e$ → $0<e<E$: $v_t = (1-\sigma)v_{t^+}$.
 - $f$ (lossless): $-y^{bal}_{e(l)} + y^{bal}_{o(l)} = s_f$ → interior flow: $\pi_{o}=\pi_{e}$.
 - $x$: $C^{fix} - \sum_{p,t} A\,(-y^{gen}) = s_x$ → $s_x = C^{fix}_r - R_r$.
+- Under `tx.model = dcpf` the rows `kvl`, `ref_angle`, `bal_sys`, `ptdf_flow` and the $f$/$\theta$ stationarity are in §7.4a.5.
 
 **Verifier checks (Gate 1 health checks; tolerances in `docs/gates/gate-1.md`):**
 1. `bal` residual $|\text{LHS}-D|$, measured in **unscaled MW**, every $(z,p,t)$: Gate 1 toy and random cases
@@ -246,6 +253,9 @@ crossover makes every unit look marginal). Solver choice and options enter the f
 
 Tolerances: $tol_q = \max(10^{-3}\text{ MW}, 10^{-6} K_r)$; $tol_\pi = \max(0.01\ \$/\text{MWh}, 10^{-5}|\pi|)$.
 "Interior" means strictly inside bounds by more than $tol_q$.
+
+Under `tx.model = dcpf`, Step 0 and the candidate domain of Step 1 are replaced by §7.4a.7 (electrical islands,
+bus-local classes, `CONGESTION_LOOP`); the class conditions, price checks and Outputs below are unchanged.
 
 **Step 0 — price islands.** Build graph on zones; connect $o(l), e(l)$ if
 $|\pi_{o(l)}-\pi_{e(l)}| \le tol_\pi$. Connected components are islands $\mathcal I$. Check: every
@@ -363,7 +373,7 @@ Typical scaled magnitudes (PJM-size, $w_p\in[1,40]$; toys $w\le122$, same bounds
 | Item | Range |
 |---|---|
 | matrix: balance/flow/storage coefficients, $\eta$, $1/\eta$, $A$ | $10^{-3}$ … $1.2$ |
-| matrix: DC power flow $B_l$ or PTDF (§7.4a, Gate 3+) | $10^{-3}$ … $10^{2}$ (per-unit on 100 MVA) |
+| matrix: DC power flow $k_P b_l$ (GW/rad, $\theta$ unscaled) or PTDF (dimensionless) (§7.4a.2, Gate 3+) | $10^{-3}$ … $10^{2}$ (`pjm5`: 3.3–15.6) |
 | matrix: duration coefficients $\overline\delta$ (≤ 1000 h for seasonal) | up to $10^3$ |
 | objective: $w_p MC$ | $10^{-4}$ … $10$ |
 | objective: $w_p\text{VOLL}$ (VOLL ≤ 10 000 $/MWh) | ≤ $4\times10^2$ |
@@ -446,17 +456,212 @@ Expansion $y_l\ge0$, cost $\text{ANN}(I_l)+FOM_l$: `flow_ub`: $f^+ \le F^+_l + y
 Interfaces: `iface[i,p,t]`: $\sum_l \beta_{i,l}(f^+_l-f^-_l)\le \bar F_i$ (PJM transfer interfaces).
 ⚠ Transport ignores loop flow; intra-zonal congestion (large in PJM) is invisible at zonal resolution.
 
-### 7.4a DC power flow option (Gate 3 PJM 5-bus; owner decision pending, Gate 0 review item 3) — switch `tx.model ∈ {transport, dcpf}`
-Nodes $n$ (buses; in zonal runs a zone is a node), lines $l$ with susceptance $B_l$ (per unit, 100 MVA base) and
-rating $F_l$. Angle form (default for small systems): free $\theta_{n,p,t}$, `ref_angle`: $\theta_{n_0,p,t}=0$ per island;
-`kvl[l,p,t]`: $f_{l,p,t} - B_l(\theta_{o(l)} - \theta_{e(l)}) = 0$; `flow_ub/flow_lb` as in §2 (bounds on $f$).
-PTDF form (large systems): $f_{l} = \sum_n \text{PTDF}_{l,n}\,\text{inj}_n$ with `kvl` rows replaced; same duals.
-LMP decomposition: $\pi_n = \lambda_{ref} - \sum_l \text{PTDF}_{l,n}\,\mu_l$ (energy + congestion; lossless).
-Price-setter: Step 0 islands no longer suffice (loop flow makes $\Delta\pi$ non-zero on unconstrained lines). With
-`dcpf` the class `MARGINAL_UNIT` may hold at **several** nodes at once; a node with no local marginal unit is
-`CONGESTION_LOOP`: price check $|\pi_n - \sum_{m\in\text{marg}} \alpha_{n,m} MC_m| \le tol_\pi$ where the weights $\alpha$
-solve the PTDF system restricted to marginal units and binding lines. Spec completed at Gate 3.
-⚠ Zonal PJM runs keep `transport` unless Gate 8 shows `dcpf` improves the scoreboard (ledger row).
+### 7.4a DC power flow option (Gate 3; full spec F-0.3, DECISIONS 48) — switch `tx.model ∈ {transport (default), dcpf}`
+DECISIONS 29/47: `transport` is and stays the default everywhere; `dcpf` is an option. Lossless, linear (Schweppe et al.
+1988; Stott, Jardim & Alsaç 2009). Each node $n$ is a row of `zones.csv` (a bus in `pjm5`, a zone in zonal runs); each
+`links.csv` row is a line $l$. No losses, phase shifters, HVDC/transport links mixed with lines, angle limits or
+contingencies in this gate. A fixed-fleet run is the existing data rule ($X^{max}=0$ on every resource); no new mode.
+
+#### 7.4a.1 Switches (`case.yaml` → `switches`)
+| Key | Values | Default (key absent) | Meaning |
+|---|---|---|---|
+| `tx.model` | `transport` \| `dcpf` | `transport` | network model; any other value is a load error |
+| `tx.dcpf_form` | `angle` \| `ptdf` | `angle` | LP form under `dcpf` (identical optimum, §7.4a.4) |
+| `tx.ref_bus` | zone id, or list of zone ids (≤ 1 per island) | per island: first zone of the island in `zones.csv` row order | reference bus $n_0(i)$ |
+
+`tx.dcpf_form` and `tx.ref_bus` are ignored under `transport` (they still enter the fingerprint as config). The builder
+never writes a default into `case.config`: an absent key stays absent (needed for §7.4a.9).
+
+#### 7.4a.2 Sets, parameters, units, islands
+| Symbol | Meaning | Unit / source |
+|---|---|---|
+| $\mathcal N$, $\mathcal L$ | nodes (`zones.csv`), lines (`links.csv`); $o(l)$, $e(l)$ = `zone_from`, `zone_to` | – |
+| $a_{l,n}$ | incidence: $+1$ if $n=o(l)$, $-1$ if $n=e(l)$, else 0 | – |
+| $b_l$ | susceptance $= \texttt{base\_mva}_l/\texttt{reactance\_pu}_l$ | MW/rad |
+| $F_l$ | rating $=$ `ntc_fwd_mw` $=$ `ntc_rev_mw` (must be equal under `dcpf`); blank $\Rightarrow +\infty$ | MW |
+| $\mathcal I$, $i(n)$, $i(l)$ | electrical islands = connected components of the graph $(\mathcal N,\mathcal L)$, from case data only (static, not per hour; an isolated node is its own island). Ids `i1, i2, …` ordered by the smallest `zones.csv` row index of their nodes | – |
+| $n_0(i)$ | reference bus of island $i$ (§7.4a.1) | – |
+| $\text{inj}_{n,p,t}$ | net injection $\sum_{r\in\mathcal R_n\setminus\mathcal R^{ST}} g + \sum_{r\in\mathcal R_n\cap\mathcal R^{ST}}(d-c) + u_n - D_n$ | MW |
+| $H_{l,n}$ | PTDF $=\partial f_l/\partial\,\text{inj}_n$ with the balancing withdrawal at $n_0(i(n))$; $H_{l,n}=0$ if $i(l)\ne i(n)$ and $H_{l,n_0}=0$ | – (MW/MW) |
+
+**PTDF construction** (per island; Wood, Wollenberg & Sheblé 2014): $B^i=\sum_{l\in i} b_l\,a_l a_l^\top$ ($|i|\times|i|$, MW/rad);
+delete row/column $n_0(i)$, $X^i = (B^i_{red})^{-1}$ padded with a zero row/column at $n_0$; $H = \mathrm{diag}(b)\,A\,X$
+(rows of $A$ are $a_l^\top$). Entries $|H_{l,n}|\le10^{-10}$ are set to exactly 0 (inversion noise); no other truncation.
+**Scaling (§6.1):** flows in GW as before; angles $\theta$ in rad, **unscaled** ($k_\theta=1$); `kvl` coefficient
+$\tilde b_l = k_P b_l$ (GW/rad; $=0.1/x_l$ at 100 MVA: 3.3–15.6 for `pjm5`); $H$ is dimensionless and unscaled. Per-unit
+values never appear inside the LP; `base_mva` is used only to form $b_l$. `kvl`, `bal_sys`, `ptdf_flow` are MW rows (duals
+unscale with $S$, §3); `ref_angle` is a rad row whose dual is identically 0, so it needs no unscaling factor.
+
+#### 7.4a.3 Angle form (`tx.dcpf_form = angle`)
+New column `theta[zone,p,t]` ($\theta_{n,p,t}$, free, rad). `bal`, `flow` and all Gate 1 rows unchanged; `flow` bounds
+$-F_l \le f_{l,p,t}\le F_l$ (column bounds `flow_lb`/`flow_ub`; infinite when unlimited). New rows (equalities):
+- **`kvl[l,p,t]`**: $\; f_{l,p,t} - b_l\,(\theta_{o(l),p,t}-\theta_{e(l),p,t}) = 0$
+- **`ref_angle[i,p,t]`**: $\; \theta_{n_0(i),p,t} = 0$ — always a **row** (never a column bound), exactly one per island-hour.
+Size per hour: $|\mathcal N|$ extra columns, $|\mathcal L| + |\mathcal I|$ extra rows, $3|\mathcal L|+|\mathcal I|$ extra nonzeros.
+
+#### 7.4a.4 PTDF form (`tx.dcpf_form = ptdf`)
+No `bal` rows and no `theta` columns; `flow` columns and their bounds are kept (so $\mu$ is read exactly as in the angle
+form and **no ranged rows are written**: gate-3.md §4 "Ranged rows" is satisfied vacuously; F5 is not exercised). Rows:
+- **`bal_sys[i,p,t]`**: $\; \sum_{n\in i}\big(\sum_{r\in\mathcal R_n\setminus\mathcal R^{ST}} g + \sum_{r\in\mathcal R_n\cap\mathcal R^{ST}}(d-c) + u_n\big) = \sum_{n\in i} D_{n,p,t}$
+- **`ptdf_flow[l,p,t]`**: $\; f_{l,p,t} - \sum_{n\in i(l)} H_{l,n}\big(\sum g + \sum(d-c) + u_n\big) = -\sum_{n\in i(l)} H_{l,n} D_{n,p,t}$
+Both forms define the same feasible set in $(g,c,d,u,f)$ (KVL ⇔ $f=H\,\text{inj}$ given island balance), hence the same
+optimum; LMPs agree wherever duals are unique. Size per hour: rows $|\mathcal L|+|\mathcal I|$, nonzeros $\approx|\mathcal L|\cdot$(injection
+columns per island): dense, so `angle` is the default; `ptdf` is for checks and, later, for small zonal networks.
+
+#### 7.4a.5 Duals, signs, LMP decomposition, congestion rent
+Extension of the §3 table (raw signs for minimization, §1.3; $y=S\tilde y$):
+| Row / bound | Raw sign | Economic quantity | Conversion | Unit |
+|---|---|---|---|---|
+| `bal[n,p,t]` (angle) | free, normally $\ge0$ | nodal LMP $\pi_n$ | $\pi=y/w_p$ | $/MWh |
+| `kvl[l,p,t]` | free | loop price of line $l$: $\pi_{o}-\pi_{e}+\mu_l$ | $y/w_p$ | $/MWh |
+| `ref_angle[i,p,t]` | free, **$=0$** at any optimum (sum of $\theta$-stationarity over the island) | none | – | – |
+| `bal_sys[i,p,t]` (ptdf) | free, normally $\ge0$ | energy price $\lambda_i$ (= LMP at $n_0(i)$) | $\lambda=y/w_p$ | $/MWh |
+| `ptdf_flow[l,p,t]` (ptdf) | free | $=\mu_l$ ($f$ has zero cost: $s_f=-y$) | $y/w_p$ | $/MWh |
+| `flow_ub` / `flow_lb` (col) | $s\le0$ / $s\ge0$ | line shadow price $\mu_l$, **signed**: $>0$ at the forward ($o\to e$) rating, $<0$ at the reverse rating, so $\mu_l f_l\ge0$ | $\mu=-s/w_p$ (as §3) | $/MWh |
+
+Stationarity (from $s_j=c_j-\sum_i a_{ij}y_i$): angle $f$: $s_f = y^{bal}_{o}-y^{bal}_{e}-y^{kvl}_l$; angle $\theta_n$:
+$\sum_l b_l a_{l,n}y^{kvl}_l - [n=n_0]\,y^{ref}=0$; PTDF $f$: $s_f=-y^{pf}_l$; PTDF $g$ at bus $n$:
+$s_g = w_p MC - y^{sys}_i + \sum_l H_{l,n}y^{pf}_l - y^{gen}$. Under `transport`, $\mu_l=\pi_e-\pi_o$ (§3) is the special case
+of the same formula (two buses, one line). **$\mu$ uses one convention in both models and both forms; the dual-sign
+adapter (§1.3) is unchanged.**
+
+**LMP.** Angle: $\pi_n = y^{bal}_n/w_p$. PTDF: $\pi_n = (y^{sys}_i - \sum_l H^{LP}_{l,n}y^{pf}_l)/w_p$, with $H^{LP}$ read from the
+assembled matrix (coefficients of column `use[n]`, which carries the injection pattern of node $n$), so $\pi_n$ is the LP's
+own price of a unit injection at $n$, never recomputed from case data. Either way $\pi_n=\partial Z^*/\partial D_n\,/w_p$.
+
+**Decomposition** (lossless; Schweppe et al. 1988; Litvinov, Zheng, Rosenwald & Shamsollahi 2004):
+$$\pi_n = \underbrace{\lambda_{i(n)}}_{\text{energy}} + \underbrace{\Big(-\sum_{l} H_{l,n}\,\mu_l\Big)}_{\text{congestion}} + \underbrace{0}_{\text{loss}},\qquad \lambda_i := \pi_{n_0(i)}$$
+with $H$ from **case data** (audit route, §7.4a.6). **Reference dependence:** moving $n_0$ to $n'$ gives $H'=H-H_{\cdot,n'}\mathbf 1^\top$,
+$\lambda'=\pi_{n'}$ and every congestion component shifts by the same constant $+\sum_l H_{l,n'}\mu_l$; $\pi$, $\mu$, flows,
+dispatch and the loop weights $\alpha$ (§7.4a.7) are unchanged. Components are therefore reported only together with
+the reference bus; totals are reference-free (cf. Cheng & Overbye 2005 for reference-independent variants; not adopted).
+
+**Congestion rent identity** (per island-hour): from $\pi=\lambda\mathbf 1-H^\top\mu$, $\sum_{n\in i}\text{inj}_n=0$ and $f=H\,\text{inj}$:
+$$\sum_n \pi_{n,p,t}\,(-\text{inj}_{n,p,t}) = \sum_l \mu_{l,p,t}\,f_{l,p,t}\quad(\$/\text{h};\ \ge0).$$
+Annual merchandising surplus $=\sum_p w_p\sum_t\sum_l\mu f$ (T4 is the two-bus transport case of the same identity).
+
+#### 7.4a.6 Health checks under `dcpf` (emitted only when `tx.model = dcpf`)
+Recomputations use the **case data** route of `capex.audit.network` (§7.4a.10), never the LP matrix (same principle as
+`storage.soc_recompute`, §3 check 8). Family `network` unless noted. Tolerances are new keys of case.yaml `tolerances`,
+present only under `dcpf` (so the `tolerances` fingerprint component is unchanged under `transport`).
+| `check_id` | Value | Pass (tolerance key, default) |
+|---|---|---|
+| `kvl.recompute` | $\max_{l,p,t}\lvert f - b_l^{case}(\theta_o-\theta_e)\rvert$ MW, $\theta$ from output `angles` (angle form: LP $\theta$; PTDF form: recomputed, see `angles`) | ≤ `kvl_residual_mw` = 1e-6 |
+| `ptdf.recompute` | $\max\lvert f - f^{rc}\rvert$ MW; $f^{rc}$: solve $B^i_{red}\theta=\text{inj}$ (case $b$, solved inj, `numpy.linalg.solve`, no PTDF matrix), $f^{rc}_l=b_l(\theta_o-\theta_e)$ | ≤ `kvl_residual_mw` |
+| `lmp.decomposition` | $\max_{n,p,t}\lvert \pi_n - (\lambda_{i(n)} - \sum_l H^{case}_{l,n}\mu_l)\rvert$ \$/MWh | ≤ `lmp_decomposition_usd_mwh` = 1e-6 |
+| `congestion_rent` | $\max_{p,t}\lvert\sum_n\pi(-\text{inj})-\sum_l\mu f\rvert / \max(1,\lvert\sum_l\mu f\rvert)$ | ≤ `congestion_rent_rel` = 1e-7 |
+| `dcpf.line_duals` | max of $\lvert\mu_l\rvert$ over line-hours with $\lvert f\rvert < F_l - $ `binding_slack` (all hours of unlimited lines) and of $\max(0,-\mu_l\,\mathrm{sgn} f_l)$ at a rating | ≤ `line_dual_usd_mwh` = 1e-6 |
+| `dcpf.islands` | count of violations: per island-hour exactly one **active** reference row — angle: a `ref_angle` row with lo = hi = 0 whose only nonzero is on $\theta_{n_0(i)}$, and $\lvert\theta_{n_0}\rvert\le10^{-9}$; PTDF: one `bal_sys` row with lo = hi $=\sum_{n\in i}D$; island count from case data. `detail` = e.g. `2 islands: i1 ref A; i2 ref C` | = 0 |
+| `price_setter.loop_alpha` (family `price_setter`) | max over `CONGESTION_LOOP` bus-hours with weights of $\max(\lvert\sum_m\alpha_{n,m}-1\rvert, \lvert\pi_n-\sum_m\alpha_{n,m}c_m\rvert)$ | ≤ `loop_alpha` = 1e-6 |
+
+Non-toy runs use the §6.2 warn/fail thresholds ($10^{-3}$/$10^{-1}$ MW) for the two MW checks, as for `balance`.
+Gate 1 checks under `dcpf`: `balance` = nodal KCL recomputed from the primal ($\text{inj}_n - \sum_l a_{l,n}f_l$, both
+forms; `zone_hourly.bal_residual_mw` likewise); `strong_duality`, `comp_slack`, `dual_sign` cover the new families with the
+signs above; `price_setter.link_inconsistent` is reported with value 0 and detail `n/a under dcpf (see lmp.decomposition,
+dcpf.line_duals)`. Conditioning (§6.2) unchanged; `pjm5` must give no `warn`.
+
+#### 7.4a.7 Price-setter under `dcpf` (replaces §4 Step 0 for congested islands)
+Loop flow makes $\Delta\pi\ne0$ on unconstrained lines, so §4's price islands do not apply. Per island-hour $(i,p,t)$:
+**congested** iff some line of $i$ has $\lvert\mu_l\rvert>tol_\pi$.
+- **Uncongested island-hour:** §4 Steps 1–2 unchanged with island := electrical island $i$ (all its LMPs are equal).
+- **Congested island-hour**, per bus $n$, first match wins (all matches recorded): (1) the local classes of §4 in order
+  (`VOLL`, `BLACKOUT`, `MARGINAL_UNIT`, `STORAGE_DIS`, `STORAGE_CH`, `TIE_AT_BOUND`), evaluated on resources and unserved
+  energy **at bus $n$ only**; (2) `CONGESTION_LOOP` (below); (3) `CAPACITY_RENT` with island := $\{n\}$; (4) `UNEXPLAINED`.
+
+**`CONGESTION_LOOP`.** Marginal set $\mathcal M_i$: every resource (or unserved energy) at any bus of $i$ that meets a
+local class condition (1) at its own bus, with cost $c_m$ = that class's setter cost (§4 Outputs; `TIE_AT_BOUND` units
+included, which handles primal degeneracy). Binding set $\mathcal K_i$: lines of $i$ with $\lvert f\rvert\ge F_l-tol_q$ and
+$\lvert\mu_l\rvert>tol_\pi$. Marginal buses $\mathcal B$ = distinct buses of $\mathcal M_i$, $c_b$ = mean of $c_m$ at $b$. With
+$\phi_n := [\,1,\ -H_{\mathcal K,n}^\top\,]$ ($1\times(1+|\mathcal K|)$, any reference bus) and $\Phi$ the matrix with rows $\phi_b$, $b\in\mathcal B$:
+the marginal units impose $\Phi\,[\lambda;\mu_{\mathcal K}] = c_{\mathcal B}$, and
+$$\alpha_n^\top = \phi_n\,\Phi^{+}\quad(\text{Moore–Penrose; } =\phi_n\Phi^{-1}\text{ when square}),\qquad \pi_n = \sum_{b\in\mathcal B}\alpha_{n,b}c_b,$$
+$\alpha_{n,b}$ split equally among the units at $b$ gives $\alpha_{n,m}$. $r=\operatorname{rank}\Phi$ by SVD (singular values
+$\le10^{-9}\sigma_{max}$ count as 0). Three cases:
+| Case | Condition | Weights | Price check | Sub-tag |
+|---|---|---|---|---|
+| (a) unique | $\lvert\mathcal B\rvert = \lvert\mathcal K\rvert+1 = r$ | $\alpha_n=\phi_n\Phi^{-1}$ | $\lvert\pi_n-\sum\alpha c\rvert\le tol_\pi$ | – |
+| (b) weights non-unique | $r=\lvert\mathcal K\rvert+1<\lvert\mathcal B\rvert$ | min-norm $\phi_n\Phi^+$ | same | `DEGENERATE` (`price_lo`=`price_hi`) |
+| (c) not computable | $r<\lvert\mathcal K\rvert+1$ (some $\mu$ not pinned by marginal costs) | none | $\pi_n\in[\text{lo}-tol_\pi,\text{hi}+tol_\pi]$ | `DEGENERATE` with interval |
+
+In (a)–(b) $\Phi$ has full column rank, so $\alpha_n^\top\Phi=\phi_n$; its first column gives **$\sum_m\alpha_{n,m}=1$**. Weights are
+**not** convex: $\alpha$ may be $<0$ or $>1$. They are **reference-bus invariant** ($\phi$ changes by a column operation).
+For $n\in\mathcal B$, (a) gives $\alpha_n=e_n$, consistent with `MARGINAL_UNIT`. Interval in (c): min and max of
+$\lambda-\sum_{l\in\mathcal K}H_{l,n}\mu_l$ over $(\lambda,\mu_{\mathcal K})$ subject to $\Phi[\lambda;\mu]=c_{\mathcal B}$, $\mu_l\,\mathrm{sgn}f_l\ge0$, and for every
+resource at a bound at bus $m$ of $i$: $\pi_m(\lambda,\mu)\ge c_r$ at its upper bound, $\le c_r$ at zero (unserved at 0
+with $D>0$: $\le$ VOLL) — a tiny LP solved through the solver adapter; unbounded sides are $\pm\infty$. Case (c) is not
+expected in Gate 3 (no candidates, no storage); P5a–P5e are case (a).
+
+Outputs per `CONGESTION_LOOP` row of `price_setter`: `setter_ids` = sorted ids of $\mathcal M_i$; `setter_zone` = sorted
+buses $\mathcal B$; `setter_cost` = $\sum\alpha c$ (case (c): `price_lo`); `residual` = $\pi-$`setter_cost`; `binding_links` = sorted
+$\mathcal K_i$; `flags` ⊇ `CONGESTED` (+ `IMPORT`, since $n\notin\mathcal B$; + `DEGENERATE` in (b), (c)); `price_lo`/`price_hi` =
+setter_cost in (a)–(b), the interval in (c); weights in table `price_setter_loop` (§7.4a.8). Local-class rows in a
+congested island also carry `binding_links` = $\mathcal K_i$ and `CONGESTED`. `price_setter_summary` splits a loop
+bus-hour equally among $\mathcal M_i$ (count-based, as ties in §4); $\alpha$-weighted fuel contributions are read from
+`price_setter_loop`. **Example (P5a, from the independent route):** $\mathcal M=\{$solitude (C, 30), brighton (E, 10)$\}$,
+$\mathcal K=\{$`de`$\}$, case (a); $(\alpha_{\cdot,\text{solitude}},\alpha_{\cdot,\text{brighton}})$ = A (0.348868, 0.651132), B (0.819223, 0.180777),
+D (1.497137, −0.497137), the same for every reference bus.
+
+#### 7.4a.8 Outputs (only under `dcpf`; key columns as the Gate-2 code writes the mirrored table)
+| Table | Key | Columns |
+|---|---|---|
+| `zone_hourly` (extended) | `zone, period, t` | Gate 1 columns + `lmp_energy_usd_mwh` ($\lambda_{i(n)}$), `lmp_congestion_usd_mwh` ($-\sum_l H_{l,n}\mu_l$), `lmp_loss_usd_mwh` (0), `island_id`, `ref_zone` |
+| `flows` (unchanged columns) | `link, period, t` | `flow_mw` ($f$, + = `zone_from`→`zone_to`), `congestion_rent_usd_mwh` (= $\mu_l$, signed as §7.4a.5), `at_bound` |
+| `angles` (new) | `zone, period, t` | `theta_rad`, `island_id`, `is_ref`; PTDF form: $\theta$ recomputed by the audit route (`theta_source` = `recomputed`; angle form `lp`) |
+| `price_setter_loop` (new) | `zone, period_id, t, resource_id` | `alpha` (–), `cost_usd_mwh` ($c_m$), `setter_zone`, `case` (`unique` \| `weights_nonunique`); no rows for case (c) |
+| `islands` (new) | `zone` | `island_id`, `ref_zone` |
+| `health` | `check_id` | rows of §7.4a.6; `family` adds `network` |
+
+#### 7.4a.9 Equivalence under `transport` and versioning
+With `tx.model` absent or `transport`: the LP (rows, columns, matrix, bounds, costs), every output table, column and
+health check are those of F-0.2; `reactance_pu`/`base_mva` are type-checked only and never used. **Identity test (Gate 1
+fingerprint identity):** for T1–T4, canonical outputs (§8.10) are byte-identical to golden Gate-2 outputs after deleting
+from `assumptions.md` the lines starting `- run_id: ` and `- fingerprint: `; fingerprint components are equal except
+`formulation_version`, `git_commit`, `dirty_diff_hash`, environment entries (`python`, `packages`, `solver.version`) if the
+environment differs, and — only when the key is written explicitly — `config.switches["tx.model"]`. Golden files:
+`tests/golden/gate2/<case>/` (canonical outputs + `components.json`), generated once by the verifier from `main` at the
+Gate-2 merge commit, recorded in `tests/golden/gate2/SOURCE.txt`. The loader accepts case `formulation_version` ∈
+{`F-0.2`, `F-0.3`} (F-0.3 is a superset); `tx.model = dcpf` requires `F-0.3`. T1–T4 `case.yaml` stay `F-0.2`.
+
+#### 7.4a.10 Audit hooks and mutation points (M7–M10)
+Builder-side network code lives in `capex/network.py`: `susceptance_mw_rad(case) -> ndarray (L,)`, `islands(case)`,
+`ptdf(case, islands) -> ndarray (L,N)`. The audit's case-data route lives in `capex/audit/network.py` and **must not import
+`capex.network`** (verifier static check, as §5.1). Mutations inject faults into the LP or the adapter only; each must
+make at least one check FAIL (not raise), with a control run and a vacuity guard as in Gate 1:
+| ID | Hook | Fault | Expected to fail (any of) |
+|---|---|---|---|
+| M7 | patch `capex.network.susceptance_mw_rad` | $b_{ab}\leftarrow b_{ab}/1.01$ (reactance ×1.01; LP only, both forms) | `kvl.recompute`, `ptdf.recompute` |
+| M8 | wrap `capex.run.build_lp` | negate both $\theta$ coefficients of `kvl[ab,p1,t1]` in `lp.a` | `kvl.recompute`, `ptdf.recompute` |
+| M9 | wrap `capex.run.build_lp` | set `row_lo`/`row_hi` of `ref_angle[i1,p1,t1]` to $-\infty/+\infty$ (row dropped; angles free) | `dcpf.islands` |
+| M10 | wrap `capex.solver.HighsSolver.solve` | negate `col_dual` of `flow[de,p1,t1]` (guard: nonzero) | `dual_sign`, `dcpf.line_duals`, `lmp.decomposition`, `congestion_rent` |
+
+`ab` carries ≈250 MW in P5a, so M7/M8 move its residual far above 1e-6 MW.
+
+#### 7.4a.11 Resolutions of the `SPEC-GAP` notes in `tests/draft/test_pjm5bus.py`
+| Gap | Resolution |
+|---|---|
+| config keys | `switches`: `tx.model`, `tx.dcpf_form` (`angle`\|`ptdf`), `tx.ref_bus` (zone id); per-hour load factors are not a key: write `load.csv` `demand_mw` per `t` |
+| `pjm5` links rating / ids | `ntc_fwd_mw` = `ntc_rev_mw` = rating, blank = unlimited; ids: zones `A`–`E`; links `ab, ad, ae, bc, cd, de` (from→to as case5); resources `alta, park_city, solitude, sundance, brighton` (Li & Bo names recorded in `basis`) |
+| bus LMP table | `zone_hourly`, key `zone, period, t`, column `lmp_usd_mwh` |
+| line flows + μ | `flows`, key `link, period, t`, `flow_mw`, μ in `congestion_rent_usd_mwh` (signed; D–E: $f=-240$, $\mu\approx-62.32$) |
+| dispatch | `dispatch`, key `resource, period, t`, column `g_mw` |
+| μ sign | $\mu=-s_f/w$; $\mu f\ge0$; $\pi_n=\lambda_{ref}-\sum_l H_{l,n}\mu_l$ (§7.4a.5) |
+| energy / congestion components | `zone_hourly.lmp_energy_usd_mwh`, `lmp_congestion_usd_mwh` (+ `lmp_loss_usd_mwh` = 0) |
+| bus angles | table `angles`, column `theta_rad` |
+| check ids | `kvl.recompute`, `ptdf.recompute`, `lmp.decomposition`, `congestion_rent`, `dcpf.line_duals`, `dcpf.islands`, `price_setter.loop_alpha` |
+| α exposure | long table `price_setter_loop` (`alpha` per `resource_id`), not a dict column |
+| setter column (P5d) | `price_setter.setter_ids` (= `solitude`) |
+| $tol_\pi$ for α | class check uses §4 $tol_\pi$; `price_setter.loop_alpha` asserts ≤ 1e-6 (so the draft's 1e-6 is spec) |
+| $D_y$ | `pjm5` `model_year: 2025` ⇒ $D_y=365$, $w=121.\overline6$; annual $Z$ = hourly cost × 24 × 365 |
+| islands fixture | `pjm5` minus links `ad, bc, de`: islands {A,B,E} (ref A) and {C,D} (ref C); `dcpf.islands` pass with 2 `ref_angle` rows per hour; LMP 10 (brighton `MARGINAL_UNIT`) and 40 (sundance `MARGINAL_UNIT`, solitude at 520); 25,800 \$/h |
+| ranged rows under PTDF | none written (flow limits stay column bounds); test asserts no row with $-\infty<$lo$<$hi$<\infty$ |
+| Gate-1 identity | §7.4a.9 (canonical outputs vs `tests/golden/gate2/`, masked fields) |
+| mutation hooks / M9 | §7.4a.10; M9 must be caught by `dcpf.islands` (fail), not by an exception |
+| expected classes (P5e) | derive with the §7.4a.7 order: local classes incl. `TIE_AT_BOUND` before `CONGESTION_LOOP`; uncongested hours use the island rule |
+
+⚠ Accuracy: DC flow ignores losses (≈2–3 % of load in PJM; no loss component until a loss gate), reactive power and
+voltage limits; for zonal runs, zone-to-zone "reactances" are equivalents and loop flows between zones are only
+indicative. Zonal PJM runs keep `transport` unless Gate 10 (zonal transmission) shows `dcpf` improves the scoreboard
+(complexity-ledger row `tx.model`).
 
 ### 7.5 Clustered linear UC (Gate 9) — switches `uc.enabled`, `uc.min_updown`, `uc.ramps`
 Palmintier & Webster (2014, 2016): per cluster $r$ of identical units of size $\bar P_r$, commitment
@@ -516,6 +721,9 @@ demand curve as stepped benefit segments with ELCC-accredited supply $\sum_r \te
    `run.json`, case, base dollar year); for a case with no input cell whose `method` is observed, derived or estimated,
    the header adds the banner line "Toy case: all inputs assumed; numbers are illustrative, not PJM estimates."
    (amendment 3).
+12. **Network (`tx.model = dcpf` only, §7.4a.6–8):** islands and reference buses, bus angles, LMP decomposition
+   (energy / congestion / loss = 0) per bus-hour, congestion rent per hour and annual, `kvl.recompute` /
+   `ptdf.recompute` residuals from case data, line-dual complementary slackness, `CONGESTION_LOOP` weights $\alpha$.
 
 ---
 
@@ -587,3 +795,9 @@ $Z = 39\,420\,000$.
 - Palmintier, B., Webster, M. (2014). Heterogeneous unit clustering for efficient operational flexibility modeling. *IEEE Trans. Power Syst.* 29(3).
 - Palmintier, B., Webster, M. (2016). Impact of operational flexibility on electricity generation planning with renewable and carbon targets. *IEEE Trans. Sustain. Energy* 7(2).
 - NREL Annual Technology Baseline (financing/CRF methodology); BEA NIPA Table 1.1.9 (GDP implicit price deflator).
+- Schweppe, F.C., Caramanis, M.C., Tabors, R.D., Bohn, R.E. (1988). *Spot Pricing of Electricity.* Kluwer.
+- Stott, B., Jardim, J., Alsaç, O. (2009). DC power flow revisited. *IEEE Trans. Power Syst.* 24(3).
+- Litvinov, E., Zheng, T., Rosenwald, G., Shamsollahi, P. (2004). Marginal loss modeling in LMP calculation. *IEEE Trans. Power Syst.* 19(2).
+- Cheng, X., Overbye, T.J. (2006). An energy reference bus independent LMP decomposition algorithm. *IEEE Trans. Power Syst.* 21(3).
+- Wood, A.J., Wollenberg, B.F., Sheblé, G.B. (2014). *Power Generation, Operation, and Control*, 3rd ed. Wiley (PTDF/sensitivity factors).
+- Li, F., Bo, R. (2010). Small test systems for power system economic studies. *IEEE PES General Meeting* (PJM 5-bus).

@@ -203,3 +203,8 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 - STATUS: AWAITING_OWNER_REVIEW. Needs owner: answer the 9 items; delete branch g2-7b-broken-hash.
 - 2026-11-27 (live, owner instruction): Gate 2 merged gate-2 → main; g2-7b-broken-hash neutralized (not deletable, 403); branch protection pending owner.
 - 2026-11-27T02:24Z skipped: nothing claimable (STATUS AWAITING_OWNER_REVIEW; Gate 3 not started; prep P1–P10 all done)
+
+2026-11-27 — G3-1 (formulation lead, Opus), branch gate-3
+- formulation.md → F-0.3: full §7.4a dcpf spec (angle + PTDF forms, islands, μ sign, LMP decomposition, CONGESTION_LOOP α + DEGENERATE, 7 network check ids, M7–M10 hooks, SPEC-GAP table); data-schema links.csv reactance_pu/base_mva + rule 11; DECISIONS 48; gate-3.md surplus 14,957.29.
+- Tests: 547 pass / 30 skip / 0 fail (spec only, no code change).
+- Owner: Gate-2 output key column names vs schema (later bump?); uppercase pjm5 zone ids OK?

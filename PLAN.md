@@ -134,7 +134,7 @@ One per session, strictly in order; claim before work (CLAUDE.md).
 
 ## Gate 3 work items — branch `gate-3` (criteria: docs/gates/gate-3.md, approved 2026-11-27, DECISIONS 47)
 One per session, strictly in order; claim before work (CLAUDE.md). Default network model stays `transport` (pipe-and-bubble).
-- [~] G3-1 Formulation lead [Opus]: W-spec — complete formulation §7.4a (`kvl`, `ref_angle`, PTDF + islands, μ sign under `dcpf`, (claimed 2026-11-27T03:24:30Z)
+- [x] G3-1 Formulation lead [Opus]: W-spec — complete formulation §7.4a (`kvl`, `ref_angle`, PTDF + islands, μ sign under `dcpf`,
   `CONGESTION_LOOP` with α weights and `DEGENERATE` sub-tag), data-schema `links.csv` validation; DECISIONS entry; version → F-0.3. Spec only.
 - [ ] G3-2 Verifier [Sonnet]: tests from the amended spec only — promote `tests/draft/test_pjm5bus.py` (P5a–P5f, §4 checks, M7–M10;
   14,957.28 → .29 fix in gate-3.md §2) and K2 (case5.m hash = manifest). Expected red until G3-3/G3-4 (strict xfail citing Gate 3).
@@ -178,6 +178,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+G3-1 done 2026-11-27 on `gate-3`: formulation F-0.3 §7.4a full dcpf spec (angle `kvl`/`ref_angle` + per-island PTDF; μ_l = −s_f/w_p signed as §3; π_n = λ_ref − Σ H_ln μ_l, components ref-bus dependent; α via φ_b=[1,−H_K,b] pseudo-inverse, `DEGENERATE` when min-norm/rank-deficient; check ids kvl.recompute, ptdf.recompute, lmp.decomposition, congestion_rent, dcpf.line_duals, dcpf.islands, price_setter.loop_alpha; SPEC-GAP resolution table; M7–M10 hooks), data-schema links.csv `reactance_pu`/`base_mva` + rule 11, DECISIONS 48, gate-3.md surplus → 14,957.29. Spec only; 547 pass. Owner questions: (1) Gate-2 output key columns `zone,period,t` vs schema `period_id/link_id/resource_id` — reconcile in a later schema bump? (2) uppercase zone ids A–E for pjm5 OK? Next: G3-2 (verifier; must also generate golden Gate-2 outputs in tests/golden/gate2/).
 Gate 3 started 2026-11-27 (owner approved criteria + runtime targets, DECISIONS 47); branch `gate-3` created from `gate-2`. Next: G3-1 (formulation lead, Opus).
 DECISIONS 46 (owner 2026-11-27): no integer (full) UC anywhere; linearized clustered UC is the basis, built at Gate 11, default off until a later gate.
 Design review 2026-11-27 (DECISIONS 44, amended by 45 on owner reply): rep-period PDC matching is the price check (no operations mode); PRM in Gate 7; UC in the expansion LP default off; performance budget from Gate 4 — no new gates. Gate 3 criteria approval still the next step.

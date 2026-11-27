@@ -4,6 +4,8 @@ Version: **S-0.1** (Gate 0, W2). Matches `docs/formulation.md` F-0.1 (symbols, u
 audit §8, extensions §7). Provenance rule and estimation hierarchy: `docs/data-sources.md`.
 Gate column = first gate that needs the table (G1 full detail; G3+ sketched: columns may be added, never
 renamed or re-unit'd without bumping S-x.y and the loader).
+G3-1 (DECISIONS 48, formulation F-0.3): `links.csv` network fields, `tx.*` switches, `dcpf` outputs and validation added.
+All additive (no rename, no unit change), so the schema string stays `S-0.1`.
 
 ## 0. Global conventions
 - **Formats.** CSV (UTF-8, header row, `.` decimal, ISO-8601 dates, empty = null) for G1–G4 and any table
@@ -48,17 +50,17 @@ renamed or re-unit'd without bumping S-x.y and the loader).
 |---|---|---|
 | `case_id`, `description` | str | label |
 | `schema_version` | str | `S-0.1`; loader refuses mismatch |
-| `formulation_version` | str | `F-0.1`; goes into fingerprint (§8.10) |
+| `formulation_version` | str | `F-0.2` or `F-0.3` (loader accepts both; `tx.model: dcpf` requires `F-0.3`, formulation §7.4a.9); the code's version goes into the fingerprint (§8.10) |
 | `base_dollar_year` | int | $B$ (2024) |
 | `model_year` | int | $y$; fixes $D_y$ (365/366) |
 | `dt_h` | float | must be 1.0 (asserted, §1.1) |
 | `zones` / tables | list / map | `tables:` maps each logical table to a file with `sha256` (feeds fingerprint). Exception: the shared source registry `sources` (`data/common/sources.csv`) is listed **without** `sha256` (DECISIONS 40); its content still enters the run fingerprint as a canonical input table (formulation §8.10) |
-| `switches` | map | all ablation keys: `ts.mode`, `ts.n_periods`, `ts.features.*`, `ts.forced.*`, `storage.inter_period`, `reserves.enabled`, `reserves.ordc`, `tx.losses/hurdle/expansion/interfaces`, `uc.*`, `policy.*`, `build.limits`, `retire.economic`, `calib.adders`, `deflate.monthly`; absent = default-off |
+| `switches` | map | all ablation keys: `ts.mode`, `ts.n_periods`, `ts.features.*`, `ts.forced.*`, `storage.inter_period`, `reserves.enabled`, `reserves.ordc`, `tx.model` (`transport` default \| `dcpf`), `tx.dcpf_form` (`angle` default \| `ptdf`), `tx.ref_bus` (zone id or list, ≤ 1 per island; formulation §7.4a.1), `tx.losses/hurdle/expansion/interfaces`, `uc.*`, `policy.*`, `build.limits`, `retire.economic`, `calib.adders`, `deflate.monthly`; absent = default-off |
 | `voll_usd_mwh` | float | VOLL ($Z^{use}$, §2.3); G7+: backstop only (DECISIONS 24) |
 | `finance_default` | str | `finance_class` used when a resource gives none |
 | `solver` | map | name, options (algorithm, tolerances, crossover=true); all in fingerprint |
 | `seed` | int | clustering seed (G5) |
-| `tolerances` | map | `tol_q_mw`, `tol_pi_usd_mwh`, etc. (§4) |
+| `tolerances` | map | `tol_q_mw`, `tol_pi_usd_mwh`, etc. (§4); under `dcpf` also `kvl_residual_mw`, `lmp_decomposition_usd_mwh`, `line_dual_usd_mwh`, `loop_alpha` (1e-6 each), `congestion_rent_rel` (1e-7) (formulation §7.4a.6) |
 
 ### 1.2 `scenarios.csv` — G4 (single-scenario cases omit it)
 | Column | Type | Meaning |
@@ -115,12 +117,16 @@ Feeds $\mathcal Z$. (Not value-bearing for G1 toy; P optional there, required fr
 |---|---|---|---|---|
 | `link_id` (key) | str | | 1 | $l$ |
 | `zone_from`, `zone_to` | str | | 1 | $o(l)$, $e(l)$ (must differ) |
-| `ntc_fwd_mw`, `ntc_rev_mw` | float >= 0 | MW | 1 | $F^+_l$, $F^-_l$ |
-| `reactance_pu`, `base_mva` | float | pu | 3 | **DC power flow for PJM 5-bus** (not in F-0.1; see Spec issues) |
+| `ntc_fwd_mw`, `ntc_rev_mw` | float >= 0, `inf` or blank | MW | 1 | $F^+_l$, $F^-_l$ (`transport`); under `dcpf` the line rating $F_l$ (both equal). Blank = `inf` = unlimited (G3, both models) |
+| `reactance_pu` | float > 0 | pu on `base_mva` | 3 | series reactance $x_l$; $b_l=\texttt{base\_mva}/x_l$ MW/rad (formulation §7.4a.2). Required under `dcpf`; ignored (type-checked only) under `transport` |
+| `base_mva` | float > 0 | MVA | 3 | per-unit base of `reactance_pu` (100 for `pjm5`); required under `dcpf` |
 | `loss_frac` | float [0,1) | – | 8 | $\lambda_l$ |
 | `hurdle_usd_mwh` | float >= 0 | $/MWh | 8 | $h_l$ |
 | `capex_usd_mw`, `fom_usd_mw_yr`, `life_yr`, `finance_class`, `x_max_mw` | | | 8 | expansion $y_l$, ANN |
 | `dollar_year` + P | | | 1 | |
+Provenance: the row's P fields cover `reactance_pu`/`base_mva` (e.g. `pjm5`: `source_id=pjm5`, `method=observed`, basis
+`case5.m branch x, rateA`); zonal equivalents (G10) are `derived` with `basis` = the reduction method. Parallel lines are
+separate rows with distinct `link_id` (same or opposite orientation allowed); `link_id` must be unique (key).
 Optional `interfaces.csv` + `interface_links.csv` (G8): `iface_id, limit_mw_fwd, limit_mw_rev`; `iface_id, link_id, beta`.
 
 ### 3.3 `resources.csv` — G1 (existing + candidate; one row per resource or cluster)
@@ -226,7 +232,11 @@ runs adds `run_id` from `run.json`. Raw duals use the canonical convention (§1.
 | `run.json` | 1 | – | `run_id`, `fingerprint` (SHA-256), `case_id`, `scenario_id`, `formulation_version`, `schema_version`, `git_commit`, `dirty_diff_hash`, `solver`, `solver_version`, `solver_options`, python/package versions, `seed`, timestamps, `solve_time_s`, `rows`, `cols`, `nnz`, `status`, `valid` (false if any conditioning fail), `crossover_ran` | §8.10; same fingerprint => identical outputs |
 | `dispatch.parquet` | 1 | `resource_id,period_id,t` | `g_mw`, `curtail_mw`, `charge_mw`, `discharge_mw`, `soc_mwh` (unserved energy is in `zone_hourly`) | primal; $w_p$ in `weights` join |
 | `zone_hourly.parquet` | 1 | `zone,period_id,t` | `demand_mw`, `unserved_mw`, `lmp_usd_mwh` ($\pi=y/w_p$), `bal_residual_mw`, `weight_hours` | prices & balance check |
-| `flows.parquet` | 1 | `link_id,period_id,t` | `flow_mw`, `congestion_rent_usd_mwh` ($\mu$), `at_bound` | |
+| `flows.parquet` | 1 | `link_id,period_id,t` | `flow_mw`, `congestion_rent_usd_mwh` ($\mu$), `at_bound` | under `dcpf`: same columns; $\mu=-s_f/w$, signed, $\mu f\ge0$ (formulation §7.4a.5) |
+| `zone_hourly` (dcpf columns) | 3 | as `zone_hourly` | `lmp_energy_usd_mwh` ($\lambda$ at the island reference bus), `lmp_congestion_usd_mwh` ($-\sum_l H_{l,n}\mu_l$), `lmp_loss_usd_mwh` (0), `island_id`, `ref_zone` | only under `dcpf`; components depend on the reference bus, the total does not |
+| `angles` | 3 | `zone,period,t` (as `zone_hourly`) | `theta_rad`, `island_id`, `is_ref`, `theta_source` (`lp`\|`recomputed`) | only under `dcpf` (§7.4a.8) |
+| `islands` | 3 | `zone` | `island_id`, `ref_zone` | only under `dcpf` |
+| `price_setter_loop` | 3 | `zone,period_id,t,resource_id` | `alpha` (–, may be < 0 or > 1, sums to 1 per bus-hour), `cost_usd_mwh`, `setter_zone`, `case` (`unique`\|`weights_nonunique`) | only under `dcpf`; `CONGESTION_LOOP` weights (§7.4a.7) |
 | `capacity.parquet` | 1 | `resource_id` | `existing_mw`, `new_mw`, `existing_mwh`, `new_mwh`, `at_xmax`, `x_reduced_cost_usd_mw_yr` | $x,x^P,x^E$ |
 | `duals_raw.parquet` | 1 | `label,index` | `dual` (canonical), `slack`, `basis_status`, `weight` | all row families + `x_ub`, `flow_*`, `use_ub` bounds |
 | `rents.parquet` | 1 | `resource_id` | `kind` (generator tech kind, or `ST` for storage); **\$/yr:** `energy_revenue`, `variable_cost`, `fixed_cost` (total fixed cost of built + existing capacity), `profit`, `revenue_identity_residual`; **\$/MW-yr (per unit of capacity):** `rent_cap_usd_mw_yr` ($R$, generators), `rent_pwr` ($R^P$), `cfix` (generators $C^{fix}$; storage $C^P+\delta C^E$ with $\delta$ the fixed duration, $\delta=0$ if duration is free), `excess_rent` (rent − `cfix`, candidates only); **\$/MWh-yr:** `rent_en` ($R^E$); **flags:** `build_status` (`at_zero`/`interior`/`at_max`/`existing`), `zero_profit_ok`, `rent_note` (`non-unique (bound)` for candidates at `at_zero`, else empty) | §8.5, checks §3.5–3.6. Per-unit and total columns differ by the capacity: e.g. T2b `bat` `cfix` 12,000 \$/MW-yr vs `fixed_cost` 120,000 \$/yr (C1) |
@@ -237,7 +247,7 @@ runs adds `run_id` from `run.json`. Raw duals use the canonical convention (§1.
 | `binding.parquet` | 1 | `family` | `n_rows`, `n_binding`, `weighted_share_binding`, plus bound list | §8.3 |
 | `storage.parquet` | 1 | `resource_id,period_id,t` | `soc_mwh`, `water_value_usd_mwh` ($v$), `simul_chdis` flag; per-period `cyclic_closure_residual` | §8.6 |
 | `curtail_unserved.parquet` | 1 | `zone|resource,...` | weighted annual MWh by zone/period | §8.8 |
-| `health.parquet` | 1 | `check_id` | `family` (`balance`,`strong_duality`,`comp_slack`,`dual_sign`,`zero_profit`,`revenue_identity`,`price_setter`,`conditioning`,`storage`,`decomposition`), `status` (`pass|warn|fail`), `value`, `tolerance`, `detail` | gate evidence |
+| `health.parquet` | 1 | `check_id` | `family` (`balance`,`strong_duality`,`comp_slack`,`dual_sign`,`zero_profit`,`revenue_identity`,`price_setter`,`conditioning`,`storage`,`decomposition`, `network` (G3, dcpf only)), `status` (`pass|warn|fail`), `value`, `tolerance`, `detail` | gate evidence |
 | `conditioning.json` | 1 | – | §6.2 metrics (matrix/obj/RHS ranges, ratios, tiny-coefficient count, max infeasibilities, residual) | |
 | `assumptions.md` + `assumptions_cells.parquet` | 1 (full G16) | – | see `docs/data-sources.md` "Assumptions book" | |
 | `reserve_prices.parquet` | 7 | `product,area,p,t` | `price_usd_mwh`, `shortfall_mw` | |
@@ -250,6 +260,7 @@ Errors abort the run before the LP is built; warnings go to `health.parquet`. ID
 2. **Units/ranges:** column suffix units only; `demand_mw >= 0`; `availability_frac in [0,1]`; `eta in (0,1]`;
    `selfdis in [0,1)`; capacities, NTC, costs, heat rates >= 0 (HR > 0 where fuel used); `loss_frac in [0,1)`;
    `dur_min <= dur_max`; `xmax` may be `inf` but never a large sentinel (>= 1e6 MW is an error; no big-M, §6.1c); `dt_h == 1`.
+   NTC/rating: blank or `inf` = unlimited; a finite value >= 1e6 MW is an error (sentinel).
 3. **Time:** periods cover `t = 1..72` exactly for every (zone,p) in `load`, every (VRE,p) in `availability`, every
    (hub,p) in `fuel_prices` used by a resource; weights satisfy $\sum_p 72 w_p = H_y$ (1e-9) and $w_p \ge 1$ (§1.2);
    `days_represented = 3 w_p`; `block_map` covers 1..J and references existing periods (G5).
@@ -271,11 +282,21 @@ Errors abort the run before the LP is built; warnings go to `health.parquet`. ID
    total existing capacity < peak demand with no unserved allowance; any VRE capacity factor series with annual mean outside
    [0.02, 0.95]; weights with >30% in forced periods.
 10. **Scenario:** overrides target existing cells and types stay valid (re-run 1–9 after applying).
-11. **Policy (G10):** state tiers' `target_frac in [0,1]`; `zone_state_share` sums to 1 per zone; RGGI membership year ranges
+11. **Network (G3, formulation §7.4a):** `tx.model` in {`transport`,`dcpf`}, `tx.dcpf_form` in {`angle`,`ptdf`}, every
+    `tx.ref_bus` entry is a zone id and at most one per island. Under `dcpf` (errors): every link has `reactance_pu > 0`
+    and `base_mva > 0`; `ntc_fwd_mw == ntc_rev_mw` (both blank or equal; symmetric rating); a rating of 0 is an error
+    (delete the row to open a line); `formulation_version: F-0.3`. Under `dcpf` (warn): $b_l > 10^{6}$ MW/rad
+    (`reactance_pu` tiny vs base) or $\max b/\min b > 10^{4}$ (conditioning, §6.2). Under `transport`: `reactance_pu`,
+    `base_mva` may be blank; if present they must parse as floats; never used.
+12. **Policy (G10):** state tiers' `target_frac in [0,1]`; `zone_state_share` sums to 1 per zone; RGGI membership year ranges
     non-overlapping. **Fuel (G1+):** no hub price gaps within modeled hours; no negative gas price unless `allow_negative_fuel`.
 
 ## 7. Spec issues this schema depends on (for formulation F-0.2; not edited here)
 - **Fuel price index.** F-0.1 indexes $\phi_{f,p}$ by period only, but a 3-day block holds 3 daily gas prices. Schema uses
   $(f,p,t)$ so $MC_{r,p,t}$ is exact; needs formulation change (or a stated 3-day average with its accuracy cost).
-- **DC power flow (G3).** PJM 5-bus LMPs/congestion need KVL (PTDF/reactance), not transport links; `reactance_pu` is reserved.
+- **DC power flow (G3).** Resolved in formulation F-0.3 §7.4a (DECISIONS 48).
+- **Key-column names (open, pre-existing).** Gate-2 code writes `zone,period,t` / `link,period,t` / `resource,period,t`
+  for `zone_hourly`, `flows`, `dispatch` (and `g_mw`), while this file says `period_id`, `link_id`, `resource_id`;
+  `price_setter` uses `period_id`. Not renamed in G3 (would break the `transport` byte-identity rule); new dcpf tables
+  follow the table they mirror. To be reconciled in one later schema bump.
 - **Financing default.** DECISIONS 22 makes ATB-style PFF the default; F-0.1 §5.2 still says PFF=1 default and Q1–Q4 open.

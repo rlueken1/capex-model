@@ -32,7 +32,8 @@ Values below were written from memory and **reproduced in this draft by an indep
 | Dispatch (MW) | Alta 40, Park City 170 | – | Solitude 323.49 | Sundance 0 | Brighton 466.51 |
 
 Binding: only D–E at its 240 MW limit (flow E→D). Hourly cost 17,479.90 $/h. Merchandising (congestion) surplus
-$\sum_n \pi_n(D_n-G_n)$ = 14,957.28 $/h, so the D–E shadow price is ≈ 62.32 $/MWh (derived here; verify).
+$\sum_n \pi_n(D_n-G_n)$ = 14,957.29 $/h, so the D–E shadow price is ≈ 62.32 $/MWh (derived here; verify).
+(G3-1: arithmetic corrected from 14,957.28 — the independent route gives 14,957.2901 = 62.32204 × 240; DECISIONS 48.)
 Marginal units: Solitude (C) and Brighton (E); A, B, D have no local marginal unit (loop-flow prices).
 
 ## 3. Known-answer tests (verifier, from the spec; expected values computed in the test by an independent route)
