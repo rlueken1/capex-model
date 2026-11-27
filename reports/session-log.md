@@ -225,5 +225,5 @@ Needs owner: copy the fixed data-download.yml to main after G2-7a. Artifact down
 
 2026-11-27 06:3x UTC — G3-4 (builder, Sonnet) on `gate-3`.
 K1: verify_artifact.py --print + workflow step prints provenance.json and per-file sha256 to the job log. K3: Actions bumped to checkout@v6, setup-python@v6, upload-artifact@v7, download-artifact@v8.
-Tests: check_workflows ok; local suite 614 pass / 14 fail, identical with change stashed (sandbox package fingerprint vs golden) — CI decides.
+Tests: check_workflows ok; 614 pass / 14 fail locally AND in CI run 45952295488 — same 14 fail with change stashed; CI red since G3-3 (not green as reported). Node 20 warning gone. Added fix item G3-3-fix before G3-5.
 Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
