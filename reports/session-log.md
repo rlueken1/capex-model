@@ -232,3 +232,8 @@ Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
 - Cause: transport fingerprint test masked environment fields only on the new side; CI Python 3.12 ≠ golden 3.13 → 14 fails. Fixed masking to be symmetric (§7.4a.9). No src/ change, golden untouched.
 - Seed-dependent health diff (run 142) not reproduced: run 144 compare green, local seeds identical 7/7.
 - Tests: 628 pass / 0 fail locally; CI on this push is the judge. Owner: nothing needed.
+
+2026-11-27 08:2x UTC — G3-5 claimed (verifier), branch `gate-3`; not started, claim released.
+- Pre-check: CI run 146 (G3-3-fix commit) is red: 10 fail / 618 pass (e.g. explicit-key transport test [T4]); health.csv differs from golden only by last-ulp float noise (1.8e-16 vs 0.0). Passes locally 7/7.
+- Evidence would only record a fail, so added G3-3-fix2 (formulation lead [Opus]: rule on byte identity across environments in §7.4a.9 + verifier test change) before G3-5.
+- Tests: local `-k explicit_key` 7 pass. Owner: nothing needed.
