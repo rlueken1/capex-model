@@ -1,7 +1,7 @@
 # PLAN
 
-STATUS: AWAITING_OWNER_REVIEW
-CURRENT GATE: 3 (PJM 5-bus) — not started: waiting for owner approval of docs/gates/gate-3.md (draft); branch `gate-3` to be created from `gate-2` on approval
+STATUS: IN_PROGRESS
+CURRENT GATE: 3 (PJM 5-bus, DC power flow option), branch `gate-3` (from `gate-2`); criteria approved 2026-11-27 (DECISIONS 47)
 GATE 2: approved by owner 2026-11-27 (DECISIONS 42); merged into `main` 2026-11-27 on owner instruction (live session)
 GATE 1: approved by owner 2026-11-26 (DECISIONS 33, 37); merged into `main` 2026-11-26 on owner instruction
 GATE 0: approved by owner 2026-11-24 (DECISIONS 26–30); merged into `main` 2026-11-24 on owner go-ahead
@@ -132,6 +132,20 @@ One per session, strictly in order; claim before work (CLAUDE.md).
 - [x] G2-8 PM [Sonnet] + markets reviewer [Sonnet] (1 subagent): `reports/gate-2-review.md` pass/fail table and owner yes/no
   list; STATUS: AWAITING_OWNER_REVIEW.
 
+## Gate 3 work items — branch `gate-3` (criteria: docs/gates/gate-3.md, approved 2026-11-27, DECISIONS 47)
+One per session, strictly in order; claim before work (CLAUDE.md). Default network model stays `transport` (pipe-and-bubble).
+- [ ] G3-1 Formulation lead [Opus]: W-spec — complete formulation §7.4a (`kvl`, `ref_angle`, PTDF + islands, μ sign under `dcpf`,
+  `CONGESTION_LOOP` with α weights and `DEGENERATE` sub-tag), data-schema `links.csv` validation; DECISIONS entry; version → F-0.3. Spec only.
+- [ ] G3-2 Verifier [Sonnet]: tests from the amended spec only — promote `tests/draft/test_pjm5bus.py` (P5a–P5f, §4 checks, M7–M10;
+  14,957.28 → .29 fix in gate-3.md §2) and K2 (case5.m hash = manifest). Expected red until G3-3/G3-4 (strict xfail citing Gate 3).
+- [ ] G3-3 Builder [Sonnet]: `tx.model=dcpf` angle + PTDF forms, `pjm5` case in `cases/pjm5bus/` with provenance, fixed-fleet run,
+  price-setter `CONGESTION_LOOP`, new health checks. Do not edit verifier tests. CI green.
+- [ ] G3-4 Builder [Sonnet]: carried K1 (print provenance.json + hashes in data-download log) and K3 (bump Actions off Node 20). No verifier tests here.
+- [ ] G3-5 Verifier [Sonnet]: `reports/gate-3-evidence.md` (gate-3.md §5), incl. a `pjm5` dispatch for K1/K3 and the performance-ledger row `tx.model`.
+- [ ] G3-6 Formulation lead [Opus]: code-vs-spec trace of §7.4a and dual/sign conventions; findings become fix items.
+- [ ] G3-7 PM [Sonnet] + markets reviewer [Opus] (1 subagent): `reports/gate-3-review.md` pass/fail table and owner yes/no list;
+  STATUS: AWAITING_OWNER_REVIEW.
+
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
 Use when STATUS is AWAITING_OWNER_REVIEW, or when the next gate item is already claimed by another run (owner, 2026-11-26). One item per session, in order. Drafts and raw data only:
 no changes to `src/capex/`, no gate branch edits except ticking these boxes and the session log.
@@ -164,6 +178,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+Gate 3 started 2026-11-27 (owner approved criteria + runtime targets, DECISIONS 47); branch `gate-3` created from `gate-2`. Next: G3-1 (formulation lead, Opus).
 DECISIONS 46 (owner 2026-11-27): no integer (full) UC anywhere; linearized clustered UC is the basis, built at Gate 11, default off until a later gate.
 Design review 2026-11-27 (DECISIONS 44, amended by 45 on owner reply): rep-period PDC matching is the price check (no operations mode); PRM in Gate 7; UC in the expansion LP default off; performance budget from Gate 4 — no new gates. Gate 3 criteria approval still the next step.
 Gates restructured 2026-11-27 (owner, DECISIONS 43): multi-year gets Gates 7–8 after the GenX cross-check; old Gates 7–20 → 9–22. Formulation lead's design draft: docs/drafts/multi-year-design.md (open owner items O3–O12).
@@ -208,9 +223,9 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
-- 2026-11-27 design review (docs/design-review-2026-11-27.md): confirm the [P] performance targets (PJM single node 1 year ≤ 2 min; PJM zonal 4 model years ≤ 30 min; with UC on ≤ 60 min)? rec yes.
+- (answered 2026-11-27, yes without the UC row, DECISIONS 47) 2026-11-27 design review: confirm the [P] performance targets (PJM single node 1 year ≤ 2 min; PJM zonal 4 model years ≤ 30 min; with UC on ≤ 60 min)? rec yes.
 - 2026-11-27 multi-year design (docs/drafts/multi-year-design.md §6): O3–O12, all rec yes — 5-year model-year steps + 1 tail year, annuities truncated at horizon end (no salvage term); one real system discount rate (±2 pt sensitivity) separate from tech WACC; same rep periods every year in Gate 7 (re-cluster option in Gate 8); no inter-year storage; cost varies by vintage, performance does not; perfect foresight default; Gates 7–8 judged on toys/health/GenX, not scoreboard; add free source `pjm_ltlf` (PJM load forecast); technical life = economic life. Can be answered at the Gate 6 → 7 boundary.
-- 2026-11-27 Gate 3: approve docs/gates/gate-3.md draft (open: dispatch tolerance 0.01 vs 0.1 MW, rec 0.01; keep P5e load scan, rec yes). Also still open: delete `g2-7b-broken-hash` (neutralized), enable branch protection on `main` requiring `ci`.
+- (answered 2026-11-27, yes, DECISIONS 47) 2026-11-27 Gate 3: approve docs/gates/gate-3.md draft (open: dispatch tolerance 0.01 vs 0.1 MW, rec 0.01; keep P5e load scan, rec yes). Also still open: delete `g2-7b-broken-hash` (neutralized), enable branch protection on `main` requiring `ci`.
 - (answered 2026-11-27, yes to all, DECISIONS 42) 2026-11-27 G2-8: Gate 2 review — 9 yes/no decisions in reports/gate-2-review.md (all rec yes; delete `g2-7b-broken-hash` before merging; enable branch protection on `main`).
 - 2026-11-27 G2-7b: please delete throwaway branch `g2-7b-broken-hash` (origin, 6894418; only corrupts the case5.m hash in `data/manifests/pjm5.csv`) — deletion returned HTTP 403 from the cloud workspace. Never merge it. Optional: glance at artifact `data-pjm5-default-45916594450` provenance.json (not readable from here) to close D4 fully.
 - (answered 2026-11-26, done: copied to `main` at 9671c02 in a live session on owner instruction) 2026-11-26 G2-7a: fixed `.github/workflows/data-download.yml` is on `gate-2` (fc90b77) but could not be copied to `main` — the unattended run's push to `main` was blocked, and the scheduled prompt forbids working on main (conflicts with DECISIONS 41). Please either copy it yourself (`git checkout origin/gate-2 -- .github/workflows/data-download.yml` on main, commit "copy fixed data-download.yml to main (DECISIONS 41)", push) or amend the scheduled prompt to allow exactly this. G2-7b waits on it. rec: copy it yourself.

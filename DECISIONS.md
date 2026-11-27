@@ -213,3 +213,9 @@
     **linearized clustered UC** (Palmintier & Webster; continuous commitment, formulation §7.5), built at Gate 11 with
     `uc.enabled` **default off**. The ledger reports its effect on builds and the PDC fit; switching it on by default is
     considered no earlier than Gate 19 (calibration + hold-out) and needs an owner decision.
+47. Owner (2026-11-27): **Gate 3 criteria approved** (docs/gates/gate-3.md) with dispatch tolerance 0.01 MW and the P5e load
+    scan kept; carried items K1–K3 added (DECISIONS 42). The default network model is and stays **`tx.model = transport`
+    (pipe-and-bubble zonal transport)** everywhere, incl. PJM zonal; `dcpf` is an option only (reaffirms DECISIONS 29).
+    **Runtime targets confirmed:** PJM single node, 1 year (~20 periods) ≤ 2 min; PJM zonal (~20 zones, 50+ clusters),
+    4 model years ≤ 30 min — with or without linearized UC (no separate UC target: linearized UC is part of the zonal
+    LP); CI ≤ 10 min. Branch `gate-3` created from `gate-2`.

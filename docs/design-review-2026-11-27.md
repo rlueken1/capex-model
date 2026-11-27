@@ -51,7 +51,6 @@ the PDC check come from the weighted representative periods. Items below marked 
 | 17, 19, 20 | client hourly prices/revenues from operations mode; runtime targets checked |
 | README | performance budget + `reports/performance-ledger.md` from Gate 4 |
 
-## Proposed performance targets [P] (laptop-class, HiGHS, single thread unless noted)
-- Plan mode, PJM single node, 1 year, ~20 periods: ≤ 2 min. PJM zonal (~20 zones, 50+ clusters), 4 model years: ≤ 30 min.
-- PJM zonal, 4 model years, with UC on: ≤ 60 min. (Operations-mode targets withdrawn, DECISIONS 45.)
+## Performance targets (owner-confirmed 2026-11-27, DECISIONS 47; UC row dropped — linearized UC is part of the zonal model) (laptop-class, HiGHS, single thread unless noted)
+- PJM single node, 1 year, ~20 periods: ≤ 2 min. PJM zonal (~20 zones, 50+ clusters), 4 model years: ≤ 30 min, with or without linearized UC.
 - CI stays ≤ 10 min (Gate 2 C8). Every gate reports rows/cols/nnz/time vs the previous gate; >2× growth needs a ledger reason.
