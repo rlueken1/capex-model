@@ -266,3 +266,8 @@ Owner: nothing needed; G3-5 dispatches pjm5 for K1/K3 evidence.
   Verifier: test_health_fingerprint.py :217 → F-0.3, :150 unimplemented switch replaced by `tx.dcpf_form: ptdf` (per amendment 2).
   Tests: 637 pass / 0 fail locally; check_markers ok; golden T1–T4 and pjm5 unchanged. CI on push is the judge.
   Owner: nothing needed. Next: G3-6-fix3 (verifier).
+
+- 2026-11-27 G3-6-fix3 (verifier, Sonnet): `tests/test_g3_fix3.py`, 34 spec-derived tests (strict keys, fingerprint F-0.3, list cells, per-island congestion_rent, CONGESTION_LOOP (b) α vs numpy pinv, (c) total-blackout bound π ≥ VOLL).
+  Tests: 669 pass / 2 strict xfail / 0 fail locally; check_markers ok. No src change.
+  Findings → new items: G3-6-fix4 (spec ruling: empty `tx.ref_bus` list), G3-6-fix5 (builder: isolated node crashes audit `angles_from_injection`, §7.4a.2).
+  Owner: nothing needed. Next: G3-6-fix4 (formulation lead, Opus).
