@@ -295,3 +295,8 @@ Branch `g2-7b-broken-hash` delete refused from this workspace — owner deletes 
 `docs/drafts/architecture-spec.md`: feature-block contract A1–A10, `ra.prm` Gate 7 row (κ, annual setter report, T5 toys), weighted rep-period PDC + M1.1/M1.4/M1.5 mapping.
 Spec draft only; no code, no tests run. Owner: 6 yes/no questions (O1 FPR-based requirement, O2 storage class round-down, O3 fixed-duration candidates, O4 trimmed PDC tail until Gate 9, O5, O6).
 Next: P12 (gate-4.md draft).
+
+## 2026-11-27 — P12 (prep, formulation lead Opus)
+- Item: DRAFT `docs/gates/gate-4.md` on `prep` (012008b). RTS-GMLC fixed-fleet dispatch vs PLEXOS 336-h DA window (only results vendored); HVDC 113–316 as controllable link block in dcpf; storage under dcpf; F3-3, F3-12 closed by spec proposals S1–S5 (F-0.4).
+- Tests: docs only, none run. src/capex/ untouched.
+- Needs owner: approve/amend gate-4.md, answer O1–O7 (336-h window, 73-bus nodal dcpf variant, HVDC default, prices reported not judged, PLEXOS-aligned fleet w/o CSP+storage, storage interval, [P] tolerances). Prep list now empty.
