@@ -173,7 +173,7 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
 - [x] G4-6a Verifier [Sonnet], branch `gate-4`: window runs R4-Z/R4-C/R4-N/R4-NS; §5 metrics F0, C0–C2, G1–G2, L1–L2,
   P1, U0 vs PLEXOS; turn the C1/G1 strict xfails into real outcomes (pass/fail as measured, not loosened); evidence
   file §9 parts for these runs.
-- [ ] G4-6b Verifier [Sonnet], branch `gate-4`: dispatch the G4-5 job for R4-F/R4-NF; health + performance-ledger rows
+- [~] G4-6b Verifier [Sonnet], branch `gate-4`: dispatch the G4-5 job for R4-F/R4-NF; health + performance-ledger rows (claimed 2026-11-28T03:24Z)
   (window ≤ 60 s, full year ≤ 5 min / 4 GB) and complexity-ledger rows `tx.dc_links`, `tx.model` (RTS); finish
   `reports/gate-4-evidence.md`; refresh the dashboard Model results tab (`scripts/export_dashboard.py`).
 - [ ] G4-7 Formulation lead [Opus], branch `gate-4`: code-vs-spec trace `reports/gate-4-spec-trace.md` (incl. A1–A10
