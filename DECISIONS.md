@@ -395,3 +395,20 @@
     Rejected: loosening `loop_alpha` to $tol_\pi$ (would hide real α errors of the size M7–M10 produce on non-toy cases);
     using the solved bus price as $c_b$ (makes the check true by construction); dropping case (b) least squares for an
     LP fit (more code, same inconsistency). Accuracy cost: none; the dropped unit is not marginal (nonzero reduced cost).
+
+2026-11-28 (owner, live session: "Yes to all", answering reports/gate-4-review.md decision list 1–11)
+61. (1) C1/G1 fails on R4-Z/C/N are accepted as an **explained UC gap**, **conditional on G4-9**: the verifier reruns R4-C
+    in the independent scipy harness with PLEXOS commitment fixed (g ∈ [Pmin·u^PX, Pmax·u^PX]); no `src/capex/` change.
+    If C1 ≲ 2% and coal/gas-CC ≤ 3 pp, the 6 red test ids become `xfail(strict=True)` citing this entry (thresholds
+    unchanged) plus a non-judging regression pin (C1 7.1 ± 0.5 pp; coal/gas CC ± 0.5 pp); targets carry to Gate 11 at
+    2% / 2 pp. If the diagnostic does not confirm UC, Gate 4 stays open and the cause is sought in the data. No min-gen
+    proxy in the model at this gate (DECISIONS 26). (2) L1/L2/P1/U0 reported with gap labels: accepted. (3) Health,
+    UNEXPLAINED = 0, storage under dcpf (R4-NS, S2a/S2c): accepted. (4) H1a–e, A1, U1, B1, N1 and M13–M16: accepted.
+    (5) Golden identity T1–T4 + pjm5 and F-0.4 with amendment 1 (DECISIONS 60): accepted. (6) Performance ledger
+    accepted; R4-NF recorded as "did not finish in 120 min", report-only; the r4nf/r4nf-tests jobs leave the push trigger
+    (dispatch only). (7) `tx.dc_links` keep, default `controllable`; `tx.model` dcpf as option, `transport` default.
+    (8) K4–K6 and provenance accepted; cell-level assumptions book deferred to Gate 5 (F4-3). (9) S2b: strict xfail
+    accepted; constructive candidate-build fixture carried to Gate 5. (10) Merge `gate-4` → `main` and mark Gate 4 DONE
+    **after** G4-9 confirms and the xfail conversion turns CI green on `gate-4` (merge in a live owner session; scheduled
+    runs never merge). (11) Gate 5 carry list (review §5: F4-3, F4-5, S2b fixture, F4-8/F4-9 notes, optional secant
+    heat-rate sizing) and markets forward notes (a)–(e) are inputs to the Gate 5 criteria draft (prep P13).

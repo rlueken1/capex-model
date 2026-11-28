@@ -372,3 +372,7 @@ Next: P12 (gate-4.md draft).
 - No tests run (review only); CI on gate-4 red on the 6 known C1/G1 ids; full-year run 46107908584: R4-F green, R4-NF cancelled at 120 min.
 - STATUS → AWAITING_OWNER_REVIEW. Owner: decide C1/G1 (rec accept after a G4-9 fixed-commitment diagnostic), S2b → Gate 5, merge after CI green. Prep list exhausted.
 - 2026-11-28T11:24Z skipped: nothing claimable (STATUS AWAITING_OWNER_REVIEW for Gate 4; prep list P1–P12 exhausted).
+2026-11-28 (live owner session, PM main session) — owner answered Gate 4 review
+- Owner "Yes to all" on the 11 items in reports/gate-4-review.md → DECISIONS 61. STATUS → IN_PROGRESS.
+- Added closing items G4-9 (verifier: fixed-commitment diagnostic), G4-10 (strict xfail + regression pin), G4-11 (R4-NF dispatch-only), G4-12 (owner merge, live session); prep P13 (Opus: revise gate-5.md draft with the carry list).
+- No tests run (planning only). Owner: merge waits for G4-9 to confirm the UC explanation and CI green.

@@ -1,7 +1,7 @@
 # PLAN
 
-STATUS: AWAITING_OWNER_REVIEW
-CURRENT GATE: 4 (RTS-GMLC fixed-fleet dispatch vs PLEXOS) — criteria approved 2026-11-27 (DECISIONS 55), branch `gate-4`
+STATUS: IN_PROGRESS
+CURRENT GATE: 4 (RTS-GMLC fixed-fleet dispatch vs PLEXOS) — criteria approved 2026-11-27 (DECISIONS 55), branch `gate-4`; review answered 2026-11-28 (owner yes to all 11, DECISIONS 61) — closing items G4-9…G4-11, then merge in a live owner session
 GATE 3: approved by owner 2026-11-27 (DECISIONS 54); merged into `main` 2026-11-27 (8ba64d2) on owner instruction (live session)
 GATE 2: approved by owner 2026-11-27 (DECISIONS 42); merged into `main` 2026-11-27 on owner instruction (live session)
 GATE 1: approved by owner 2026-11-26 (DECISIONS 33, 37); merged into `main` 2026-11-26 on owner instruction
@@ -193,6 +193,18 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
   G4-7: F4-10 S2b route (candidate fixture / hook-level test / accept strict xfail); F4-3 (provenance_cells.csv → assumptions book)
   and F4-5 (solver-status enum) as Gate 5 items; optional R4-C sizing of the secant heat rate (DECISIONS 57) for G1.
 
+- [ ] G4-9 Verifier [Sonnet], branch `gate-4` (DECISIONS 61(1)): fixed-commitment diagnostic — rerun R4-C in the independent
+  scipy harness (`tests/g4lib.py`/`tests/rts_compare.py`, no capex import) with PLEXOS commitment fixed (g ∈ [Pmin·u^PX, Pmax·u^PX],
+  u^PX from the reference dispatch); report C1 and G1 (coal, gas CC) in `reports/gate-4-evidence.md` §15. No `src/capex/` change.
+  If C1 ≲ 2% and coal/gas CC ≤ 3 pp: confirmed. If not: write it under "Needs owner", Gate 4 stays open, skip G4-10.
+- [ ] G4-10 Verifier [Sonnet], branch `gate-4` (DECISIONS 61(1)): only after G4-9 confirms — the 6 C1/G1 ids → `xfail(strict=True,
+  reason="DECISIONS 61: explained UC gap")`, thresholds unchanged; add a non-judging regression pin (C1 7.1 ± 0.5 pp; coal, gas CC
+  ± 0.5 pp); check_markers ok; CI green on `gate-4`.
+- [ ] G4-11 Builder [Sonnet], branch `gate-4` (DECISIONS 61(6)): `gate4-fullyear.yml` — r4nf and r4nf-tests jobs run on
+  `workflow_dispatch` only (not on push); R4-F jobs unchanged. Also copy the file to `main` only in the live merge. Proof: CI green.
+- [ ] G4-12 OWNER ACTION (live session, DECISIONS 61(10)): after G4-9…G4-11 and CI green, merge `gate-4` → `main`, mark Gate 4 DONE,
+  create `gate-5` from `gate-4`. Scheduled runs never do this item; on reaching it they set STATUS: AWAITING_OWNER_REVIEW.
+
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
 Use when STATUS is AWAITING_OWNER_REVIEW, or when the next gate item is already claimed by another run (owner, 2026-11-26). One item per session, in order. Drafts and raw data only:
 no changes to `src/capex/`, no gate branch edits except ticking these boxes and the session log.
@@ -226,7 +238,12 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
   the PLEXOS reference (compare cost and mix, label LMP gaps as expected); also carried F3-3, F3-12 (DECISIONS 52).
 
 
+- [ ] P13 Formulation lead [Opus], branch `prep`: revise the P7 DRAFT `docs/gates/gate-5.md` on `prep` (with
+  `docs/drafts/gate5-rep-periods-spec.md`), folding in the Gate 5 carry list and markets forward notes (a)–(e) from
+  `reports/gate-4-review.md` §4–§5 (DECISIONS 61(11)), and the work items to close them; owner questions at the end. Stays DRAFT. Needs P12 done.
+
 ## Next
+Owner 2026-11-28 (live, DECISIONS 61): yes to all 11 Gate 4 review items. Gate 4 closes after G4-9 (fixed-commitment diagnostic must confirm the UC explanation), G4-10 (strict xfail + regression pin, CI green), G4-11 (R4-NF dispatch-only); then G4-12 merge in a live session. STATUS → IN_PROGRESS. Prep P13 (gate-5.md draft, Opus) added for runs that find the gate item claimed. Next: G4-9.
 G4-8 done 2026-11-28 on `gate-4` (PM main session + markets reviewer Opus): `reports/gate-4-review.md` — 11 yes/no decisions. C1/G1 fail as measured, explained by UC (no-load = 95% of basis gap; gas-CC Pmin must-run = 92% of the gas-CC shift); rec accept **conditional on G4-9** (verifier: fixed-commitment diagnostic in the scipy harness), then 6 ids → strict xfail citing a DECISIONS entry + regression pin. R4-NF did not finish in 120 min (run 46107908584). S2b → Gate 5 fixture. STATUS → AWAITING_OWNER_REVIEW; prep lane only.
 G4-7-fix3 done 2026-11-28 on `gate-4` (verifier, main session): `reports/performance-ledger.md` gains T1, T2a–c, T3a–b, T4 (size = golden `conditioning.json`, previous gate n/a) and pjm5 transport/dcpf(angle)/ptdf (sizes = gate-3-evidence §8, ratios 1.15/1.00/0.90 ≤ 2×), median of 7, own process each; `tests/test_g4_ledger_rows.py` 21 pass (ledger vs golden/§8 sizes, ratio ≤ 2, rebuilt LP size = ledger). F4-4 closed. pytest 833 pass / 6 fail (known C1/G1) / 1 xfail / 6 skip; check_markers ok. Next: G4-8 (PM + markets reviewer Opus).
 G4-7-fix2 done 2026-11-28 on `gate-4` (verifier Sonnet): `tests/golden/gate3/pjm5bus/{angle,ptdf}/` (25 canonical files each, no run.json) + `SOURCE.txt` from `main` f3acf4d (detached worktree; fingerprints angle 2e37cf5e…, ptdf 55887070…); `tests/test_g4_pjm5_golden.py` (5 tests, 0.5 s): §7.4a.9 identity (mask run_id/fingerprint, drop `price_setter.loop_interval` row) + vacuity guards — pass in both forms, F4-2 closed. pytest 812 pass / 6 fail (known C1/G1) / 1 xfail / 6 skip; check_markers ok. No findings. Next: G4-7-fix3 (verifier), then G4-8.
@@ -310,7 +327,7 @@ storage, F5 ScipyHighsSolver loses ≤ dual on two-sided rows.
 Rule (DECISIONS 26): buy nothing; simplest model first — add complexity only in its gate, after the simpler model passes.
 
 ## Needs owner
-- 2026-11-28 G4-8: Gate 4 review — 11 yes/no decisions in reports/gate-4-review.md (all rec yes; item 1 conditional on a G4-9 fixed-commitment diagnostic; merge after CI green). Supersedes the open G4-3/G4-4/G4-6a C1/G1 and S2b questions below. Prep list is exhausted, so runs will log "skipped" until you answer or add prep items (rec: P13 formulation lead [Opus] draft docs/gates/gate-5.md).
+- (answered 2026-11-28, yes to all 11, DECISIONS 61) 2026-11-28 G4-8: Gate 4 review — 11 yes/no decisions in reports/gate-4-review.md (all rec yes; item 1 conditional on a G4-9 fixed-commitment diagnostic; merge after CI green). Supersedes the open G4-3/G4-4/G4-6a C1/G1 and S2b questions below. Prep list is exhausted, so runs will log "skipped" until you answer or add prep items (rec: P13 formulation lead [Opus] draft docs/gates/gate-5.md).
 - (answered 2026-11-28, DECISIONS 59) 2026-11-28 G4-6b: ledger keeps local rows; complexity verdicts tx.dc_links keep (controllable), tx.model dcpf option / transport default — accepted for G4-8.
 - 2026-11-28 G4-6a (verifier): (1) C1 (7.0–7.1% vs ≤5%) and G1 (coal +8.4 pp, gas CC −10.3 pp vs ≤3 pp) fail as measured on R4-Z/C/N; xfails removed, thresholds unchanged, so **CI on `gate-4` is red on these 6 test ids** until you rule at G4-8 (accept as explained UC/Pmin gap per U0 — 39% of gas-CC energy is committed-at-Pmin above price — or keep as fail). (2) S2b stays strict xfail: ~300 variants give no natural price-setter case-(c) hour; S2c/M13/M16 now pass via a forced interval path. Close Gate 4 on that evidence, or add a hand-built rank-deficient unit test? Details: reports/gate-4-evidence.md.
 - (answered 2026-11-28, yes to both, DECISIONS 59: timeouts 120 min; file copied to `main`) 2026-11-28 G4-5 (builder): (1) R4-NF (`rts_gmlc_nodal`, ≈3.7 M cols, dcpf full year) did not finish within the 30-min job limit on Actions (run 46095301368). It is report-only (gate-4.md §8). Raise only the r4nf/r4nf-tests timeouts to 120 min (job limit max 360), or record "did not finish in 30 min" as its ledger row? rec: raise to 120 min. (2) GitHub dispatches `gate4-fullyear.yml` only once the file is on `main`; until then it runs only when the file itself changes on a branch. Copy the file to `main` (inert unless dispatched, `contents: read`) so G4-6b can dispatch it? rec yes (owner action, as DECISIONS 39).
