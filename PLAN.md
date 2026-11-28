@@ -176,10 +176,22 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
 - [x] G4-6b Verifier [Sonnet], branch `gate-4`: dispatch the G4-5 job for R4-F/R4-NF; health + performance-ledger rows
   (window ≤ 60 s, full year ≤ 5 min / 4 GB) and complexity-ledger rows `tx.dc_links`, `tx.model` (RTS); finish
   `reports/gate-4-evidence.md`; refresh the dashboard Model results tab (`scripts/export_dashboard.py`).
-- [~] G4-7 Formulation lead [Opus], branch `gate-4`: code-vs-spec trace `reports/gate-4-spec-trace.md` (incl. A1–A10 (claimed 2026-11-28T05:24Z)
-  and closing the 8 G4-3 SPEC-GAPs); findings become fix items.
+- [x] G4-7 Formulation lead [Opus], branch `gate-4`: code-vs-spec trace `reports/gate-4-spec-trace.md` (incl. A1–A10
+  and closing the 8 G4-3 SPEC-GAPs); findings become fix items. Done 2026-11-28: 10 findings (1 blocker F4-1), DECISIONS 60, F-0.4 amendment 1.
+- [ ] G4-7-fix1 Builder [Sonnet], branch `gate-4` (F4-1, DECISIONS 60(a)): in `capex/audit/loopsetter.py::_members`, drop
+  `TIE_AT_BOUND` setters with |π(bus) − mc| > `loop.TIE_EPS` = 1e-7 from 𝓜_i; no other change. Re-run R4-N, R4-NX, R4-NS health
+  (R4-NX `loop_alpha` must pass); pjm5 identity must hold. No judging tests.
+- [ ] G4-7-fix1b Verifier [Sonnet], branch `gate-4` (F4-1): from formulation §7.4a.7 — pjm5 dcpf fixture with one unit at a bound,
+  mc 0.005 above the congested-hour bus price: `loop_alpha` passes and the unit is not in CONGESTION_LOOP `setter_ids`; plus an
+  R4-NX window health test (`CAPEX_GATE4_FULL`-gated).
+- [ ] G4-7-fix2 Verifier [Sonnet], branch `gate-4` (F4-2): `tests/golden/gate3/pjm5bus/{angle,ptdf}/` + `SOURCE.txt` generated from
+  `main` f3acf4d; test the §7.4a.9 identity (mask `run_id`/`fingerprint` lines, drop the `loop_interval` row).
+- [ ] G4-7-fix3 Verifier [Sonnet], branch `gate-4` (F4-4): performance-ledger rows for T1–T4 and pjm5 transport/angle/PTDF with
+  previous-gate values from gate-3-evidence §8 (T1–T4: size identity, previous time "n/a").
 - [ ] G4-8 PM [Sonnet] + markets reviewer [Opus] (1 subagent), branch `gate-4`: `reports/gate-4-review.md` with the
-  UC/reserve gap narrative (C1, G1, L1, U0) and the §11 decision list; STATUS → AWAITING_OWNER_REVIEW.
+  UC/reserve gap narrative (C1, G1, L1, U0) and the §11 decision list; STATUS → AWAITING_OWNER_REVIEW. Also carry from
+  G4-7: F4-10 S2b route (candidate fixture / hook-level test / accept strict xfail); F4-3 (provenance_cells.csv → assumptions book)
+  and F4-5 (solver-status enum) as Gate 5 items; optional R4-C sizing of the secant heat rate (DECISIONS 57) for G1.
 
 ## Prep while awaiting owner review (owner-approved 2026-11-25) — branch `prep`, never merged without owner sign-off
 Use when STATUS is AWAITING_OWNER_REVIEW, or when the next gate item is already claimed by another run (owner, 2026-11-26). One item per session, in order. Drafts and raw data only:
@@ -215,6 +227,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+G4-7 done 2026-11-28 on `gate-4` (formulation lead, Opus): `reports/gate-4-spec-trace.md` — 10 findings. **F4-1 blocker**: R4-NX `loop_alpha` FAIL is a spec error (a `TIE_AT_BOUND` unit with mc 3.6e-3 above π entered 𝓜_i); spec now admits it only at |π−c| ≤ 1e-7 (DECISIONS 60, F-0.4 amendment 1); scratch patch gives R4-NX 31/31. 8 SPEC-GAPs ruled (formulation §7.4a.13; only S2b left for owner). A1–A10 pass with noted exceptions. Nothing in code contributes to C1/G1. pytest 800 pass / 6 fail (known C1/G1) / 1 xfail / 5 skip. Next: G4-7-fix1 (builder), fix1b, fix2, fix3 (verifier), then G4-8.
 G4-6b duplicate run 2026-11-28 (stale-claim takeover; original finished first): only adds evidence §14 — **G4-7 please trace R4-NX `price_setter.loop_alpha` health FAIL (2.4e-3 vs 1e-6, `tx.dc_links: exclude`)**, plus rts_gmlc_px setter shares. Next unchanged: G4-7.
 Owner 2026-11-28 (live, DECISIONS 59): accepted G4-5/G4-6b recommendations — R4-NF jobs 120 min; `gate4-fullyear.yml` on `main` (dispatchable with `--ref gate-4`); this push re-runs the workflow on `gate-4`. C1/G1 and S2b rulings still at G4-8. Next: G4-7 (formulation lead, Opus).
 G4-6b done 2026-11-28 on `gate-4` (verifier Sonnet): R4-F evidence from Actions run 46095301368 (no dispatch possible: workflow not on `main`) — rts_gmlc 169 s wall / 2,725 MB, rts_gmlc_px 174 s / 2,292 MB (≤5 min/4 GB); local 2-cpu 226/252 s solve; health 23 pass/0 warn/0 fail, UNEXPLAINED 0. R4-F XPASS marker removed; `-k "r4f or b1"` 3 pass under CAPEX_GATE4_FULL=1. R4-NF: did not finish in 30 min, still strict xfail (owner). `reports/performance-ledger.md` (window R4-Z/C/N/NP/NX/NS 1.1–30.1 s ≤60 s; R4-NP 9.5 M nnz, dense PTDF does not scale). Complexity ledger: `tx.dc_links` keep (default controllable; +0.9 s, LMP differs 10/360 h), `tx.model=dcpf` keep as option, default transport (26× solve, C1 7.10→6.97%). Evidence §7, §9–§12 filled (A1–A10 + assumptions excerpts → G4-7). pytest 800 pass / 6 fail (known C1/G1) / 1 xfail / 5 skip; check_markers ok. Dashboard export ran (8 files). Note: this run's claim went stale at 60 min mid-work and was taken over at 04:24Z; this run finished first. Next: G4-7 (formulation lead, Opus).

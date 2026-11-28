@@ -12,6 +12,11 @@ general unscaling rule, applied to $\theta$ reduced costs and `ref_angle` (close
 from a piecewise fuel curve = secant incremental rate, no no-load term. With no `dc` row and no `audit_profile` key, the
 LP and every canonical output are those of F-0.3 (T1–T4, `pjm5` golden identity), except one new health row under
 `dcpf` (`price_setter.loop_interval`, removed before the golden compare, §7.4a.9).
+F-0.4 amendment 1 (G4-7 spec trace, 2026-11-28, DECISIONS 60): audit rules only, LP unchanged — §7.4a.7 a `TIE_AT_BOUND`
+unit joins $\mathcal M_i$ only at an exact tie ($\lvert\pi_m-c_m\rvert\le\varepsilon_{tie}=10^{-7}$ \$/MWh; fixes the R4-NX
+`price_setter.loop_alpha` fail); resource-bound rows of the interval LP are exact (only S2 rows are relaxed); a failed
+interval side gives `primary_class` `UNEXPLAINED` per §4 Step 2; `loop_interval` counts failed sides; §7.4a.10 names the
+M13/M16 hooks; new §7.4a.13 resolves the G4-3 `SPEC-GAP` notes (incl. when case (c) is reachable, for S2b).
 F-0.3 changes (DECISIONS 48): §7.4a DC power flow option completed — `tx.model ∈ {transport (default), dcpf}`, angle form
 (`kvl`, `ref_angle`) and PTDF form (`bal_sys`, `ptdf_flow`), islands and reference bus, $\mu$ sign and LMP decomposition
 (energy + congestion, loss 0), congestion-rent identity, network health checks, price-setter `CONGESTION_LOOP` with
@@ -638,7 +643,7 @@ present only under `dcpf` (so the `tolerances` fingerprint component is unchange
 | `dcpf.line_duals` | (F-0.4: AC lines and DC links; at a rating the sign is that of the active bound, $\mu\ge0$ forward, $\le0$ reverse) max of $\lvert\mu_l\rvert$ over line-hours with $\lvert f\rvert < F_l - $ `binding_slack` (all hours of unlimited lines) and of $\max(0,-\mu_l\,\mathrm{sgn} f_l)$ at a rating | ≤ `line_dual_usd_mwh` = 1e-6 |
 | `dcpf.islands` | count of violations: per island-hour exactly one **active** reference row — angle: a `ref_angle` row with lo = hi = 0 whose only nonzero is on $\theta_{n_0(i)}$, and $\lvert\theta_{n_0}\rvert\le10^{-9}$; PTDF: one `bal_sys` row with lo = hi $=\sum_{n\in i}D$; island count from case data. `detail` = e.g. `2 islands: i1 ref A; i2 ref C` | = 0 |
 | `price_setter.loop_alpha` (family `price_setter`) | max over `CONGESTION_LOOP` bus-hours with weights of $\max(\lvert\sum_m\alpha_{n,m}-1\rvert, \lvert\pi_n-\sum_m\alpha_{n,m}c_m\rvert)$ | ≤ `loop_alpha` = 1e-6 |
-| `price_setter.loop_interval` (F-0.4, S2; family `price_setter`) | count over case-(c) bus-hours of: interval solves that end in a failed status (§7.4a.7 status map, incl. a solved point that violates a row), plus bus-hours with $\pi_n\notin[\text{lo}-tol_\pi,\text{hi}+tol_\pi]$. `detail` notes `storage rows conditional on solved v` when any storage row was used | = 0 (no tolerance key) |
+| `price_setter.loop_interval` (F-0.4, S2; family `price_setter`) | count over case-(c) bus-hours of: interval solves that end in a failed status (§7.4a.7 status map, incl. a solved point that violates a row), plus bus-hours with $\pi_n\notin[\text{lo}-tol_\pi,\text{hi}+tol_\pi]$ (count unit: §7.4a.7, amendment 1). `detail` notes `storage rows conditional on solved v` when any storage row was used | = 0 (no tolerance key) |
 
 MW-check thresholds (F-0.4, S3, closes F3-3): `kvl.recompute` and `ptdf.recompute` follow the case's **audit profile** (§3,
 after check 8), as `balance` and `storage.soc_recompute` do; every Gate 3 case is `exact` (key absent). The row
@@ -664,8 +669,15 @@ its two end buses; a line has no $K_r$, so its $tol_q$ is `tol_q_abs_mw` ($10^{-
 
 **`CONGESTION_LOOP`.** Marginal set $\mathcal M_i$: every resource (or unserved energy) at any bus of $i$ that meets a
 local class condition (1) at its own bus **and passes that class's price check** (amendment 2), with cost $c_m$ = that
-class's setter cost (§4 Outputs; `TIE_AT_BOUND` units included, which handles primal degeneracy). **`BLACKOUT` is
-excluded** (amendment 2): at a total-blackout bus $\pi_m=\text{VOLL}+\mu^{use}_m$ is not a known cost; it enters case (c) as a
+class's setter cost (§4 Outputs; `TIE_AT_BOUND` units included, which handles primal degeneracy). **F-0.4 amendment 1:
+a `TIE_AT_BOUND` unit joins $\mathcal M_i$ only at an exact tie**, $\lvert\pi_{m}-c_m\rvert\le\varepsilon_{tie}$ with
+$\varepsilon_{tie}=10^{-7}$ \$/MWh (a fixed constant like the SVD cutoff, not a tolerance key). Reason: interior units,
+partial unserved energy and storage that passes its class check satisfy $\pi_m=c_m$ by stationarity (to solver
+precision), but `TIE_AT_BOUND` is a §4 label with the $tol_\pi$ band; a unit at a bound with $0<\lvert\pi_m-c_m\rvert\le
+tol_\pi$ has a nonzero reduced cost, is not marginal, and its row would make $\Phi z=c_{\mathcal B}$ inconsistent (R4-NX,
+p063 t66–67: `321_cc_1` at 0 MW, $c_m-\pi_m=3.6\times10^{-3}$, case (b) least squares gave
+$\lvert\pi_n-\sum\alpha c\rvert=2.4\times10^{-3}$ > `loop_alpha`). Such a unit keeps its bus-local `TIE_AT_BOUND` class and
+enters case (c) only as a bound row. **`BLACKOUT` is excluded** (amendment 2): at a total-blackout bus $\pi_m=\text{VOLL}+\mu^{use}_m$ is not a known cost; it enters case (c) as a
 bound $\pi_m\ge\text{VOLL}$. Binding set $\mathcal K_i$: lines of $i$ with $\lvert f\rvert\ge F_l-tol_q$ and
 $\lvert\mu_l\rvert>tol_\pi$. Marginal buses $\mathcal B$ = distinct buses of $\mathcal M_i$, $c_b$ = mean of $c_m$ at $b$. With
 $\phi_n := [\,1,\ -H_{\mathcal K,n}^\top\,]$ ($1\times(1+|\mathcal K|)$, any reference bus) and $\Phi$ the matrix with rows $\phi_b$, $b\in\mathcal B$:
@@ -685,7 +697,9 @@ For $n\in\mathcal B$, (a) gives $\alpha_n=e_n$, consistent with `MARGINAL_UNIT`.
 $\lambda-\sum_{l\in\mathcal K}H_{l,n}\mu_l$ over $(\lambda,\mu_{\mathcal K})$ subject to $\Phi[\lambda;\mu]=c_{\mathcal B}$, $\mu_l\,\mathrm{sgn}f_l\ge0$, and for every
 resource at a bound at bus $m$ of $i$: $\pi_m(\lambda,\mu)\ge c_r$ at its upper bound, $\le c_r$ at zero (unserved at 0
 with $D>0$: $\le$ VOLL; unserved at $D$: $\ge$ VOLL) — a tiny LP solved through the solver adapter; unbounded sides are
-$\pm\infty$. Case (c) is not expected in Gate 3 (no candidates, no storage); P5a–P5e are case (a). (The Gate 3 limit
+$\pm\infty$. (F-0.4 amendment 1:) these resource and unserved-energy rows are **exact** (not relaxed): they hold at the
+solved point by dual feasibility of the basic optimum, to the solver's dual tolerance ($\ll tol_\pi$); only the S2 storage
+rows below carry the $tol_\pi$ relaxation, because $v$ enters them through the `st_soc` dual chain. Case (c) is not expected in Gate 3 (no candidates, no storage); P5a–P5e are case (a). (The Gate 3 limit
 "storage at a bound adds no row" of amendment 2 is replaced by S2 below.)
 
 **Storage rows in the interval LP (F-0.4, S2; closes F3-9).** Each storage unit $r$ at bus $m$ of the island that is
@@ -712,8 +726,11 @@ the solver status to an enum, per side:
 |---|---|
 | `OPTIMAL` | the objective value |
 | `UNBOUNDED`, `UNBOUNDED_OR_INFEASIBLE` | $-\infty$ (min) / $+\infty$ (max) — the LP is feasible (the solved point passed), so the second status can only mean unbounded |
-| anything else (`INFEASIBLE`, time/iteration limit, error), or a side value that is NaN after the map | failed solve: counted in `price_setter.loop_interval`; side value written as the empty cell, never NaN, and the bus-hour keeps class `CONGESTION_LOOP`/`DEGENERATE` with flag `UNEXPLAINED` |
+| anything else (`INFEASIBLE`, time/iteration limit, error), or a side value that is NaN after the map | failed solve: counted in `price_setter.loop_interval`; side value written as the empty cell, never NaN; the bus-hour fails the `CONGESTION_LOOP` price check, so (amendment 1, §4 Step 2) `primary_class` = `UNEXPLAINED`, `flags` ⊇ `UNEXPLAINED`, `all_classes` still lists `CONGESTION_LOOP` |
 A bus-hour with $\pi_n\notin[\text{lo}-tol_\pi,\text{hi}+tol_\pi]$ is `UNEXPLAINED` (§4 Step 2) and also counted.
+(Amendment 1) Count unit: each case-(c) bus-hour adds its number of failed sides (0, 1 or 2; a solved point that violates
+a row fails both sides of every bus-hour of that component-hour), plus 1 if both sides are valid and $\pi_n$ is outside.
+Only pass (= 0) vs fail is judged; the count is diagnostic.
 
 **DC links (F-0.4):** with `dc` rows the island-hour above becomes the **price component**-hour and $\phi_n$ gains one
 λ-column per island of the component; see §7.4a.12 (with no DC link it is exactly the text above).
@@ -771,10 +788,11 @@ make at least one check FAIL (not raise), with a control run and a vacuity guard
 F-0.4 mutation points (gate-4.md §4; M11/M12 are reserved for `ra.prm`):
 | ID | Hook | Fault | Expected to fail (any of) |
 |---|---|---|---|
-| M13 | patch the S2 row builder of the case-(c) interval LP | flip the sense of one storage row (≥ ↔ ≤) | `price_setter.loop_interval` |
+| M13 | patch the S2 row builder `capex.audit.loopsetter._storage_bounds` (returns `list[capex.audit.loop.Bound]`), or wrap `capex.audit.loop.interval` downstream of it | flip the sense of one storage row (≥ ↔ ≤) | `price_setter.loop_interval` |
 | M14 | wrap `capex.run.build_lp` | give DC link $k$ a `kvl` row with $x=0.01$ pu | `price_setter.link_inconsistent` (DC) |
 | M15 | wrap `capex.run.build_lp` (PTDF form) | drop the $-(H_{l,e(k)}-H_{l,o(k)})f_k$ terms from `ptdf_flow` | `ptdf.recompute` |
-| M16 | patch the adapter status map | map `UNBOUNDED_OR_INFEASIBLE` to NaN | `price_setter.loop_interval` (never a silent `UNEXPLAINED`) |
+| M16 | patch the adapter status map `capex.audit.loop.side_value(status, objective, sense)`, or wrap `capex.audit.loop.interval` and replace its $\pm\infty$ sides by NaN (equivalent) | map `UNBOUNDED_OR_INFEASIBLE` to NaN | `price_setter.loop_interval` (never a silent `UNEXPLAINED`) |
+(Amendment 1: hook names as the G4-4 code; a hook that moves must keep these names or the spec changes in the same commit.)
 
 #### 7.4a.11 Resolutions of the `SPEC-GAP` notes in `tests/draft/test_pjm5bus.py`
 | Gap | Resolution |
@@ -857,6 +875,19 @@ that contract is not adopted by this section.
 - ⚠ Accuracy: lossless (≈1–3% loss on long HVDC is ignored), no ramp or setpoint-schedule limits; a merchant link
   dispatched on price spreads is the right analogue for PJM controllable ties (verify per tie), not for scheduled
   interchange, which is a fixed injection (`imports.csv`, Gate 12).
+
+#### 7.4a.13 Resolutions of the G4-3 `SPEC-GAP` notes (F-0.4 amendment 1, DECISIONS 60; gate-4.md §4 tests)
+gate-4.md stays frozen; where a §4 row is worded so it cannot test what it names, the test below is the reading of it.
+| Gap (test file note) | Resolution |
+|---|---|
+| 1 S2 relaxation only on storage rows | Correct reading: resource/unserved bound rows exact, S2 rows relaxed by $tol_\pi$, solved-point pre-check and final $\pi$ test at $tol_\pi$ (§7.4a.7, amendment 1) |
+| 2 U1 θ label | `duals_raw` label `theta` (\$/rad-yr), rows only where nonzero (§6.1, DECISIONS 58); `ref_angle` rows as every row family. U1 reads label `theta` and the `ref_angle` slack |
+| 3 S2b case (c) not reachable | In a **basic** optimum every hourly price is pinned by basic columns. Case (c) arises only if a pinning column is outside $\mathcal M_i$: (i) an interior build $x$ (annual zero-profit row; `INVESTMENT_MARGIN`), (ii) storage `ch`/`dis` basic but failing its class condition (at the `st_pwr` limit with a degenerate basic slack; basic at 0 while idle; simultaneous $c,d>0$), (iii) a degenerate basic `use` at 0 or $D$. A fixed fleet with no storage cannot reach it, whatever the vertex. Constructive S2b fixture: `pjm5` (congested) + one candidate with $0<x<x^{max}$ in the congested island, run so the candidate sits at its cap with $\rho>tol_\pi$ in some hour, + storage at bus D at a bound in that hour. A hook-level test of `_storage_bounds` + `capex.audit.loop.interval` against the independent interval LP on a hand-built rank-deficient system is an equivalent test of the S2 row semantics. Which one Gate 4 requires is an owner ruling (G4-8) |
+| 4 H1b no binding AC line | H1b = (i) the stated ±500 MW case: one price everywhere, UNEXPLAINED 0; plus (ii) a free DC link inside the congested `pjm5` island (C–D), where the free-DC row enters $\hat\Phi$ and α. (ii) is what "the free-DC row enters α" means |
+| 5 H1c "free: one price" | The free variant needs a DC rating ≥ 510 MW and `ab` unlimited (400 MW congests island {A,B,E}); the fixture's values are the reading of H1c |
+| 6 H1d no Gate-3 `pjm5` golden | Golden = canonical outputs of `cases/pjm5bus` (angle and PTDF form) from `main` at the Gate-3 merge (F-0.3 code), stored once under `tests/golden/gate3/pjm5bus/{angle,ptdf}/` with `SOURCE.txt`, compared by the §7.4a.9 rule (mask `run_id`/`fingerprint` lines, drop the `price_setter.loop_interval` row). Until it exists, H1d's same-code comparison plus the published P5a numbers stands |
+| 7 A1 injection mechanism | Synthetic residuals are injected at the adapter output: wrap `capex.solver.HighsSolver.solve` (the M10 hook) and shift one primal entry by δ (scaling off, so δ is MW). Every audit check reads only the unscaled primal, so this is the defined route |
+| 8 M13/M16 hook names (mutation file, its "SPEC-GAP-3") | Named in §7.4a.10 (amendment 1) |
 
 ### 7.5 Clustered linear UC (Gate 9) — switches `uc.enabled`, `uc.min_updown`, `uc.ramps`
 Palmintier & Webster (2014, 2016): per cluster $r$ of identical units of size $\bar P_r$, commitment

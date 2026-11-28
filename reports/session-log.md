@@ -348,3 +348,6 @@ Next: P12 (gate-4.md draft).
 - 2026-11-28 G4-6b duplicate run (stale-claim takeover at 04:24Z; original run committed f651f5a at 04:26Z, so the item was already done): verifier work discarded except two additions in gate-4-evidence.md §14.
   New finding for G4-7: R4-NX (`tx.dc_links: exclude`) health `price_setter.loop_alpha` FAIL 2.4e-3 vs 1e-6; R4-N passes 31/31. Also rts_gmlc_px full-year setter shares (coal 52.3%, gas 39.8%).
   Tests (local, before reset): 800 pass / 6 fail (known C1/G1) / 1 xfail / 5 skip; check_markers ok. Lesson: 60-min stale rule is too short for full-year items.
+- 2026-11-28 G4-7 (formulation lead, Opus subagent): `reports/gate-4-spec-trace.md`, 10 findings (F4-1 blocker: R4-NX loop_alpha FAIL is a spec error — TIE_AT_BOUND non-exact ties in 𝓜_i; spec fixed, DECISIONS 60, F-0.4 amendment 1).
+  8 G4-3 SPEC-GAPs ruled (formulation §7.4a.13); A1–A10 table; nothing in code drives C1/G1. Fix items G4-7-fix1/1b/2/3 added before G4-8.
+  Tests: 800 pass / 6 fail (known C1/G1) / 1 xfail (S2b) / 5 skip. Owner at G4-8: S2b route (F4-10).

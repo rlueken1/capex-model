@@ -378,3 +378,20 @@
     its footnote and the evidence file. (4) G4-6b complexity verdicts accepted as proposals for the G4-8 review:
     `tx.dc_links` keep (default `controllable`); `tx.model=dcpf` keep as option, default `transport`. Still open (no
     recommendation was given): C1/G1 accept-as-UC-gap vs fail, and the S2b closure route — owner rules at G4-8.
+
+2026-11-28 (formulation lead, G4-7 spec trace, reports/gate-4-spec-trace.md)
+60. **F-0.4 amendment 1** (audit rules only; LP, fingerprint inputs and every canonical output of T1–T4 and `pjm5`
+    unchanged; `capex.FORMULATION_VERSION` stays F-0.4). (a) §7.4a.7: a `TIE_AT_BOUND` unit joins $\mathcal M_i$ only at
+    an exact tie $\lvert\pi_m-c_m\rvert\le\varepsilon_{tie}=10^{-7}$ \$/MWh (fixed constant). Cause of the R4-NX
+    `price_setter.loop_alpha` fail (2.4e-3, evidence §14): `321_cc_1` at 0 MW with $c_m-\pi_m=3.6\times10^{-3}$ passed the
+    $tol_\pi$ = 0.01 label check, entered $\Phi z=c_{\mathcal B}$ as a third row for two unknowns, and the min-norm
+    weights could not satisfy an inconsistent system. A scratch run with the rule gives R4-NX 31/31 pass (loop_alpha
+    9.6e-12) and leaves R4-N (2.0e-11) and R4-NS (2.3e-12) passing. (b) Resource-bound rows of the interval LP are exact;
+    only S2 rows are relaxed. (c) A failed interval side gives `primary_class` `UNEXPLAINED` (§4 Step 2 wins over the
+    F-0.4 wording "keeps class CONGESTION_LOOP"); `loop_interval` counts failed sides. (d) M13/M16 hooks named
+    (`capex.audit.loopsetter._storage_bounds`, `capex.audit.loop.side_value`). (e) §7.4a.13 resolves the 8 G4-3 SPEC-GAPs,
+    incl. the reachability condition for case (c) and a constructive S2b fixture (interior candidate build); whether
+    Gate 4 needs S2b closed stays an owner ruling at G4-8 (DECISIONS 59).
+    Rejected: loosening `loop_alpha` to $tol_\pi$ (would hide real α errors of the size M7–M10 produce on non-toy cases);
+    using the solved bus price as $c_b$ (makes the check true by construction); dropping case (b) least squares for an
+    LP fit (more code, same inconsistency). Accuracy cost: none; the dropped unit is not marginal (nonzero reduced cost).
