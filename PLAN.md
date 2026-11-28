@@ -184,7 +184,7 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
 - [x] G4-7-fix1b Verifier [Sonnet], branch `gate-4` (F4-1): from formulation §7.4a.7 — pjm5 dcpf fixture with one unit at a bound,
   mc 0.005 above the congested-hour bus price: `loop_alpha` passes and the unit is not in CONGESTION_LOOP `setter_ids`; plus an
   R4-NX window health test (`CAPEX_GATE4_FULL`-gated). Done 2026-11-28: `tests/test_g4_fix1b.py` 7 pass + R4-NX gated pass (31.9 s).
-- [ ] G4-7-fix2 Verifier [Sonnet], branch `gate-4` (F4-2): `tests/golden/gate3/pjm5bus/{angle,ptdf}/` + `SOURCE.txt` generated from
+- [~] G4-7-fix2 Verifier [Sonnet], branch `gate-4` (F4-2): `tests/golden/gate3/pjm5bus/{angle,ptdf}/` + `SOURCE.txt` generated from (claimed 2026-11-28T08:24:20Z)
   `main` f3acf4d; test the §7.4a.9 identity (mask `run_id`/`fingerprint` lines, drop the `loop_interval` row).
 - [ ] G4-7-fix3 Verifier [Sonnet], branch `gate-4` (F4-4): performance-ledger rows for T1–T4 and pjm5 transport/angle/PTDF with
   previous-gate values from gate-3-evidence §8 (T1–T4: size identity, previous time "n/a").
