@@ -332,3 +332,7 @@ Next: P12 (gate-4.md draft).
   Tests 791 pass / 10 xfail / 5 skip / 0 fail / 0 XPASS; check_markers ok.
   S2b/S2c/M13/M16 still strict xfail: no fixture reaches price-setter case (c); purpose-built fixture carried to G4-6a. No spec gap, no code finding.
   Owner: may want to glance at the N1 guard change.
+- 2026-11-28 G4-5 (builder, Sonnet; gate-4): new `.github/workflows/gate4-fullyear.yml` + `scripts/gate4_fullyear.py`; separate from CI (dispatch + push on own path). ci.yml unchanged (already runs window cases).
+  Actions run 46095301368: r4f green (R4-F full year, 2 cases in 5.7 min, ledger rows + artifact); local 245–272 s, 2.3–2.7 GB vs 300 s/4 GB [P].
+  r4f-tests: B1 pass; R4-F health tests XPASS(strict) → verifier removes 2 markers (G4-6b). Local pytest 791 pass / 10 xfail / 5 skip; check_workflows, check_markers ok.
+  r4nf: nodal full-year solve cancelled at the 30-min limit. Needs owner: raise R4-NF timeout to 120 min? copy workflow to `main` so it can be dispatched?
