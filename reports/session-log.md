@@ -366,3 +366,8 @@ Next: P12 (gate-4.md draft).
 - Performance ledger: added T1–T4 (7 toy cases; size identical to golden conditioning.json, previous gate n/a) and pjm5 transport/angle/PTDF rows (Gate 3 §8 sizes identical; time ratios 1.15/1.00/0.90 ≤ 2×).
 - New tests/test_g4_ledger_rows.py, 21 pass; full suite 833 pass / 6 fail (known C1/G1) / 1 xfail / 6 skip; check_markers ok.
 - F4-4 closed. Nothing new for the owner. Next: G4-8 (gate review → AWAITING_OWNER_REVIEW).
+
+2026-11-28 10:55Z — G4-8 (PM main session + markets reviewer Opus subagent, gate-4)
+- Wrote reports/gate-4-review.md: pass/fail table, UC gap narrative (no-load = 95% of $1.31 M basis gap; gas-CC Pmin must-run = 92% of the −10.4 pp shift), markets verdict yes-conditional, 11 owner decisions.
+- No tests run (review only); CI on gate-4 red on the 6 known C1/G1 ids; full-year run 46107908584: R4-F green, R4-NF cancelled at 120 min.
+- STATUS → AWAITING_OWNER_REVIEW. Owner: decide C1/G1 (rec accept after a G4-9 fixed-commitment diagnostic), S2b → Gate 5, merge after CI green. Prep list exhausted.
