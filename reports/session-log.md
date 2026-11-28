@@ -361,3 +361,8 @@ Next: P12 (gate-4.md draft).
 - Stored pjm5 Gate-3 golden (angle + PTDF) from main f3acf4d under tests/golden/gate3/pjm5bus/ with SOURCE.txt.
 - New tests/test_g4_pjm5_golden.py: §7.4a.9 identity, 5 pass; full suite 812 pass / 6 fail (known C1/G1) / 1 xfail / 6 skip; check_markers ok.
 - No findings; nothing new for the owner. Next: G4-7-fix3.
+
+2026-11-28 09:50Z — G4-7-fix3 (verifier, main session, no subagents, gate-4, F4-4)
+- Performance ledger: added T1–T4 (7 toy cases; size identical to golden conditioning.json, previous gate n/a) and pjm5 transport/angle/PTDF rows (Gate 3 §8 sizes identical; time ratios 1.15/1.00/0.90 ≤ 2×).
+- New tests/test_g4_ledger_rows.py, 21 pass; full suite 833 pass / 6 fail (known C1/G1) / 1 xfail / 6 skip; check_markers ok.
+- F4-4 closed. Nothing new for the owner. Next: G4-8 (gate review → AWAITING_OWNER_REVIEW).

@@ -186,8 +186,8 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
   R4-NX window health test (`CAPEX_GATE4_FULL`-gated). Done 2026-11-28: `tests/test_g4_fix1b.py` 7 pass + R4-NX gated pass (31.9 s).
 - [x] G4-7-fix2 Verifier [Sonnet], branch `gate-4` (F4-2): `tests/golden/gate3/pjm5bus/{angle,ptdf}/` + `SOURCE.txt` generated from
   `main` f3acf4d; test the §7.4a.9 identity (mask `run_id`/`fingerprint` lines, drop the `loop_interval` row).
-- [~] G4-7-fix3 Verifier [Sonnet], branch `gate-4` (F4-4): (claimed 2026-11-28T09:24Z) performance-ledger rows for T1–T4 and pjm5 transport/angle/PTDF with
-  previous-gate values from gate-3-evidence §8 (T1–T4: size identity, previous time "n/a").
+- [x] G4-7-fix3 Verifier [Sonnet], branch `gate-4` (F4-4): performance-ledger rows for T1–T4 and pjm5 transport/angle/PTDF with
+  previous-gate values from gate-3-evidence §8 (T1–T4: size identity, previous time "n/a"). Done 2026-11-28: 10 rows, `tests/test_g4_ledger_rows.py` 21 pass.
 - [ ] G4-8 PM [Sonnet] + markets reviewer [Opus] (1 subagent), branch `gate-4`: `reports/gate-4-review.md` with the
   UC/reserve gap narrative (C1, G1, L1, U0) and the §11 decision list; STATUS → AWAITING_OWNER_REVIEW. Also carry from
   G4-7: F4-10 S2b route (candidate fixture / hook-level test / accept strict xfail); F4-3 (provenance_cells.csv → assumptions book)
@@ -227,6 +227,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+G4-7-fix3 done 2026-11-28 on `gate-4` (verifier, main session): `reports/performance-ledger.md` gains T1, T2a–c, T3a–b, T4 (size = golden `conditioning.json`, previous gate n/a) and pjm5 transport/dcpf(angle)/ptdf (sizes = gate-3-evidence §8, ratios 1.15/1.00/0.90 ≤ 2×), median of 7, own process each; `tests/test_g4_ledger_rows.py` 21 pass (ledger vs golden/§8 sizes, ratio ≤ 2, rebuilt LP size = ledger). F4-4 closed. pytest 833 pass / 6 fail (known C1/G1) / 1 xfail / 6 skip; check_markers ok. Next: G4-8 (PM + markets reviewer Opus).
 G4-7-fix2 done 2026-11-28 on `gate-4` (verifier Sonnet): `tests/golden/gate3/pjm5bus/{angle,ptdf}/` (25 canonical files each, no run.json) + `SOURCE.txt` from `main` f3acf4d (detached worktree; fingerprints angle 2e37cf5e…, ptdf 55887070…); `tests/test_g4_pjm5_golden.py` (5 tests, 0.5 s): §7.4a.9 identity (mask run_id/fingerprint, drop `price_setter.loop_interval` row) + vacuity guards — pass in both forms, F4-2 closed. pytest 812 pass / 6 fail (known C1/G1) / 1 xfail / 6 skip; check_markers ok. No findings. Next: G4-7-fix3 (verifier), then G4-8.
 G4-7-fix1b done 2026-11-28 on `gate-4` (verifier Sonnet): `tests/test_g4_fix1b.py` — pjm5 dcpf fixture (line de congested 72 h; sundance at Pmin 0 MW at D, π_D 39.94274, mc = π+0.005, dispatch/LMPs unchanged vs base asserted): loop_alpha passes, sundance in no CONGESTION_LOOP setter_ids; exact-tie control (1e-9) is eligible; sensitivity TIE_EPS=0.01 reproduces the failure; R4-NX gated test all health pass (pre-fix band reproduces 2.436e-3). pytest 807 pass / 6 fail (known C1/G1) / 1 xfail / 6 skip; check_markers ok. No findings. Next: G4-7-fix2 (verifier), fix3, G4-8.
 G4-7-fix1 done 2026-11-28 on `gate-4` (builder): `_members` keeps TIE_AT_BOUND only at |π−mc| ≤ `loop.TIE_EPS`=1e-7; R4-N/NX/NS health 31/31 (F4-1 closed in code); pytest 800/6 known C1/G1/1 xfail/5 skip. Next: G4-7-fix1b (verifier), then fix2, fix3, G4-8.
