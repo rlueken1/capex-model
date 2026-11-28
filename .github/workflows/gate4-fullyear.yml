@@ -70,8 +70,6 @@ jobs:
       - name: Step summary (R4-F)
         if: always()
         run: python scripts/gate4_fullyear.py summary "$RUNNER_TEMP/r4f" --budget-s 300 --budget-gb 4 | tee -a "$GITHUB_STEP_SUMMARY"
-      - name: Gate 4 tests (R4-F health, B1)
-        run: pytest -v --disable-socket -k "r4f or b1" --junitxml="$RUNNER_TEMP/r4f/junit.xml" tests/test_gate4_comparison.py tests/test_gate4_known_answers.py
       - name: Upload R4-F outputs
         if: always()
         uses: actions/upload-artifact@v7
@@ -119,12 +117,62 @@ jobs:
       - name: Step summary (R4-NF, reported only)
         if: always()
         run: python scripts/gate4_fullyear.py summary "$RUNNER_TEMP/r4nf" | tee -a "$GITHUB_STEP_SUMMARY"
-      - name: Gate 4 tests (R4-NF, N1)
-        run: pytest -v --disable-socket -k "r4nf or n1" --junitxml="$RUNNER_TEMP/r4nf/junit.xml" tests/test_gate4_comparison.py tests/test_gate4_known_answers.py
       - name: Upload R4-NF outputs
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: gate4-r4nf
           path: ${{ runner.temp }}/r4nf
+          retention-days: 30
+
+  r4f-tests:
+    # Own job so the 3 test solves run in parallel with the CLI/ledger solves and each job stays under 30 min.
+    if: github.event_name == 'push' || inputs.run != 'R4-NF'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - name: Install
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python -m pip install -e . --no-deps
+          mkdir -p "$RUNNER_TEMP/r4f-tests"
+      - name: Gate 4 tests (R4-F health, B1)
+        run: pytest -v --disable-socket -k "r4f or b1" --junitxml="$RUNNER_TEMP/r4f-tests/junit.xml" tests/test_gate4_comparison.py tests/test_gate4_known_answers.py
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gate4-r4f-tests
+          path: ${{ runner.temp }}/r4f-tests
+          retention-days: 30
+
+  r4nf-tests:
+    # Own job so the 3 test solves run in parallel with the CLI/ledger solves and each job stays under 30 min.
+    if: github.event_name == 'push' || inputs.run != 'R4-F'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - name: Install
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python -m pip install -e . --no-deps
+          mkdir -p "$RUNNER_TEMP/r4nf-tests"
+      - name: Gate 4 tests (R4-NF, N1)
+        run: pytest -v --disable-socket -k "r4nf or n1" --junitxml="$RUNNER_TEMP/r4nf-tests/junit.xml" tests/test_gate4_comparison.py tests/test_gate4_known_answers.py
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gate4-r4nf-tests
+          path: ${{ runner.temp }}/r4nf-tests
           retention-days: 30
