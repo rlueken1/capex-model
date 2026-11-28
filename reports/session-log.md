@@ -354,3 +354,5 @@ Next: P12 (gate-4.md draft).
 - 2026-11-28 G4-7-fix1 (builder, main session, no subagents): `capex/audit/loopsetter.py::_members` drops TIE_AT_BOUND setters with |π − mc| > `loop.TIE_EPS` = 1e-7 (DECISIONS 60(a)); constant in `capex/audit/loop.py`.
   R4-N / R4-NX / R4-NS window health all 31/31 pass (loop_alpha 2.0e-11 / 9.6e-12 / 2.3e-12) — R4-NX blocker F4-1 closed.
   Tests: 800 pass / 6 fail (known C1/G1) / 1 xfail (S2b) / 5 skip — unchanged incl. pjm5 identity; check_markers ok. Next: G4-7-fix1b (verifier).
+- 2026-11-28 G4-7-fix1b (verifier, Sonnet, gate-4): added `tests/test_g4_fix1b.py` from formulation §7.4a.7 / amendment 1 — pjm5 dcpf near-tie (0.005) unit at bound excluded from CONGESTION_LOOP, loop_alpha passes; exact-tie control eligible; TIE_EPS sensitivity; R4-NX gated all-health test.
+  Result: 7 pass + 1 gated (pass under CAPEX_GATE4_FULL=1, 31.9 s). Full suite 807 pass / 6 fail (known C1/G1) / 1 xfail / 6 skip; check_markers ok. No findings. Owner: nothing new.

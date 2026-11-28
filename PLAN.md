@@ -181,9 +181,9 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
 - [x] G4-7-fix1 Builder [Sonnet], branch `gate-4` (F4-1, DECISIONS 60(a)): in `capex/audit/loopsetter.py::_members`, drop
   `TIE_AT_BOUND` setters with |π(bus) − mc| > `loop.TIE_EPS` = 1e-7 from 𝓜_i; no other change. Re-run R4-N, R4-NX, R4-NS health
   (R4-NX `loop_alpha` must pass); pjm5 identity must hold. No judging tests. Done 2026-11-28: `loop.TIE_EPS`; R4-N/NX/NS 31/31 pass (loop_alpha 2.0e-11/9.6e-12/2.3e-12).
-- [~] G4-7-fix1b Verifier [Sonnet], branch `gate-4` (F4-1) (claimed 2026-11-28T07:24:36Z): from formulation §7.4a.7 — pjm5 dcpf fixture with one unit at a bound,
+- [x] G4-7-fix1b Verifier [Sonnet], branch `gate-4` (F4-1): from formulation §7.4a.7 — pjm5 dcpf fixture with one unit at a bound,
   mc 0.005 above the congested-hour bus price: `loop_alpha` passes and the unit is not in CONGESTION_LOOP `setter_ids`; plus an
-  R4-NX window health test (`CAPEX_GATE4_FULL`-gated).
+  R4-NX window health test (`CAPEX_GATE4_FULL`-gated). Done 2026-11-28: `tests/test_g4_fix1b.py` 7 pass + R4-NX gated pass (31.9 s).
 - [ ] G4-7-fix2 Verifier [Sonnet], branch `gate-4` (F4-2): `tests/golden/gate3/pjm5bus/{angle,ptdf}/` + `SOURCE.txt` generated from
   `main` f3acf4d; test the §7.4a.9 identity (mask `run_id`/`fingerprint` lines, drop the `loop_interval` row).
 - [ ] G4-7-fix3 Verifier [Sonnet], branch `gate-4` (F4-4): performance-ledger rows for T1–T4 and pjm5 transport/angle/PTDF with
@@ -227,6 +227,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+G4-7-fix1b done 2026-11-28 on `gate-4` (verifier Sonnet): `tests/test_g4_fix1b.py` — pjm5 dcpf fixture (line de congested 72 h; sundance at Pmin 0 MW at D, π_D 39.94274, mc = π+0.005, dispatch/LMPs unchanged vs base asserted): loop_alpha passes, sundance in no CONGESTION_LOOP setter_ids; exact-tie control (1e-9) is eligible; sensitivity TIE_EPS=0.01 reproduces the failure; R4-NX gated test all health pass (pre-fix band reproduces 2.436e-3). pytest 807 pass / 6 fail (known C1/G1) / 1 xfail / 6 skip; check_markers ok. No findings. Next: G4-7-fix2 (verifier), fix3, G4-8.
 G4-7-fix1 done 2026-11-28 on `gate-4` (builder): `_members` keeps TIE_AT_BOUND only at |π−mc| ≤ `loop.TIE_EPS`=1e-7; R4-N/NX/NS health 31/31 (F4-1 closed in code); pytest 800/6 known C1/G1/1 xfail/5 skip. Next: G4-7-fix1b (verifier), then fix2, fix3, G4-8.
 G4-7 done 2026-11-28 on `gate-4` (formulation lead, Opus): `reports/gate-4-spec-trace.md` — 10 findings. **F4-1 blocker**: R4-NX `loop_alpha` FAIL is a spec error (a `TIE_AT_BOUND` unit with mc 3.6e-3 above π entered 𝓜_i); spec now admits it only at |π−c| ≤ 1e-7 (DECISIONS 60, F-0.4 amendment 1); scratch patch gives R4-NX 31/31. 8 SPEC-GAPs ruled (formulation §7.4a.13; only S2b left for owner). A1–A10 pass with noted exceptions. Nothing in code contributes to C1/G1. pytest 800 pass / 6 fail (known C1/G1) / 1 xfail / 5 skip. Next: G4-7-fix1 (builder), fix1b, fix2, fix3 (verifier), then G4-8.
 G4-6b duplicate run 2026-11-28 (stale-claim takeover; original finished first): only adds evidence §14 — **G4-7 please trace R4-NX `price_setter.loop_alpha` health FAIL (2.4e-3 vs 1e-6, `tx.dc_links: exclude`)**, plus rts_gmlc_px setter shares. Next unchanged: G4-7.
