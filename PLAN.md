@@ -176,7 +176,7 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
 - [x] G4-6b Verifier [Sonnet], branch `gate-4`: dispatch the G4-5 job for R4-F/R4-NF; health + performance-ledger rows
   (window ≤ 60 s, full year ≤ 5 min / 4 GB) and complexity-ledger rows `tx.dc_links`, `tx.model` (RTS); finish
   `reports/gate-4-evidence.md`; refresh the dashboard Model results tab (`scripts/export_dashboard.py`).
-- [ ] G4-7 Formulation lead [Opus], branch `gate-4`: code-vs-spec trace `reports/gate-4-spec-trace.md` (incl. A1–A10
+- [~] G4-7 Formulation lead [Opus], branch `gate-4`: code-vs-spec trace `reports/gate-4-spec-trace.md` (incl. A1–A10 (claimed 2026-11-28T05:24Z)
   and closing the 8 G4-3 SPEC-GAPs); findings become fix items.
 - [ ] G4-8 PM [Sonnet] + markets reviewer [Opus] (1 subagent), branch `gate-4`: `reports/gate-4-review.md` with the
   UC/reserve gap narrative (C1, G1, L1, U0) and the §11 decision list; STATUS → AWAITING_OWNER_REVIEW.
