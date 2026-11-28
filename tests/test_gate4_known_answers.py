@@ -689,7 +689,7 @@ def _case_c_hours(run, r):
     return out
 
 
-@pytest.mark.xfail(strict=True, reason="Gate 4: G4-4v finding, test-fixture gap (not a code defect): the b_s2b fixture never reaches price-setter case (c) (every hour is case (a): 2 marginal buses = 2 columns); no pjm5 variant over ~150 (ab, de, brighton, sundance, load) settings gave a case-(c) hour with a feasible independent LP; needs a purpose-built case-(c) fixture at G4-6a")
+@pytest.mark.xfail(strict=True, reason="Gate 4: G4-6a finding, test-fixture gap (not a code defect): no fixture reaches price-setter case (c) at the simplex vertex HiGHS returns (members at a bound with pi = cost count as rows, so degenerate vertices stay case (a)/(b)); about 300 pjm5/chain variants scanned in G4-4v and G4-6a; forcing the interval path (g4lib.force_interval) cannot make the S2 rows bite when the equality rows already pin the point; owner decision at G4-8")
 @pytest.mark.parametrize("vom", [100.0])
 def test_s2b_interval_equals_verifiers_own_interval_lp(g4run, ind, vom):
     run, r = g4run(("s2b", vom), b_s2b(vom=vom)), ind(("s2b", vom), b_s2b(vom=vom))
@@ -719,13 +719,13 @@ def test_s2b_interval_equals_verifiers_own_interval_lp(g4run, ind, vom):
     assert "conditional on solved v" in str(row["detail"].iloc[0])
 
 
-@pytest.mark.xfail(strict=True, reason="Gate 4: G4-4v finding, test-fixture gap (not a code defect): the b_s2b fixture never reaches price-setter case (c) (every hour is case (a): 2 marginal buses = 2 columns); no pjm5 variant over ~150 (ab, de, brighton, sundance, load) settings gave a case-(c) hour with a feasible independent LP; needs a purpose-built case-(c) fixture at G4-6a")
 def test_s2c_unbounded_or_infeasible_gives_infinite_sides_not_nan(tmp_path_factory, monkeypatch):
     """Stub at the highspy boundary (no capex internals): every tiny LP (<= 6 columns, i.e. the interval LPs) reports
     kUnboundedOrInfeasible. Expected: sides are +-inf, no NaN anywhere in price_lo/price_hi, loop_interval = 0 (the solved point
     passed its rows), no UNEXPLAINED."""
     import highspy
     from capex.run import output_tables, run_case
+    g4lib.force_interval(monkeypatch)       # G4-6a: see g4lib.force_interval
     cd = b_s2b(vom=100.0)(tmp_path_factory.mktemp("s2c"))
     orig = highspy.Highs.getModelStatus
     seen = {"n": 0}

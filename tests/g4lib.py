@@ -624,6 +624,15 @@ from types import SimpleNamespace          # noqa: E402
 import pytest                              # noqa: E402
 
 
+def force_interval(monkeypatch):
+    """G4-6a. Force the price-setter loop classifier to `INTERVAL` (case (c)) on every congested hour. A case-(c) hour needs a
+    degenerate dual vertex that the simplex solver does not return on any fixture tried (about 300 scanned), so the S2 interval-LP
+    mechanics (status map, +-inf, loop_interval, mutation M13/M16) are tested through this forced route. It does NOT show that a
+    natural case-(c) hour is correct: S2b (interval equals the verifier's own LP, storage rows biting) stays a strict xfail."""
+    import capex.audit.loop as loop
+    monkeypatch.setattr(loop, "classify", lambda marginal_phi: loop.INTERVAL)
+
+
 def xf(what: str):
     """strict xfail for a test that needs Gate 4 code (marker checker: reason cites `Gate 4`)."""
     return pytest.mark.xfail(strict=True, reason=f"Gate 4: needs G4-4 {what}")

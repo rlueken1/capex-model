@@ -7,7 +7,7 @@ Part 1 (runs now, no capex code): K6 reference-table integrity; section 2 refere
         C0 as a theorem on the independent zonal LP (scipy/HiGHS); C2 closure; harness self-tests; reported-only L1/L2/P1/U0 from the
         reference. The independent-route preview of C1/G1 is RECORDED (record_property), not asserted: C1/G1 are judged on the
         capex run outputs (Part 2).
-Part 2 (strict xfail until G4-4): window runs R4-Z, R4-C, R4-N, R4-NS through capex, then C0/C1/C2/G1/G2 (judged), L1/L2/P1/U0
+Part 2 (live since G4-4; C1/G1 judged as measured since G4-6a, they FAIL, see below): window runs R4-Z, R4-C, R4-N, R4-NS through capex, then C0/C1/C2/G1/G2 (judged), L1/L2/P1/U0
         (reported), and the section 6 health assertions. R4-F / R4-NF full-year runs are skipped unless CAPEX_GATE4_FULL=1.
 Tolerances: F0 1 MW; C0 1e-6 rel; C1 <= 5% [P]; G1 3 pp (nuclear 0.5 pp) [P]; G2 unserved = 0 MWh. Never loosened here.
 """
@@ -276,22 +276,34 @@ _NEEDS = "RTS cases loading (F-0.4 loader: audit_profile, link_type, tx.dc_links
 VARIANT = {"R4-Z": "alltx", "R4-C": "notx", "R4-N": "alltx", "R4-NS": "alltx"}
 
 
-@xf(_NEEDS)
+# G4-6a: the C1/G1 strict xfails became real outcomes. gate-4.md section 5 judges C1 <= 5% and G1 <= 3 pp (nuclear 0.5 pp) as [P]
+# targets and has no "explained gap" marker; the UC/reserves gap is a Gate 4 review item (G4-8), not a waiver. The measured values
+# fail, so test_c1_* and test_g1_* FAIL (thresholds untouched). C0, C2 and G2 are asserted in their own tests so that they are not
+# hidden behind the C1/G1 failures.
 @pytest.mark.parametrize("name", ["R4-Z", "R4-C", "R4-N"])
-def test_c0_c1_c2_judged_on_run_outputs(rts_run, name, record_property):
+def test_c0_c2_judged_on_run_outputs(rts_run, name, record_property):
     r = rts_run(name)
     cm = rc.c_metrics(rc.z_our(r.t, r.case), VARIANT[name], r.case)
     for k, v in cm.items():
         record_property(f"{name}.{k}", float(v) if not isinstance(v, bool) else v)
     if name != "R4-N":                                                                         # R4-N has no C0 (PLEXOS flows need not satisfy our KVL)
         assert cm["c0_ok"], f"C0 breach (a bug): Z_our={cm['Z_our']:.0f} > C_px_our={cm['C_px_our']:.0f}"
-    assert cm["c1_gap"] <= 0.05, f"C1 {name}: like-for-like gap {cm['c1_gap']:.4f} > 5% [P]"
     assert cm["c2_lhs"] == pytest.approx(cm["c2_rhs"], rel=1e-12)                              # C2 closes exactly (reported)
+    assert cm["basis_gap"] + cm["dispatch_gap"] == pytest.approx(cm["px_cost_file"] - cm["Z_our"], rel=1e-12)
 
 
-@xf(_NEEDS)
 @pytest.mark.parametrize("name", ["R4-Z", "R4-C", "R4-N"])
-def test_g1_g2_judged_on_run_outputs(rts_run, name, record_property):
+def test_c1_like_for_like_cost_gap_within_5pct(rts_run, name, record_property):
+    """C1 [P] (gate-4.md section 5): (C^PX_our - Z^our) / C^PX_our <= 5%. Judged as measured; fails when UC/Pmin cost is large."""
+    r = rts_run(name)
+    cm = rc.c_metrics(rc.z_our(r.t, r.case), VARIANT[name], r.case)
+    record_property(f"{name}.c1_gap", float(cm["c1_gap"]))
+    assert cm["c1_gap"] <= 0.05, f"C1 {name}: like-for-like gap {cm['c1_gap']:.4f} > 5% [P]"
+
+
+@pytest.mark.parametrize("name", ["R4-Z", "R4-C", "R4-N"])
+def test_g1_generation_share_by_tech(rts_run, name, record_property):
+    """G1 [P] (gate-4.md section 5): abs share error <= 3 pp per tech, nuclear <= 0.5 pp. Judged as measured."""
     r = rts_run(name)
     ours = rc.tech_shares(rc.run_dispatch(r.t, r.case), r.case)
     px = rc.tech_shares(rc.ref_wide(VARIANT[name], "generation"), r.case)
@@ -299,6 +311,11 @@ def test_g1_g2_judged_on_run_outputs(rts_run, name, record_property):
     for t_, row in chk.iterrows():
         record_property(f"{name}.G1.{t_}", float(row["abs_pp"]))
     assert chk["ok"].all(), f"G1 {name}:\n{chk}"
+
+
+@pytest.mark.parametrize("name", ["R4-Z", "R4-C", "R4-N"])
+def test_g2_unserved_zero_curtailment_reported(rts_run, name, record_property):
+    r = rts_run(name)
     assert rc.g2_unserved_mwh(r.t) == 0.0                                                      # G2: reference serves all load
     record_property(f"{name}.G2.curtailment_mwh", float(rc.curtailment_report(r.t).sum()))     # reported
 

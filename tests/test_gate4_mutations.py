@@ -142,8 +142,8 @@ def _wrap_interval(monkeypatch, post=None, pre=None):
     return hits
 
 
-@pytest.mark.xfail(strict=True, reason="Gate 4: G4-4v finding, test-fixture gap (not a code defect): the b_s2b fixture never reaches price-setter case (c) (every hour is case (a): 2 marginal buses = 2 columns); no pjm5 variant over ~150 (ab, de, brighton, sundance, load) settings gave a case-(c) hour with a feasible independent LP; needs a purpose-built case-(c) fixture at G4-6a")
 def test_m13_storage_row_sense_flipped(tmp_path, monkeypatch):
+    g4lib.force_interval(monkeypatch)       # G4-6a: the dual vertex cannot be steered into case (c); the interval-LP path is forced (see g4lib.force_interval)
     cd = b_s2b(vom=100.0)(tmp_path)
     _control_clean(cd, tmp_path)
 
@@ -161,9 +161,9 @@ def test_m13_storage_row_sense_flipped(tmp_path, monkeypatch):
     assert "price_setter.loop_interval" in _failing(h), f"M13 not caught; failing: {_failing(h)}"
 
 
-@pytest.mark.xfail(strict=True, reason="Gate 4: G4-4v finding, test-fixture gap (not a code defect): the b_s2b fixture never reaches price-setter case (c) (every hour is case (a): 2 marginal buses = 2 columns); no pjm5 variant over ~150 (ab, de, brighton, sundance, load) settings gave a case-(c) hour with a feasible independent LP; needs a purpose-built case-(c) fixture at G4-6a")
 def test_m16_unbounded_or_infeasible_mapped_to_nan(tmp_path, monkeypatch):
     import highspy
+    g4lib.force_interval(monkeypatch)       # G4-6a: see g4lib.force_interval
     cd = b_s2b(vom=100.0)(tmp_path)
     _control_clean(cd, tmp_path)
     orig_status = highspy.Highs.getModelStatus

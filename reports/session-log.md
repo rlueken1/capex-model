@@ -336,3 +336,7 @@ Next: P12 (gate-4.md draft).
   Actions run 46095301368: r4f green (R4-F full year, 2 cases in 5.7 min, ledger rows + artifact); local 245–272 s, 2.3–2.7 GB vs 300 s/4 GB [P].
   r4f-tests: B1 pass; R4-F health tests XPASS(strict) → verifier removes 2 markers (G4-6b). Local pytest 791 pass / 10 xfail / 5 skip; check_workflows, check_markers ok.
   r4nf: nodal full-year solve cancelled at the 30-min limit. Needs owner: raise R4-NF timeout to 120 min? copy workflow to `main` so it can be dispatched?
+- 2026-11-28 G4-6a (verifier, Sonnet; gate-4): window runs R4-Z/C/N/NS. F0, C0, C2, G2, nuclear share, health (0 fail/warn/UNEXPLAINED), ≤60 s all pass.
+  C1 7.0–7.1% (≤5%) and G1 coal +8.4 / gas CC −10.3 pp (≤3 pp) FAIL as measured; xfails removed, thresholds kept → CI red on 6 ids until G4-8 ruling.
+  S2c/M13/M16 pass via forced interval path; S2b strict xfail (no natural case-(c) hour). Evidence file started (G4-6b placeholders).
+  Tests 800 pass / 6 fail / 1 xfail / 5 skip; check_markers ok. Owner: C1/G1 accept-as-UC-gap vs fail; S2b closure route.
