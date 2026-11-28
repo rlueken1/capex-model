@@ -1,0 +1,33 @@
+{
+  "metrics": {
+    "rows": 864,
+    "cols": 1157,
+    "nnz": 4896,
+    "matrix_min": 0.034378567112066064,
+    "matrix_max": 1.0,
+    "matrix_ratio": 29.087890625000007,
+    "objective_min": 1.216666666666667,
+    "objective_max": 1216.6666666666667,
+    "objective_ratio": 999.9999999999998,
+    "rhs_min": 0.04,
+    "rhs_max": 1.0,
+    "rhs_ratio": 25.0,
+    "bound_min": 0.24,
+    "bound_max": 0.4,
+    "tiny_coefficients": 0,
+    "primal_infeasibility": 0.0,
+    "dual_infeasibility": 1.1102230246251565e-15,
+    "bal_residual_mw": 5.115907697472721e-13,
+    "iterations": 720,
+    "crossover_ran": false
+  },
+  "status": {
+    "matrix_ratio": "pass",
+    "objective_ratio": "pass",
+    "rhs_ratio": "pass",
+    "bound_max": "pass",
+    "primal_infeasibility": "pass",
+    "dual_infeasibility": "pass",
+    "bal_residual_mw": "pass"
+  }
+}

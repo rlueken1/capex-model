@@ -1,0 +1,6 @@
+resource_id,kind,energy_revenue,variable_cost,rent_cap_usd_mw_yr,rent_pwr,rent_en,cfix,fixed_cost,profit,build_status,excess_rent,zero_profit_ok,revenue_identity_residual,rent_note
+alta,TH,5948866.531583123,4905600.000000002,26081.66328957803,,,0.0,0.0,1043266.531583121,existing,,True,-2.3283064365386963e-10,
+park_city,TH,25282682.759228267,22338000.0,17321.663289578028,,,0.0,0.0,2944682.759228267,existing,,True,1.862645149230957e-09,
+solitude,TH,85014445.5995067,85014445.5995067,0.0,,,0.0,0.0,0.0,existing,,True,0.0,
+sundance,TH,0.0,0.0,0.0,,,0.0,0.0,0.0,existing,,True,0.0,
+brighton,TH,40865851.46683112,40865851.46683111,0.0,,,0.0,0.0,7.450580596923828e-09,existing,,True,7.450580596923828e-09,

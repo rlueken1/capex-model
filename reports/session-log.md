@@ -356,3 +356,8 @@ Next: P12 (gate-4.md draft).
   Tests: 800 pass / 6 fail (known C1/G1) / 1 xfail (S2b) / 5 skip — unchanged incl. pjm5 identity; check_markers ok. Next: G4-7-fix1b (verifier).
 - 2026-11-28 G4-7-fix1b (verifier, Sonnet, gate-4): added `tests/test_g4_fix1b.py` from formulation §7.4a.7 / amendment 1 — pjm5 dcpf near-tie (0.005) unit at bound excluded from CONGESTION_LOOP, loop_alpha passes; exact-tie control eligible; TIE_EPS sensitivity; R4-NX gated all-health test.
   Result: 7 pass + 1 gated (pass under CAPEX_GATE4_FULL=1, 31.9 s). Full suite 807 pass / 6 fail (known C1/G1) / 1 xfail / 6 skip; check_markers ok. No findings. Owner: nothing new.
+
+2026-11-28 08:30Z — G4-7-fix2 (verifier Sonnet, gate-4, F4-2)
+- Stored pjm5 Gate-3 golden (angle + PTDF) from main f3acf4d under tests/golden/gate3/pjm5bus/ with SOURCE.txt.
+- New tests/test_g4_pjm5_golden.py: §7.4a.9 identity, 5 pass; full suite 812 pass / 6 fail (known C1/G1) / 1 xfail / 6 skip; check_markers ok.
+- No findings; nothing new for the owner. Next: G4-7-fix3.

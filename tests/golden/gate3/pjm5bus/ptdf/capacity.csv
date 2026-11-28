@@ -1,0 +1,6 @@
+resource_id,existing_mw,new_mw,existing_mwh,new_mwh,at_xmax,x_reduced_cost_usd_mw_yr
+alta,40.0,0.0,,,False,-26081.66328957799
+park_city,170.0,0.0,,,False,-17321.663289578013
+solitude,520.0,0.0,,,False,0.0
+sundance,200.0,0.0,,,False,0.0
+brighton,600.0,0.0,,,False,0.0

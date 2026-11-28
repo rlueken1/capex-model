@@ -1,0 +1,6 @@
+zone,tech,fuel,class,weighted_hours,share_weighted_hours
+A,test_system_unit,none,CONGESTION_LOOP,8760.000000000002,1.0
+B,test_system_unit,none,CONGESTION_LOOP,8760.000000000002,1.0
+C,test_system_unit,none,MARGINAL_UNIT,8760.000000000002,1.0
+D,test_system_unit,none,CONGESTION_LOOP,8760.000000000002,1.0
+E,test_system_unit,none,MARGINAL_UNIT,8760.000000000002,1.0
