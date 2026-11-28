@@ -211,3 +211,7 @@ rts_gmlc (full fleet, local run; the rts_gmlc_px artifact is on Actions only), 3
 | R4-F full year <= 5 min / 4 GB [P] | pass: Actions 169-174 s, 2.3-2.7 GB; local 241 s, 2.7 GB (252 s ledger solve, thin margin) |
 | R4-NF (reported) | did not finish within 30-min job limit (run 46095301368); owner question open |
 | N1 | pass (CAPEX_GATE4_FULL=1) |
+
+## 14. Addendum from the duplicate G4-6b run (takeover at 04:24Z; the original run finished first)
+- **Finding on the R4-NX ablation (for G4-7):** `tx.dc_links: exclude`, window p063-p067, local 2-cpu run: health 30 pass / **1 fail, `price_setter.loop_alpha` 2.4e-3 vs tolerance 1e-6** (`max(|Σα − 1|, |π − Σα c|)` over CONGESTION_LOOP rows). R4-N (controllable DC1) passes all 31. gate-4.md §5 does not judge R4-NX, so no gate criterion fails, but it is a health fail on a supported switch value. No threshold changed. Single run, not yet reproduced by a second verifier.
+- **`rts_gmlc_px` full-year price-setter shares** (local re-run, 245 s wall, 2.3 GB, 23/23 health pass, UNEXPLAINED 0 of 26,352 zone-hours): all MARGINAL_UNIT; by fuel coal 52.3%, gas 39.8%, nuclear 3.5%, none 4.4%. Complements §10 (full-fleet `rts_gmlc`).
