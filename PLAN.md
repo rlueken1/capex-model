@@ -164,7 +164,7 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
 - [x] G4-3 Verifier [Sonnet]: tests §4 (H1–N1, M13–M16) and the §5 comparison harness (F0/C0 route from case CSVs +
   reference tables), from the spec, before the code exists (strict xfail).
 - [x] G4-4 Builder [Sonnet]: S1–S4 in `src/capex/`, performance-ledger writer. No judging tests.
-- [ ] G4-4v Verifier [Sonnet], branch `gate-4`: after G4-4 — remove the strict xfails that now pass (keep C1/G1 as
+- [~] G4-4v Verifier [Sonnet], branch `gate-4`: after G4-4 — remove the strict xfails that now pass (keep C1/G1 as (claimed 2026-11-28T00:24:00Z)
   they are until G4-6a), align tests with any spec ruling G4-4 needed; check_markers ok; CI green on `gate-4`. If G4-4
   hit a SPEC-GAP it could not settle, a formulation-lead [Opus] ruling item goes in before this one. Tick as done with
   no change if G4-4 already left CI green with no XPASS.
