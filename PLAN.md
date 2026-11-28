@@ -168,7 +168,7 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
   they are until G4-6a), align tests with any spec ruling G4-4 needed; check_markers ok; CI green on `gate-4`. If G4-4
   hit a SPEC-GAP it could not settle, a formulation-lead [Opus] ruling item goes in before this one. Tick as done with
   no change if G4-4 already left CI green with no XPASS.
-- [ ] G4-5 Builder [Sonnet], branch `gate-4`: Actions workflow for R4-F/R4-NF (dispatch only, separate from CI, 30-min
+- [~] G4-5 Builder [Sonnet], branch `gate-4`: (claimed 2026-11-28T01:23:55Z) Actions workflow for R4-F/R4-NF (dispatch only, separate from CI, 30-min
   limit, artifact upload); CI runs the window cases. Proof: one dispatched run green. No judging tests.
 - [ ] G4-6a Verifier [Sonnet], branch `gate-4`: window runs R4-Z/R4-C/R4-N/R4-NS; §5 metrics F0, C0–C2, G1–G2, L1–L2,
   P1, U0 vs PLEXOS; turn the C1/G1 strict xfails into real outcomes (pass/fail as measured, not loosened); evidence
