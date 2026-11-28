@@ -498,7 +498,6 @@ def test_h1e_angle_equals_ptdf_with_dc(g4run):
     assert (p.t["angles"]["theta_source"] == "recomputed").all() and (a.t["angles"]["theta_source"] == "lp").all()
 
 
-@xf("loader accepting F-0.4 + links.link_type (S1: link_type ignored under transport)")
 def test_h1e_transport_dc_row_is_an_ordinary_link(g4run, tmp_path):
     """link_type dc vs blank under tx.model=transport: identical canonical outputs (the type is validated, then ignored)."""
     def build(dc_type):
@@ -517,7 +516,15 @@ def test_h1e_transport_dc_row_is_an_ordinary_link(g4run, tmp_path):
     for f in sorted(p.name for p in Path(d.out).iterdir() if p.name not in ("run.json", "assumptions.md")):
         why = _canonical_diff(f, (Path(d.out) / f).read_bytes(), (Path(blank.out) / f).read_bytes())
         assert why is None, f"{f}: {why}"
-    np.testing.assert_allclose(mat(d.t["flows"], "flow_mw", ["dc_be"]), -50.0, atol=TOL["g"])   # a plain NTC link, at its limit
+    # a plain NTC link at its limit; the flow sign is whatever the price difference says (zone_from=B -> zone_to=E positive):
+    # the -50 of the dcpf case H1a does not carry over, because under transport the AC lines are NTC links too (fixture defect fixed at G4-4v)
+    pi = mat(d.t["zone_hourly"], "lmp_usd_mwh", LETTERS)
+    spread = pi[:, 4] - pi[:, 1]                                                              # pi_E - pi_B
+    fk = mat(d.t["flows"], "flow_mw", ["dc_be"])[:, 0]
+    assert (np.abs(fk) <= 50.0 + TOL["g"]).all()                                              # within its NTC
+    pos = np.abs(spread) > 1e-6                                                               # a price spread => the link is at its limit
+    # with zero spread the flow is not uniquely determined (lossless transport cycle): only the canonical identity above applies there
+    np.testing.assert_allclose(fk[pos], 50.0 * np.sign(spread[pos]), atol=TOL["g"])
 
 
 # ---- S1 loader rules (formulation 7.4a.12, data-schema 3.2 rule 11, 7.4a.9)
@@ -682,7 +689,7 @@ def _case_c_hours(run, r):
     return out
 
 
-@xf("S2: storage rows in the case-(c) interval LP, price_lo/price_hi (S2)")
+@pytest.mark.xfail(strict=True, reason="Gate 4: G4-4v finding, test-fixture gap (not a code defect): the b_s2b fixture never reaches price-setter case (c) (every hour is case (a): 2 marginal buses = 2 columns); no pjm5 variant over ~150 (ab, de, brighton, sundance, load) settings gave a case-(c) hour with a feasible independent LP; needs a purpose-built case-(c) fixture at G4-6a")
 @pytest.mark.parametrize("vom", [100.0])
 def test_s2b_interval_equals_verifiers_own_interval_lp(g4run, ind, vom):
     run, r = g4run(("s2b", vom), b_s2b(vom=vom)), ind(("s2b", vom), b_s2b(vom=vom))
@@ -712,7 +719,7 @@ def test_s2b_interval_equals_verifiers_own_interval_lp(g4run, ind, vom):
     assert "conditional on solved v" in str(row["detail"].iloc[0])
 
 
-@xf("S2c: solver-adapter status map for the interval LP (UNBOUNDED_OR_INFEASIBLE -> +-inf, closes F3-13)")
+@pytest.mark.xfail(strict=True, reason="Gate 4: G4-4v finding, test-fixture gap (not a code defect): the b_s2b fixture never reaches price-setter case (c) (every hour is case (a): 2 marginal buses = 2 columns); no pjm5 variant over ~150 (ab, de, brighton, sundance, load) settings gave a case-(c) hour with a feasible independent LP; needs a purpose-built case-(c) fixture at G4-6a")
 def test_s2c_unbounded_or_infeasible_gives_infinite_sides_not_nan(tmp_path_factory, monkeypatch):
     """Stub at the highspy boundary (no capex internals): every tiny LP (<= 6 columns, i.e. the interval LPs) reports
     kUnboundedOrInfeasible. Expected: sides are +-inf, no NaN anywhere in price_lo/price_hi, loop_interval = 0 (the solved point
@@ -886,7 +893,6 @@ def cd_mc_block(cd, period, cols):
 
 
 @needs_full
-@xf("RTS nodal window runs: R4-N (angle) vs R4-NP (PTDF) on rts_gmlc_nodal_px with F-0.4 loader")
 def test_n1_nodal_angle_equals_ptdf(tmp_path_factory):
     """Objective rel 1e-7 and LMP abs 1e-4 where duals are unique: at bus-hours where the angle run has an interior unit the
     LMP equals that unit's MC in EVERY optimal dual (complementary slackness), so both runs must agree there."""
@@ -894,7 +900,7 @@ def test_n1_nodal_angle_equals_ptdf(tmp_path_factory):
     from capex.run import output_tables, run_case
     runs = {}
     for form in ("angle", "ptdf"):
-        win = rc.make_window_case("rts_gmlc_nodal_px", tmp_path_factory.mktemp(f"n1_{form}"), periods=B1_PERIODS)
+        win = rc.make_window_case("rts_gmlc_nodal_px", tmp_path_factory.mktemp(f"n1_{form}"))        # the R4-N window (rts_compare.RUN_PERIODS)
         cfg = yaml.safe_load((win / "case.yaml").read_text())
         cfg["switches"] = {"tx.model": "dcpf", "tx.dcpf_form": form}
         (win / "case.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False))
@@ -911,6 +917,8 @@ def test_n1_nodal_angle_equals_ptdf(tmp_path_factory):
     d["zone"] = d["resource"].map(res.set_index("resource_id")["zone"])
     d["interior"] = (d["g_mw"] > 1e-3) & (d["g_mw"] < d["resource"].map(cap) - 1e-3) & (d["resource"].map(res.set_index("resource_id")["type"]) == "TH")
     keys = d[d["interior"]].set_index(["period", "t", "zone"]).index.unique()
-    assert len(keys) >= 1000, "vacuity guard: too few bus-hours with an interior thermal unit"
+    # vacuity guard only (gate-4.md section 4 N1 sets no count). G4-3's 1000 was never reachable on the specified R4-N window
+    # (360 h; 373 interior bus-hours measured at G4-4v), so it is 300: the LMP comparison below is unchanged.
+    assert len(keys) >= 300, "vacuity guard: too few bus-hours with an interior thermal unit"
     diff = (za.loc[keys] - zp.loc[keys]).abs()
     assert diff.max() <= 1e-4, f"max |LMP angle - LMP ptdf| = {diff.max()} over {len(keys)} bus-hours"

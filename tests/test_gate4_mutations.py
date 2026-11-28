@@ -142,7 +142,7 @@ def _wrap_interval(monkeypatch, post=None, pre=None):
     return hits
 
 
-@xf("S2: storage rows in the case-(c) interval LP and the loop_interval check")
+@pytest.mark.xfail(strict=True, reason="Gate 4: G4-4v finding, test-fixture gap (not a code defect): the b_s2b fixture never reaches price-setter case (c) (every hour is case (a): 2 marginal buses = 2 columns); no pjm5 variant over ~150 (ab, de, brighton, sundance, load) settings gave a case-(c) hour with a feasible independent LP; needs a purpose-built case-(c) fixture at G4-6a")
 def test_m13_storage_row_sense_flipped(tmp_path, monkeypatch):
     cd = b_s2b(vom=100.0)(tmp_path)
     _control_clean(cd, tmp_path)
@@ -161,7 +161,7 @@ def test_m13_storage_row_sense_flipped(tmp_path, monkeypatch):
     assert "price_setter.loop_interval" in _failing(h), f"M13 not caught; failing: {_failing(h)}"
 
 
-@xf("S2c/F3-13: interval-LP status map (UNBOUNDED_OR_INFEASIBLE -> +-inf) and loop_interval")
+@pytest.mark.xfail(strict=True, reason="Gate 4: G4-4v finding, test-fixture gap (not a code defect): the b_s2b fixture never reaches price-setter case (c) (every hour is case (a): 2 marginal buses = 2 columns); no pjm5 variant over ~150 (ab, de, brighton, sundance, load) settings gave a case-(c) hour with a feasible independent LP; needs a purpose-built case-(c) fixture at G4-6a")
 def test_m16_unbounded_or_infeasible_mapped_to_nan(tmp_path, monkeypatch):
     import highspy
     cd = b_s2b(vom=100.0)(tmp_path)

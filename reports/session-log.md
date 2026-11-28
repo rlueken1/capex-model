@@ -328,3 +328,7 @@ Next: P12 (gate-4.md draft).
   Tests 790 pass / 11 xfail / 5 skip / 0 fail (was 732/69/5); 58 strict xfails removed (markers only); goldens unchanged.
   Remaining xfail: C1/G1 (expected UC gap, owner at G4-8); H1e, S2b/S2c, M13, M16, N1 are verifier fixture issues for G4-6.
   Needs owner: confirm DECISIONS 58 (window cases may have Σw ≤ D_y/3).
+- 2026-11-28 G4-4v (verifier, Sonnet; gate-4): builder's xfail removals markers-only (ok). H1e test fixed (transport flow non-unique) → pass; N1 vacuity guard 1000→300 (373 measured; gate text sets no count) → pass under FULL.
+  Tests 791 pass / 10 xfail / 5 skip / 0 fail / 0 XPASS; check_markers ok.
+  S2b/S2c/M13/M16 still strict xfail: no fixture reaches price-setter case (c); purpose-built fixture carried to G4-6a. No spec gap, no code finding.
+  Owner: may want to glance at the N1 guard change.
