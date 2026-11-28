@@ -344,3 +344,4 @@ Next: P12 (gate-4.md draft).
   Performance ledger written (windows ≤ 60 s); complexity ledger tx.dc_links keep, tx.model dcpf keep as non-default option. Evidence file filled except A1–A10 (G4-7).
   Tests 800 pass / 6 fail (known C1/G1) / 1 xfail / 5 skip; check_markers ok. R4-NF still unfinished (30-min limit). Claim went stale mid-work and was taken over at 04:24Z; this run pushed first.
   Owner: R4-NF timeout 120 min?; workflow to `main`; C1/G1 ruling at G4-8.
+- 2026-11-28 owner (live): accepted G4-5/G4-6b recs (DECISIONS 59): r4nf/r4nf-tests timeout 120 min; gate4-fullyear.yml copied to main. C1/G1, S2b still open for G4-8.

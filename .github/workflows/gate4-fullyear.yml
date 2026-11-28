@@ -81,7 +81,7 @@ jobs:
   r4nf:
     if: github.event_name == 'push' || inputs.run != 'R4-F'
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 120  # owner 2026-11-28, DECISIONS 59
     concurrency:
       group: gate4-fullyear-r4nf-${{ github.ref }}
       cancel-in-progress: false
@@ -155,7 +155,7 @@ jobs:
     # Own job so the 3 test solves run in parallel with the CLI/ledger solves and each job stays under 30 min.
     if: github.event_name == 'push' || inputs.run != 'R4-F'
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 120  # owner 2026-11-28, DECISIONS 59
     steps:
       - uses: actions/checkout@v6
         with:

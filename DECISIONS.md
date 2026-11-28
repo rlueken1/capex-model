@@ -369,3 +369,12 @@
     exception, so those cases could not load. Every other case keeps the equality. Also (S4 implementation reading):
     `duals_raw` lists θ reduced-cost rows only where nonzero, so the pjm5 `duals_raw.csv` stays byte-identical; the
     `price_setter` cells `price_lo`/`price_hi` are `None` (empty in CSV) instead of NaN where no interval applies.
+
+2026-11-28 (owner, live session: "Accept your recommendations on all questions", answering G4-5/G4-6b)
+59. (1) R4-NF full-year jobs: `r4nf` and `r4nf-tests` timeouts raised 30 → 120 min in `gate4-fullyear.yml` (R4-F jobs
+    stay at 30); R4-NF remains report-only (gate-4.md §8). (2) `gate4-fullyear.yml` copied to `main` (dispatch-only use,
+    `contents: read`, inert unless dispatched or its own path changes; same scope as DECISIONS 39/41) so later items can
+    `workflow_dispatch` it with `--ref gate-4`. (3) Performance ledger keeps the local rows, with the Actions R4-F numbers in
+    its footnote and the evidence file. (4) G4-6b complexity verdicts accepted as proposals for the G4-8 review:
+    `tx.dc_links` keep (default `controllable`); `tx.model=dcpf` keep as option, default `transport`. Still open (no
+    recommendation was given): C1/G1 accept-as-UC-gap vs fail, and the S2b closure route — owner rules at G4-8.
