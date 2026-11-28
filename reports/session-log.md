@@ -371,3 +371,4 @@ Next: P12 (gate-4.md draft).
 - Wrote reports/gate-4-review.md: pass/fail table, UC gap narrative (no-load = 95% of $1.31 M basis gap; gas-CC Pmin must-run = 92% of the −10.4 pp shift), markets verdict yes-conditional, 11 owner decisions.
 - No tests run (review only); CI on gate-4 red on the 6 known C1/G1 ids; full-year run 46107908584: R4-F green, R4-NF cancelled at 120 min.
 - STATUS → AWAITING_OWNER_REVIEW. Owner: decide C1/G1 (rec accept after a G4-9 fixed-commitment diagnostic), S2b → Gate 5, merge after CI green. Prep list exhausted.
+- 2026-11-28T11:24Z skipped: nothing claimable (STATUS AWAITING_OWNER_REVIEW for Gate 4; prep list P1–P12 exhausted).
