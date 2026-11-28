@@ -227,6 +227,7 @@ no changes to `src/capex/`, no gate branch edits except ticking these boxes and 
 
 
 ## Next
+G4-7-fix1 done 2026-11-28 on `gate-4` (builder): `_members` keeps TIE_AT_BOUND only at |π−mc| ≤ `loop.TIE_EPS`=1e-7; R4-N/NX/NS health 31/31 (F4-1 closed in code); pytest 800/6 known C1/G1/1 xfail/5 skip. Next: G4-7-fix1b (verifier), then fix2, fix3, G4-8.
 G4-7 done 2026-11-28 on `gate-4` (formulation lead, Opus): `reports/gate-4-spec-trace.md` — 10 findings. **F4-1 blocker**: R4-NX `loop_alpha` FAIL is a spec error (a `TIE_AT_BOUND` unit with mc 3.6e-3 above π entered 𝓜_i); spec now admits it only at |π−c| ≤ 1e-7 (DECISIONS 60, F-0.4 amendment 1); scratch patch gives R4-NX 31/31. 8 SPEC-GAPs ruled (formulation §7.4a.13; only S2b left for owner). A1–A10 pass with noted exceptions. Nothing in code contributes to C1/G1. pytest 800 pass / 6 fail (known C1/G1) / 1 xfail / 5 skip. Next: G4-7-fix1 (builder), fix1b, fix2, fix3 (verifier), then G4-8.
 G4-6b duplicate run 2026-11-28 (stale-claim takeover; original finished first): only adds evidence §14 — **G4-7 please trace R4-NX `price_setter.loop_alpha` health FAIL (2.4e-3 vs 1e-6, `tx.dc_links: exclude`)**, plus rts_gmlc_px setter shares. Next unchanged: G4-7.
 Owner 2026-11-28 (live, DECISIONS 59): accepted G4-5/G4-6b recommendations — R4-NF jobs 120 min; `gate4-fullyear.yml` on `main` (dispatchable with `--ref gate-4`); this push re-runs the workflow on `gate-4`. C1/G1 and S2b rulings still at G4-8. Next: G4-7 (formulation lead, Opus).
