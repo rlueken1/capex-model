@@ -1,0 +1,178 @@
+# Gate 4, G4-5 — docs/gates/gate-4.md sections 2 and 8. Full-year runs, separate from CI.
+#   R4-F : rts_gmlc and rts_gmlc_px, transport, 122 blocks; budget 5 min / 4 GB [P] (warning, not failure).
+#   R4-NF: rts_gmlc_nodal, dcpf, 122 blocks; performance ledger only (own job, never blocks R4-F).
+# Triggers: GitHub dispatches workflow_dispatch only for workflow files on the default branch (main), and gate
+# branches may not be pushed to main. The narrow push trigger on this file's own path runs it once from the gate
+# branch when this file changes. Ordinary pushes do not match the path filter and do not trigger it.
+name: gate4-fullyear
+
+on:
+  workflow_dispatch:
+    inputs:
+      run:
+        description: "Which full-year run"
+        required: true
+        type: choice
+        options: [both, R4-F, R4-NF]
+        default: both
+  push:
+    paths: ['.github/workflows/gate4-fullyear.yml']
+
+permissions:
+  contents: read
+
+env:
+  CAPEX_GATE4_FULL: "1"
+
+jobs:
+  r4f:
+    if: github.event_name == 'push' || inputs.run != 'R4-NF'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    concurrency:
+      group: gate4-fullyear-r4f-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - name: Install
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python -m pip install -e . --no-deps
+      - name: Record versions
+        run: |
+          mkdir -p "$RUNNER_TEMP/r4f"
+          python - <<'PY' | tee "$RUNNER_TEMP/r4f/versions.txt"
+          import os, platform, sys
+          import highspy
+          from capex.audit.fingerprint import package_versions
+          pkgs = package_versions()
+          print("python", sys.version.split()[0])
+          for name in ("numpy", "scipy", "pandas", "highspy"):
+              print(name, pkgs[name])
+          print("HiGHS", highspy.Highs().version())
+          print("OS", platform.platform(), os.cpu_count(), "cpu")
+          PY
+      - name: Solve R4-F cases (rts_gmlc_px, rts_gmlc)
+        run: |
+          for case in rts_gmlc_px rts_gmlc; do
+            python scripts/gate4_fullyear.py solve "cases/$case" --out "$RUNNER_TEMP/r4f"
+          done
+      - name: Performance ledger rows (R4-F)
+        if: always()
+        run: |
+          for case in rts_gmlc_px rts_gmlc; do
+            python -m capex ledger "cases/$case" --run R4-F --repeats 1 --ledger "$RUNNER_TEMP/r4f/performance-ledger.md"
+          done
+      - name: Step summary (R4-F)
+        if: always()
+        run: python scripts/gate4_fullyear.py summary "$RUNNER_TEMP/r4f" --budget-s 300 --budget-gb 4 | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Upload R4-F outputs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gate4-r4f
+          path: ${{ runner.temp }}/r4f
+          retention-days: 30
+
+  r4nf:
+    if: github.event_name == 'push' || inputs.run != 'R4-F'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120  # owner 2026-11-28, DECISIONS 59
+    concurrency:
+      group: gate4-fullyear-r4nf-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - name: Install
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python -m pip install -e . --no-deps
+      - name: Record versions
+        run: |
+          mkdir -p "$RUNNER_TEMP/r4nf"
+          python - <<'PY' | tee "$RUNNER_TEMP/r4nf/versions.txt"
+          import os, platform, sys
+          import highspy
+          from capex.audit.fingerprint import package_versions
+          pkgs = package_versions()
+          print("python", sys.version.split()[0])
+          for name in ("numpy", "scipy", "pandas", "highspy"):
+              print(name, pkgs[name])
+          print("HiGHS", highspy.Highs().version())
+          print("OS", platform.platform(), os.cpu_count(), "cpu")
+          PY
+      - name: Solve R4-NF case (rts_gmlc_nodal)
+        run: python scripts/gate4_fullyear.py solve cases/rts_gmlc_nodal --out "$RUNNER_TEMP/r4nf"
+      - name: Performance ledger row (R4-NF)
+        if: always()
+        run: python -m capex ledger cases/rts_gmlc_nodal --run R4-NF --repeats 1 --ledger "$RUNNER_TEMP/r4nf/performance-ledger.md"
+      - name: Step summary (R4-NF, reported only)
+        if: always()
+        run: python scripts/gate4_fullyear.py summary "$RUNNER_TEMP/r4nf" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Upload R4-NF outputs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gate4-r4nf
+          path: ${{ runner.temp }}/r4nf
+          retention-days: 30
+
+  r4f-tests:
+    # Own job so the 3 test solves run in parallel with the CLI/ledger solves and each job stays under 30 min.
+    if: github.event_name == 'push' || inputs.run != 'R4-NF'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - name: Install
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python -m pip install -e . --no-deps
+          mkdir -p "$RUNNER_TEMP/r4f-tests"
+      - name: Gate 4 tests (R4-F health, B1)
+        run: pytest -v --disable-socket -k "r4f or b1" --junitxml="$RUNNER_TEMP/r4f-tests/junit.xml" tests/test_gate4_comparison.py tests/test_gate4_known_answers.py
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gate4-r4f-tests
+          path: ${{ runner.temp }}/r4f-tests
+          retention-days: 30
+
+  r4nf-tests:
+    # Own job so the 3 test solves run in parallel with the CLI/ledger solves and each job stays under 30 min.
+    if: github.event_name == 'push' || inputs.run != 'R4-F'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120  # owner 2026-11-28, DECISIONS 59
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.12" }
+      - name: Install
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python -m pip install -e . --no-deps
+          mkdir -p "$RUNNER_TEMP/r4nf-tests"
+      - name: Gate 4 tests (R4-NF, N1)
+        run: pytest -v --disable-socket -k "r4nf or n1" --junitxml="$RUNNER_TEMP/r4nf-tests/junit.xml" tests/test_gate4_comparison.py tests/test_gate4_known_answers.py
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gate4-r4nf-tests
+          path: ${{ runner.temp }}/r4nf-tests
+          retention-days: 30
