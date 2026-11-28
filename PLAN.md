@@ -188,7 +188,7 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
   `main` f3acf4d; test the §7.4a.9 identity (mask `run_id`/`fingerprint` lines, drop the `loop_interval` row).
 - [x] G4-7-fix3 Verifier [Sonnet], branch `gate-4` (F4-4): performance-ledger rows for T1–T4 and pjm5 transport/angle/PTDF with
   previous-gate values from gate-3-evidence §8 (T1–T4: size identity, previous time "n/a"). Done 2026-11-28: 10 rows, `tests/test_g4_ledger_rows.py` 21 pass.
-- [ ] G4-8 PM [Sonnet] + markets reviewer [Opus] (1 subagent), branch `gate-4`: `reports/gate-4-review.md` with the
+- [~] G4-8 PM [Sonnet] + markets reviewer [Opus] (1 subagent), branch `gate-4`: `reports/gate-4-review.md` with the (claimed 2026-11-28T10:24:32Z)
   UC/reserve gap narrative (C1, G1, L1, U0) and the §11 decision list; STATUS → AWAITING_OWNER_REVIEW. Also carry from
   G4-7: F4-10 S2b route (candidate fixture / hook-level test / accept strict xfail); F4-3 (provenance_cells.csv → assumptions book)
   and F4-5 (solver-status enum) as Gate 5 items; optional R4-C sizing of the secant heat rate (DECISIONS 57) for G1.
