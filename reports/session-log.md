@@ -340,3 +340,7 @@ Next: P12 (gate-4.md draft).
   C1 7.0–7.1% (≤5%) and G1 coal +8.4 / gas CC −10.3 pp (≤3 pp) FAIL as measured; xfails removed, thresholds kept → CI red on 6 ids until G4-8 ruling.
   S2c/M13/M16 pass via forced interval path; S2b strict xfail (no natural case-(c) hour). Evidence file started (G4-6b placeholders).
   Tests 800 pass / 6 fail / 1 xfail / 5 skip; check_markers ok. Owner: C1/G1 accept-as-UC-gap vs fail; S2b closure route.
+- 2026-11-28 G4-6b (verifier, Sonnet; gate-4): R4-F full year from Actions run 46095301368 (169/174 s, 2.7/2.3 GB ≤ 5 min/4 GB); health 23/0/0; XPASS marker removed, R4-F/B1 pass under CAPEX_GATE4_FULL=1.
+  Performance ledger written (windows ≤ 60 s); complexity ledger tx.dc_links keep, tx.model dcpf keep as non-default option. Evidence file filled except A1–A10 (G4-7).
+  Tests 800 pass / 6 fail (known C1/G1) / 1 xfail / 5 skip; check_markers ok. R4-NF still unfinished (30-min limit). Claim went stale mid-work and was taken over at 04:24Z; this run pushed first.
+  Owner: R4-NF timeout 120 min?; workflow to `main`; C1/G1 ruling at G4-8.

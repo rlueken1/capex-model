@@ -405,7 +405,6 @@ def test_nodal_dcpf_equivalent_runs_have_one_dc_link_in_flows(rts_run):
 
 
 @needs_full
-@xf("RTS R4-F full-year run (rts_gmlc_px 122 blocks, rts_gmlc 122 blocks) and the F-0.4 loader")
 @pytest.mark.parametrize("case", ["rts_gmlc_px", "rts_gmlc"])
 def test_r4f_full_year_health(tmp_path_factory, case):
     from capex.run import output_tables, run_case
