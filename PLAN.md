@@ -181,7 +181,7 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
 - [x] G4-7-fix1 Builder [Sonnet], branch `gate-4` (F4-1, DECISIONS 60(a)): in `capex/audit/loopsetter.py::_members`, drop
   `TIE_AT_BOUND` setters with |π(bus) − mc| > `loop.TIE_EPS` = 1e-7 from 𝓜_i; no other change. Re-run R4-N, R4-NX, R4-NS health
   (R4-NX `loop_alpha` must pass); pjm5 identity must hold. No judging tests. Done 2026-11-28: `loop.TIE_EPS`; R4-N/NX/NS 31/31 pass (loop_alpha 2.0e-11/9.6e-12/2.3e-12).
-- [ ] G4-7-fix1b Verifier [Sonnet], branch `gate-4` (F4-1): from formulation §7.4a.7 — pjm5 dcpf fixture with one unit at a bound,
+- [~] G4-7-fix1b Verifier [Sonnet], branch `gate-4` (F4-1) (claimed 2026-11-28T07:24:36Z): from formulation §7.4a.7 — pjm5 dcpf fixture with one unit at a bound,
   mc 0.005 above the congested-hour bus price: `loop_alpha` passes and the unit is not in CONGESTION_LOOP `setter_ids`; plus an
   R4-NX window health test (`CAPEX_GATE4_FULL`-gated).
 - [ ] G4-7-fix2 Verifier [Sonnet], branch `gate-4` (F4-2): `tests/golden/gate3/pjm5bus/{angle,ptdf}/` + `SOURCE.txt` generated from
