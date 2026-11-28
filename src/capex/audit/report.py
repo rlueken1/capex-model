@@ -61,6 +61,18 @@ def _check(check_id: str, family: str, value: float, tolerance: float, detail: s
             "value": float(value), "tolerance": float(tolerance), "detail": detail}
 
 
+def _profile_check(sv: Solved, check_id: str, family: str, value: float, exact_tol: float, detail: str) -> dict:
+    """A recomputation check whose thresholds follow the case's audit profile (formulation 3): `exact` pass <= exact_tol;
+    `standard` warn > 1e-3, fail > 1e-1 (the section 6.2 `bal` pair). Key absent: bytes of F-0.3."""
+    profile = sv.case.audit_profile
+    if profile != "standard":
+        return _check(check_id, family, value, exact_tol, detail + (f"; audit_profile={profile}" if profile else ""))
+    warn, fail = cond.THRESHOLDS["bal_residual_mw"]
+    status = "fail" if value > fail else "warn" if value > warn else "pass"
+    return {"check_id": check_id, "family": family, "status": status, "value": float(value), "tolerance": float(warn),
+            "detail": f"{detail}; audit_profile=standard warn>{warn:g} fail>{fail:g}"}
+
+
 def _info(check_id: str, family: str, value: float, detail: str) -> dict:
     return {"check_id": check_id, "family": family, "status": "pass", "value": float(value), "tolerance": np.nan,
             "detail": detail}
@@ -79,13 +91,18 @@ def _price_setter_checks(sv: Solved, audit: Audit) -> list[dict]:
                  "tolerance": np.nan, "detail": "no valid basis; price-setter skipped (section 4)"}]
     share = ps.summary.groupby("zone")["share_weighted_hours"].sum()
     link_detail = "link-hours with inconsistent price gap / bound / congestion rent"
+    if sv.case.dcpf:
+        link_detail = ("DC links only under dcpf (AC lines: see lmp.decomposition, dcpf.line_duals)"
+                       if sv.case.links.is_dc.any() else "n/a under dcpf (see lmp.decomposition, dcpf.line_duals)")
     checks = [_check("price_setter.unexplained", "price_setter", ps.unexplained, 0, "UNEXPLAINED zone-hours"),
               _check("price_setter.link_inconsistent", "price_setter", ps.link_inconsistent, 0,
-                     "n/a under dcpf (see lmp.decomposition, dcpf.line_duals)" if sv.case.dcpf else link_detail),
+                     link_detail),
               _check("price_setter.shares_sum_to_one", "price_setter", float(np.abs(share - 1.0).max()), 1e-9)]
     if sv.case.dcpf:
         checks.append(_check("price_setter.loop_alpha", "price_setter", alpha_residual(ps),
                              sv.case.tolerances.loop_alpha, "max(|sum alpha - 1|, |pi - sum alpha c|) over CONGESTION_LOOP"))
+        checks.append(_check("price_setter.loop_interval", "price_setter", ps.loop_interval, 0,
+                             "storage rows conditional on solved v" if ps.storage_rows_used else ""))
     return checks
 
 
@@ -93,10 +110,10 @@ def _network_checks(sv: Solved, audit: Audit) -> list[dict]:
     """Formulation 7.4a.6: recomputations from case data (dcpf only)."""
     rep, tol = audit.network, sv.case.tolerances
     m = rep.metrics
-    return [_check("kvl.recompute", "network", m["kvl"], tol.kvl_residual_mw,
-                   "max |f - b(theta_o - theta_e)| MW, case b, theta from output angles"),
-            _check("ptdf.recompute", "network", m["ptdf"], tol.kvl_residual_mw,
-                   "max |f - f_rc| MW, f_rc from B_red theta = inj (case b, solved inj)"),
+    return [_profile_check(sv, "kvl.recompute", "network", m["kvl"], tol.kvl_residual_mw,
+                           "max |f - b(theta_o - theta_e)| MW, case b, theta from output angles"),
+            _profile_check(sv, "ptdf.recompute", "network", m["ptdf"], tol.kvl_residual_mw,
+                           "max |f - f_rc| MW, f_rc from B_red theta = inj (case b, solved inj)"),
             _check("lmp.decomposition", "network", m["lmp"], tol.lmp_decomposition_usd_mwh,
                    "max |pi - (lambda - sum_l H mu)| $/MWh, H from case data"),
             _check("congestion_rent", "network", m["rent"], tol.congestion_rent_rel,
@@ -132,7 +149,8 @@ def health_checks(sv: Solved, audit: Audit) -> pd.DataFrame:
     n_simul = int(audit.storage.hourly["simul_chdis"].sum())
     checks = [
         _check("solver.optimal", "solver", float(not sv.sol.optimal), 0, sv.sol.status),
-        _check("balance", "balance", float(np.abs(audit.balance_residual).max(initial=0.0)), tol.bal_residual_mw, "max |LHS-D| MW"),
+        _profile_check(sv, "balance", "balance", float(np.abs(audit.balance_residual).max(initial=0.0)),
+                       tol.bal_residual_mw, "max |LHS-D| MW"),
         _check("strong_duality", "strong_duality", d.rel_gap, tol.strong_duality_rel,
                f"primal {d.z_primal_usd:.6f} dual {d.z_dual_usd:.6f} $ (excl. Z0)"),
         _check("comp_slack", "comp_slack", d.comp_slack, tol.comp_slack_scaled),
@@ -141,8 +159,8 @@ def health_checks(sv: Solved, audit: Audit) -> pd.DataFrame:
         _check("decomposition", "decomposition", _decomposition_gap(sv, audit), tol.decomposition_rel,
                f"Z total {sv.z_total:.6f} incl. Z0 {sv.z0:.6f}"),
         _check("storage.closure", "storage", closure, 1e-6, "cyclic energy closure, MWh"),
-        _check("storage.soc_recompute", "storage", audit.soc_residual, 1e-6,
-               "st_soc residual recomputed from case eta_c, eta_d, sigma, MWh"),
+        _profile_check(sv, "storage.soc_recompute", "storage", audit.soc_residual, 1e-6,
+                       "st_soc residual recomputed from case eta_c, eta_d, sigma, MWh"),
         _info("storage.simul_chdis", "storage", n_simul, "hours with simultaneous charge and discharge (not an error)"),
         _check("basis_valid", "price_setter", float(not sv.sol.basis_valid), 0, "basic solution required (section 4)"),
         *_price_setter_checks(sv, audit), *_conditioning_checks(audit), *(_network_checks(sv, audit) if sv.case.dcpf else [])]

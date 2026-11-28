@@ -303,7 +303,6 @@ def test_g1_g2_judged_on_run_outputs(rts_run, name, record_property):
     record_property(f"{name}.G2.curtailment_mwh", float(rc.curtailment_report(r.t).sum()))     # reported
 
 
-@xf(_NEEDS)
 @pytest.mark.parametrize("name", ["R4-Z", "R4-C", "R4-N"])
 def test_l1_l2_reported_on_run_outputs(rts_run, name, record_property):
     """Reported, not judged (label: expected gap: UC/reserves/fixed hydro+RTPV). Asserts only that the report is complete."""
@@ -321,7 +320,6 @@ def test_l1_l2_reported_on_run_outputs(rts_run, name, record_property):
         record_property(f"{name}.L2.congested_hours", int((lmp.max(axis=1) - lmp.min(axis=1) > 0.01).sum()))
 
 
-@xf(_NEEDS)
 @pytest.mark.parametrize("name", ["R4-Z", "R4-C"])
 def test_p1_u0_reported_on_run_outputs(rts_run, name, record_property):
     r = rts_run(name)
@@ -363,14 +361,12 @@ def _assert_health(r, dcpf: bool):
     return ps
 
 
-@xf(_NEEDS)
 @pytest.mark.parametrize("name", ["R4-Z", "R4-C"])
 def test_health_zonal_runs(rts_run, name):
     ps = _assert_health(rts_run(name), dcpf=False)
     assert (ps["primary_class"] != "UNEXPLAINED").all()
 
 
-@xf(_NEEDS)
 @pytest.mark.parametrize("name", ["R4-N", "R4-NS"])
 def test_health_nodal_dcpf_runs(rts_run, name):
     r = rts_run(name)
@@ -383,7 +379,6 @@ def test_health_nodal_dcpf_runs(rts_run, name):
         assert (sto["residual"].abs() <= tol).all()                                              # they pass their price check
 
 
-@xf(_NEEDS)
 def test_nodal_dcpf_equivalent_runs_have_one_dc_link_in_flows(rts_run):
     r = rts_run("R4-N")
     fl = r.t["flows"]

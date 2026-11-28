@@ -214,7 +214,7 @@ def test_package_and_python_versions_are_recorded(baseline):
     c = baseline.components
     assert c["python"] and set(c["packages"]) >= {"numpy", "scipy", "pandas", "highspy"}
     assert c["solver"]["name"] == "highs" and c["solver"]["version"] and c["solver"]["options"]
-    assert c["formulation_version"] == "F-0.3" and "seed" in c and c["git_commit"]
+    assert c["formulation_version"] == "F-0.4" and "seed" in c and c["git_commit"]
 
 
 # ---------------------------------------------------------------- conditioning fail invalidates

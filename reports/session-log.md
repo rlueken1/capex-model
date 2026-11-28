@@ -324,3 +324,7 @@ Next: P12 (gate-4.md draft).
 - Re-plan: G4-6 split into G4-6a (window metrics) / G4-6b (full year, ledgers, evidence); G4-4v (verifier clears XPASSing xfails) added.
 - Tests: none run (planning only).
 - Owner: nothing blocking; C1/G1 predicted miss is a G4-8 decision (early steer welcome).
+- 2026-11-27 G4-4 (builder, Sonnet; gate-4): S1–S4 in `src/capex/` + performance-ledger writer (`src/capex/ledger.py`). RTS-GMLC window cases load and solve (R4-N 25.8 s ≤ 60 s).
+  Tests 790 pass / 11 xfail / 5 skip / 0 fail (was 732/69/5); 58 strict xfails removed (markers only); goldens unchanged.
+  Remaining xfail: C1/G1 (expected UC gap, owner at G4-8); H1e, S2b/S2c, M13, M16, N1 are verifier fixture issues for G4-6.
+  Needs owner: confirm DECISIONS 58 (window cases may have Σw ≤ D_y/3).

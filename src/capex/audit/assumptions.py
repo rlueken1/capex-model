@@ -32,10 +32,18 @@ def is_toy(case: Case) -> bool:
                    for name in PROVENANCE_TABLES if name in case.tables)
 
 
+def dc_link_lines(case: Case) -> list[str]:
+    """Header lines for controllable DC links (formulation 7.4a.12): treatment, and the lossless-link assumption."""
+    if case.excluded_links:
+        return [f"- tx.dc_links: exclude (dc rows dropped: {', '.join(case.excluded_links)})"]
+    dc = [i for i, is_dc in zip(case.links.ids, case.links.is_dc) if is_dc]
+    return [f"- tx.dc_links: controllable ({', '.join(dc)}; lossless, source resistance ignored)"] if dc else []
+
+
 def run_header(case: Case, run_id: str, fingerprint: str) -> list[str]:
     """Run header (data-sources.md, assumptions book item 1), with the toy banner when applicable."""
     lines = [f"- run_id: {run_id}", f"- fingerprint: {fingerprint}", f"- case: {case.case_id}",
-             f"- base dollar year: {case.base_dollar_year}"]
+             f"- base dollar year: {case.base_dollar_year}", *dc_link_lines(case)]
     return lines + ([TOY_BANNER] if is_toy(case) else [])
 
 

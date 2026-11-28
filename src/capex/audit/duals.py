@@ -68,7 +68,17 @@ def raw_duals(sv: Solved) -> pd.DataFrame:
         finite = np.isfinite(bound).ravel()
         frame = _frame(blk, dual=dual, slack=slack, weight=sv.weights(blk))[finite]
         frames.append(frame.assign(label=label))
-    return pd.concat(frames, ignore_index=True)
+    return pd.concat([*frames, *_theta_reduced_costs(sv)], ignore_index=True)
+
+
+def _theta_reduced_costs(sv: Solved) -> list[pd.DataFrame]:
+    """Angle reduced costs ($/rad-yr, formulation 6.1 S4). They are 0 at every optimum, so rows are listed only where
+    nonzero (a mutation or a non-optimal basis); the unscaling uses k_theta = 1."""
+    if "theta" not in sv.lp.cols:
+        return []
+    blk, rc = sv.lp.cols["theta"], sv.col_dual("theta")
+    frame = _frame(blk, dual=rc, slack=np.full(rc.shape, np.nan), weight=sv.weights(blk))
+    return [frame[(rc != 0.0).ravel()]]
 
 
 def reduced_costs(sv: Solved) -> pd.DataFrame:

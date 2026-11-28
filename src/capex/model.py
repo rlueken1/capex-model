@@ -66,6 +66,10 @@ class LP:
         return column_scale(self.cols, self.n_cols, self.scaling.k_p)
 
     @property
+    def row_scale(self) -> np.ndarray:
+        return row_scale(self.rows, self.n_rows, self.scaling.k_p)
+
+    @property
     def n_rows(self) -> int:
         return self.a.shape[0]
 
@@ -79,8 +83,9 @@ class _Net:
     """DC power flow data of one build (formulation 7.4a.2): form, islands, susceptance, PTDF (ptdf form only)."""
     form: str
     isl: network.Islands
-    b: np.ndarray           # (L,) MW/rad
-    h: np.ndarray | None    # (L,N)
+    b: np.ndarray           # (L,) MW/rad (0 for DC links)
+    h: np.ndarray | None    # (L,N) (zero rows for DC links)
+    ac: np.ndarray          # (La,) positions of the AC lines in links.csv order
 
 
 def _net(case: Case) -> _Net | None:
@@ -88,7 +93,7 @@ def _net(case: Case) -> _Net | None:
         return None
     isl = network.islands(case)
     return _Net(case.dcpf_form, isl, network.susceptance_mw_rad(case),
-                network.ptdf(case, isl) if case.dcpf_form == "ptdf" else None)
+                network.ptdf(case, isl) if case.dcpf_form == "ptdf" else None, np.flatnonzero(~case.links.is_dc))
 
 
 def column_scale(cols: dict[str, Block], n_cols: int, k_p: float) -> np.ndarray:
@@ -96,6 +101,14 @@ def column_scale(cols: dict[str, Block], n_cols: int, k_p: float) -> np.ndarray:
     scale = np.full(n_cols, k_p)
     if "theta" in cols:
         scale[cols["theta"].offset:cols["theta"].offset + cols["theta"].size] = 1.0
+    return scale
+
+
+def row_scale(rows: dict[str, Block], n_rows: int, k_p: float) -> np.ndarray:
+    """Per-row scale k_i (scaled row = k_i x I/O row): k_P, except the rad rows `ref_angle` (k = 1, formulation 6.1)."""
+    scale = np.full(n_rows, k_p)
+    if "ref_angle" in rows:
+        scale[rows["ref_angle"].offset:rows["ref_angle"].offset + rows["ref_angle"].size] = 1.0
     return scale
 
 
@@ -139,13 +152,14 @@ def _layouts(case: Case, dur_lo_ix: np.ndarray, dur_hi_ix: np.ndarray, net: _Net
 
 def _add_network(case: Case, cols: _Layout, rows: _Layout, net: _Net, pt: tuple[tuple, tuple]) -> None:
     """dcpf blocks (7.4a.3, 7.4a.4): kvl/ref_angle rows and theta columns, or bal_sys/ptdf_flow rows."""
+    ac_ids = tuple(np.asarray(case.links.ids, dtype=object)[net.ac])      # DC links have no kvl / ptdf_flow row (7.4a.12)
     if net.form == "angle":
         cols.add("theta", ("zone", "period", "t"), (case.zones, *pt))
-        rows.add("kvl", ("link", "period", "t"), (case.links.ids, *pt))
+        rows.add("kvl", ("link", "period", "t"), (ac_ids, *pt))
         rows.add("ref_angle", ("island", "period", "t"), (net.isl.ids, *pt))
     else:
         rows.add("bal_sys", ("island", "period", "t"), (net.isl.ids, *pt))
-        rows.add("ptdf_flow", ("link", "period", "t"), (case.links.ids, *pt))
+        rows.add("ptdf_flow", ("link", "period", "t"), (ac_ids, *pt))
 
 
 def _triplets(parts: list[tuple[np.ndarray, np.ndarray, np.ndarray]], shape: tuple[int, int]) -> sp.csr_matrix:
@@ -175,34 +189,49 @@ def _bal_parts(case: Case, cols: _Layout, rows: _Layout) -> list[tuple]:
 
 
 def _angle_parts(case: Case, cols: _Layout, rows: _Layout, net: _Net, k_p: float) -> list[tuple]:
-    """kvl[l,p,t]: f - b (theta_o - theta_e) = 0 with b scaled by k_P; ref_angle[i,p,t]: theta_ref = 0."""
+    """kvl[l,p,t] over AC lines: f - b (theta_o - theta_e) = 0 with b scaled by k_P; ref_angle[i,p,t]: theta_ref = 0."""
     lk, n_p = case.links, len(case.periods)
     cb, rb = cols.blocks, rows.blocks
-    li, lp_, lt = np.indices((len(lk.ids), n_p, T))
+    li, lp_, lt = np.indices((len(net.ac), n_p, T))
     ii, ip, it = np.indices((len(net.isl.ids), n_p, T))
-    kb = (k_p * net.b)[li]
+    kb = (k_p * net.b[net.ac])[li]
     return [
-        (rb["kvl"].idx(li, lp_, lt), cb["flow"].idx(li, lp_, lt), 1.0),
-        (rb["kvl"].idx(li, lp_, lt), cb["theta"].idx(lk.origin[li], lp_, lt), -kb),
-        (rb["kvl"].idx(li, lp_, lt), cb["theta"].idx(lk.end[li], lp_, lt), kb),
+        (rb["kvl"].idx(li, lp_, lt), cb["flow"].idx(net.ac[li], lp_, lt), 1.0),
+        (rb["kvl"].idx(li, lp_, lt), cb["theta"].idx(lk.origin[net.ac][li], lp_, lt), -kb),
+        (rb["kvl"].idx(li, lp_, lt), cb["theta"].idx(lk.end[net.ac][li], lp_, lt), kb),
         (rb["ref_angle"].idx(ii, ip, it), cb["theta"].idx(net.isl.ref[ii], ip, it), 1.0)]
 
 
 def _ptdf_parts(case: Case, cols: _Layout, rows: _Layout, net: _Net) -> list[tuple]:
-    """bal_sys[i,p,t] and ptdf_flow[l,p,t]: every injection column enters with its sign and node (7.4a.4)."""
+    """bal_sys[i,p,t] and ptdf_flow[l,p,t] over AC lines: every injection column enters with its sign and node
+    (7.4a.4); a DC link enters as an injection pair at its end buses (hook H1, 7.4a.12)."""
     gen, st, n_p = case.gen, case.storage, len(case.periods)
-    cb, rb = cols.blocks, rows.blocks
+    cb, rb, h, ac = cols.blocks, rows.blocks, net.h[net.ac], net.ac
     injection = [(cb["g"], gen.zone, 1.0), (cb["dis"], st.zone, 1.0), (cb["ch"], st.zone, -1.0),
                  (cb["use"], np.arange(len(case.zones)), 1.0)]
     parts = []
     for blk, node, sign in injection:
         mi, mp, mt = np.indices((len(node), n_p, T))
         parts.append((rb["bal_sys"].idx(net.isl.node[node][mi], mp, mt), blk.idx(mi, mp, mt), sign))
-        li, mi, mp, mt = np.indices((len(case.links.ids), len(node), n_p, T))
-        parts.append((rb["ptdf_flow"].idx(li, mp, mt), blk.idx(mi, mp, mt), -sign * net.h[li, node[mi]]))
-    li, lp_, lt = np.indices((len(case.links.ids), n_p, T))
-    parts.append((rb["ptdf_flow"].idx(li, lp_, lt), cb["flow"].idx(li, lp_, lt), 1.0))
-    return parts
+        li, mi, mp, mt = np.indices((len(ac), len(node), n_p, T))
+        parts.append((rb["ptdf_flow"].idx(li, mp, mt), blk.idx(mi, mp, mt), -sign * h[li, node[mi]]))
+    li, lp_, lt = np.indices((len(ac), n_p, T))
+    parts.append((rb["ptdf_flow"].idx(li, lp_, lt), cb["flow"].idx(ac[li], lp_, lt), 1.0))
+    return parts + _dc_ptdf_parts(case, cols, rows, net)
+
+
+def _dc_ptdf_parts(case: Case, cols: _Layout, rows: _Layout, net: _Net) -> list[tuple]:
+    """DC flow f_k as +f_k at e(k) and -f_k at o(k): `bal_sys` and `ptdf_flow` coefficients -(H_{l,e}-H_{l,o})."""
+    lk, n_p, ac = case.links, len(case.periods), net.ac
+    cb, rb, h = cols.blocks, rows.blocks, net.h[net.ac]
+    dc = np.flatnonzero(lk.is_dc)
+    ki, kp, kt = np.indices((len(dc), n_p, T))
+    li, lki, lp_, lt = np.indices((len(ac), len(dc), n_p, T))
+    return [
+        (rb["bal_sys"].idx(net.isl.node[lk.end[dc]][ki], kp, kt), cb["flow"].idx(dc[ki], kp, kt), 1.0),
+        (rb["bal_sys"].idx(net.isl.node[lk.origin[dc]][ki], kp, kt), cb["flow"].idx(dc[ki], kp, kt), -1.0),
+        (rb["ptdf_flow"].idx(li, lp_, lt), cb["flow"].idx(dc[lki], lp_, lt),
+         -(h[li, lk.end[dc][lki]] - h[li, lk.origin[dc][lki]]))]
 
 
 def _device_parts(case: Case, cols: _Layout, rows: _Layout, dur_lo_ix: np.ndarray, dur_hi_ix: np.ndarray
@@ -280,7 +309,7 @@ def _equalities(case: Case, net: _Net | None) -> dict[str, np.ndarray]:
         return {"bal": case.demand}
     island_demand = np.zeros((len(net.isl.ids), *case.demand.shape[1:]))
     np.add.at(island_demand, net.isl.node, case.demand)
-    return {"bal_sys": island_demand, "ptdf_flow": -np.einsum("ln,npt->lpt", net.h, case.demand)}
+    return {"bal_sys": island_demand, "ptdf_flow": -np.einsum("ln,npt->lpt", net.h[net.ac], case.demand)}
 
 
 def _row_bounds(case: Case, rows: _Layout, net: _Net | None) -> tuple[np.ndarray, np.ndarray]:
@@ -313,6 +342,7 @@ def build_lp(case: Case, scaling: Scaling = Scaling()) -> LP:
     row_lo, row_hi = _row_bounds(case, rows, net)
     col_lo, col_hi = _col_bounds(case, cols)
     scale = column_scale(cols.blocks, cols.size, scaling.k_p)
+    k_row = row_scale(rows.blocks, rows.size, scaling.k_p)
     return LP(a=_matrix(case, cols, rows, dur_lo_ix, dur_hi_ix, net, scaling.k_p),
-              c=_costs(case, cols) * scaling.cost_factor, row_lo=row_lo * scaling.k_p, row_hi=row_hi * scaling.k_p,
+              c=_costs(case, cols) * scaling.cost_factor, row_lo=row_lo * k_row, row_hi=row_hi * k_row,
               col_lo=col_lo * scale, col_hi=col_hi * scale, rows=rows.blocks, cols=cols.blocks, scaling=scaling)

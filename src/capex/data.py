@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from . import ACCEPTED_FORMULATIONS, DCPF_FORMULATION, SCHEMA_VERSION, econ, network
+from . import ACCEPTED_FORMULATIONS, DCPF_FORMULATIONS, F04_FORMULATION, SCHEMA_VERSION, econ, network
 from .config import NetworkTolerances, Tolerances
 
 T = 72
@@ -31,7 +31,7 @@ SCHEMA: dict[str, tuple[list[str], list[str], list[str]]] = {
     "load_meta": (["zone", "net_of_btm", "year"] + PROV, ["est_level"], ["zone"]),
     "zones": (["zone_id", "name", "rto"], ["state_shares_ref", "reserve_area"] + PROV + ["est_level"], ["zone_id"]),
     "links": (["link_id", "zone_from", "zone_to", "ntc_fwd_mw", "ntc_rev_mw"] + PROV,
-              ["reactance_pu", "base_mva", "dollar_year", "est_level"], ["link_id"]),
+              ["reactance_pu", "base_mva", "link_type", "dollar_year", "est_level"], ["link_id"]),
     "resources": (["resource_id", "zone", "type", "tech", "status"] + PROV,
                   ["fuel", "k0_mw", "e0_mwh", "xmax_mw", "xmax_mwh", "heat_rate_mmbtu_mwh", "life_yr",
                    "finance_class", "construction_profile_id", "eta_c_frac", "eta_d_frac", "selfdis_frac_h",
@@ -54,7 +54,11 @@ REQUIRED_TABLES = ["periods", "load", "load_meta", "zones", "resources", "financ
 NULLABLE = {"links": ["ntc_fwd_mw", "ntc_rev_mw"]}      # blank rating = unlimited (data-schema 3.2)
 TX_MODELS = ("transport", "dcpf")
 DCPF_FORMS = ("angle", "ptdf")
-SWITCH_KEYS = ("tx.model", "tx.dcpf_form", "tx.ref_bus", "scaling")    # implemented switches (7.4a.1, amendment 2)
+SWITCH_KEYS = ("tx.model", "tx.dcpf_form", "tx.ref_bus", "tx.dc_links", "scaling")    # implemented switches (7.4a.1)
+DC_LINK_MODES = ("controllable", "exclude")
+LINK_TYPES = ("ac", "dc")
+AUDIT_PROFILES = ("exact", "standard")
+MW_TOLERANCE_KEYS = ("bal_residual_mw", "kvl_residual_mw")    # not fields of the tolerance set under `standard`
 PROVENANCE_TABLES = ["load_meta", "links", "resources", "finance", "availability_meta", "fuel_prices_meta", "deflator"]
 
 
@@ -110,6 +114,7 @@ class Links:
     f_minus: np.ndarray
     x_pu: np.ndarray       # series reactance (NaN if blank); used only under tx.model = dcpf
     base_mva: np.ndarray
+    is_dc: np.ndarray      # (L,) bool: controllable DC link under dcpf (formulation 7.4a.12); all False under transport
 
 
 @dataclass(frozen=True)
@@ -135,6 +140,8 @@ class Case:
     annualization: pd.DataFrame
     conversions: pd.DataFrame      # dollar-year conversions applied
     n_avail_zeroed: int
+    audit_profile: str | None = None         # top-level `audit_profile`; None = key absent = exact (formulation 3)
+    excluded_links: tuple[str, ...] = ()     # dc rows dropped by tx.dc_links = exclude
 
     @property
     def dcpf(self) -> bool:
@@ -168,7 +175,18 @@ def read_manifest(case_dir: Path) -> dict:
     if float(manifest["dt_h"]) != 1.0:
         raise DataError("dt_h must be 1.0 (formulation 1.1)")
     check_network_switches(manifest)
+    check_audit_profile(manifest)
     return manifest
+
+
+def check_audit_profile(manifest: dict) -> None:
+    """Top-level `audit_profile` (formulation 3): exact | standard, F-0.4 only."""
+    if "audit_profile" not in manifest:
+        return
+    if manifest["audit_profile"] not in AUDIT_PROFILES:
+        raise DataError(f"audit_profile must be one of {AUDIT_PROFILES}, got {manifest['audit_profile']!r}")
+    if manifest["formulation_version"] != F04_FORMULATION:
+        raise DataError(f"audit_profile requires formulation_version {F04_FORMULATION}")
 
 
 def check_network_switches(manifest: dict) -> None:
@@ -190,15 +208,25 @@ def check_network_switches(manifest: dict) -> None:
         raise DataError(f"switch tx.model must be one of {TX_MODELS}, got {model!r}")
     if form not in DCPF_FORMS:
         raise DataError(f"switch tx.dcpf_form must be one of {DCPF_FORMS}, got {form!r}")
-    if model == "dcpf" and manifest["formulation_version"] != DCPF_FORMULATION:
-        raise DataError(f"tx.model = dcpf requires formulation_version {DCPF_FORMULATION}")
+    if model == "dcpf" and manifest["formulation_version"] not in DCPF_FORMULATIONS:
+        raise DataError(f"tx.model = dcpf requires formulation_version in {DCPF_FORMULATIONS}")
+    if "tx.dc_links" in switches:
+        if switches["tx.dc_links"] not in DC_LINK_MODES:
+            raise DataError(f"switch tx.dc_links must be one of {DC_LINK_MODES}, got {switches['tx.dc_links']!r}")
+        if model != "dcpf":
+            raise DataError("switch tx.dc_links is a sub-switch of tx.model = dcpf")
+        if manifest["formulation_version"] != F04_FORMULATION:
+            raise DataError(f"switch tx.dc_links requires formulation_version {F04_FORMULATION}")
 
 
 def read_tolerances(manifest: dict, dcpf: bool) -> Tolerances:
-    """The run's tolerance set; a key that is not one of its fields is a DataError (7.4a.1, amendment 2)."""
+    """The run's tolerance set; a key that is not one of its fields is a DataError (7.4a.1, amendment 2).
+    Under audit_profile `standard` the two MW keys are not fields of the set (formulation 3, one source per threshold)."""
     kind = NetworkTolerances if dcpf else Tolerances
     given = manifest.get("tolerances") or {}
     known = {f.name for f in fields(kind)}
+    if manifest.get("audit_profile") == "standard":
+        known -= set(MW_TOLERANCE_KEYS)
     unknown = [k for k in given if k not in known]
     if unknown:
         raise DataError(f"tolerance {unknown[0]!r} is not a key of {kind.__name__}")
@@ -262,8 +290,10 @@ def check_periods(tables: dict[str, pd.DataFrame], model_year: int) -> np.ndarra
     """Weight identity, floor and days cross-check (formulation 1.2). Returns w (P,)."""
     df = tables["periods"]
     w = df["weight_blocks"].to_numpy(float)
-    if abs(w.sum() - days_in_year(model_year) / 3.0) > 1e-9:
-        raise DataError(f"sum of weights {w.sum()!r} != D_y/3 = {days_in_year(model_year) / 3.0!r}")
+    total = days_in_year(model_year) / 3.0
+    window = bool((df["rep_kind"] == "full_block").all() and (w == 1.0).all())    # real blocks, each its own (formulation 1.2)
+    if (w.sum() > total + 1e-9) if window else (abs(w.sum() - total) > 1e-9):
+        raise DataError(f"sum of weights {w.sum()!r} != D_y/3 = {total!r}")
     if (w < 1.0).any():
         raise DataError("weight floor violated: w_p >= 1 required")
     if (np.abs(df["days_represented"].to_numpy(float) - 3 * w) > 1e-9).any():
@@ -510,7 +540,45 @@ def _float_column(df: pd.DataFrame, col: str) -> np.ndarray:
     return parsed.to_numpy(float)
 
 
-def build_links(tables: dict[str, pd.DataFrame], zone_ix: dict[str, int]) -> Links:
+def link_types(df: pd.DataFrame) -> np.ndarray:
+    """`link_type` per row as "ac" | "dc"; blank or absent column = ac (data-schema 3.2)."""
+    if "link_type" not in df.columns:
+        return np.full(len(df), "ac", dtype=object)
+    kinds = df["link_type"].fillna("ac").astype(str)
+    if not kinds.isin(LINK_TYPES).all():
+        raise DataError(f"links: link_type must be one of {LINK_TYPES} or blank, got {sorted(set(kinds) - set(LINK_TYPES))}")
+    return kinds.to_numpy(object)
+
+
+def check_dc_rows(df: pd.DataFrame, dc: np.ndarray) -> None:
+    """A `dc` row has no reactance or base_mva and positive-or-blank ratings (formulation 7.4a.12 A2)."""
+    for col in ("reactance_pu", "base_mva"):
+        if col in df.columns and df.loc[dc, col].notna().any():
+            raise DataError(f"links: a dc row must have blank {col}")
+    if (df.loc[dc, ["ntc_fwd_mw", "ntc_rev_mw"]] == 0).any().any():
+        raise DataError("links: a dc row rating of 0 is an error (each of ntc_fwd_mw, ntc_rev_mw must be > 0 or blank)")
+
+
+def check_link_inputs(manifest: dict, tables: dict[str, pd.DataFrame]) -> None:
+    """`link_type` is an F-0.4 input; its values and dc-row rules hold in both network models."""
+    df = tables.get("links")
+    if df is None or "link_type" not in df.columns:
+        return
+    if manifest["formulation_version"] != F04_FORMULATION:
+        raise DataError(f"links.link_type requires formulation_version {F04_FORMULATION}")
+    check_dc_rows(df, link_types(df) == "dc")
+
+
+def drop_excluded_links(manifest: dict, tables: dict[str, pd.DataFrame]) -> tuple[dict[str, pd.DataFrame], tuple[str, ...]]:
+    """tx.dc_links = exclude: remove every dc row after validation, before anything downstream (7.4a.12)."""
+    df = tables.get("links")
+    if (manifest.get("switches") or {}).get("tx.dc_links") != "exclude" or df is None:
+        return tables, ()
+    dc = link_types(df) == "dc"
+    return {**tables, "links": df[~dc].reset_index(drop=True)}, tuple(df.loc[dc, "link_id"])
+
+
+def build_links(tables: dict[str, pd.DataFrame], zone_ix: dict[str, int], dcpf: bool = False) -> Links:
     df = tables.get("links", pd.DataFrame(columns=SCHEMA["links"][0]))
     if not (df["zone_from"].isin(zone_ix).all() and df["zone_to"].isin(zone_ix).all()):
         raise DataError("links: unknown zone")
@@ -520,22 +588,23 @@ def build_links(tables: dict[str, pd.DataFrame], zone_ix: dict[str, int]) -> Lin
                  end=df["zone_to"].map(zone_ix).to_numpy(int),
                  f_plus=df["ntc_fwd_mw"].fillna(np.inf).to_numpy(float),
                  f_minus=df["ntc_rev_mw"].fillna(np.inf).to_numpy(float),
-                 x_pu=_float_column(df, "reactance_pu"), base_mva=_float_column(df, "base_mva"))
+                 x_pu=_float_column(df, "reactance_pu"), base_mva=_float_column(df, "base_mva"),
+                 is_dc=(link_types(df) == "dc") & dcpf)
 
 
 def check_network(case: Case) -> None:
     """Data-schema rule 11 under dcpf: link parameters, symmetric positive ratings, reference buses."""
-    lk = case.links
-    if not (lk.x_pu > 0).all() or not (lk.base_mva > 0).all():
-        raise DataError("dcpf: every link needs reactance_pu > 0 and base_mva > 0")
-    if not (lk.f_plus == lk.f_minus).all() or (lk.f_plus == 0).any():
+    lk, ac = case.links, ~case.links.is_dc
+    if not (lk.x_pu[ac] > 0).all() or not (lk.base_mva[ac] > 0).all():
+        raise DataError("dcpf: every ac link needs reactance_pu > 0 and base_mva > 0")
+    if not (lk.f_plus[ac] == lk.f_minus[ac]).all() or (lk.f_plus[ac] == 0).any():
         raise DataError("dcpf: ntc_fwd_mw must equal ntc_rev_mw and a rating of 0 is an error (delete the row)")
     refs = network.ref_bus_ids(case)
     if not all(r in case.zones for r in refs):
         raise DataError(f"tx.ref_bus must name zone ids, got {refs}")
     if len({network.islands(case).node[case.zones.index(r)] for r in refs}) != len(refs):
         raise DataError(f"tx.ref_bus names more than one reference per island: {refs}")
-    b = network.susceptance_mw_rad(case)
+    b = network.susceptance_mw_rad(case)[ac]
     if len(b) and (b.max() > 1e6 or b.max() / b.min() > 1e4):
         warnings.warn("dcpf: susceptance > 1e6 MW/rad or max/min > 1e4 (conditioning, formulation 6.2)", stacklevel=2)
 
@@ -547,6 +616,8 @@ def load_case(case_dir: str | Path) -> Case:
     tables = read_tables(case_dir, manifest)
     check_schema(tables)
     check_provenance(tables)
+    check_link_inputs(manifest, tables)
+    tables, excluded = drop_excluded_links(manifest, tables)
     base = int(manifest["base_dollar_year"])
     deflator = read_deflator(tables, base)
     w = check_periods(tables, int(manifest["model_year"]))
@@ -574,11 +645,12 @@ def load_case(case_dir: str | Path) -> Case:
         case_id=str(manifest["case_id"]), formulation_version=manifest["formulation_version"], base_dollar_year=base,
         model_year=int(manifest["model_year"]), zones=tuple(zones), periods=tuple(periods), w=w,
         demand=_grid(load, "zone", zones, periods, "demand_mw"), voll=float(manifest["voll_usd_mwh"]) * voll_factor,
-        gen=gen, storage=build_storage(res, factors, ann, zone_ix), links=build_links(tables, zone_ix),
+        gen=gen, storage=build_storage(res, factors, ann, zone_ix), links=build_links(tables, zone_ix, dcpf),
         tolerances=read_tolerances(manifest, dcpf),
         switches=manifest.get("switches", {}),
         solver_config=manifest.get("solver", {}), seed=int(manifest.get("seed", 0)), config=manifest, tables=tables,
-        annualization=ann, conversions=conv, n_avail_zeroed=n_zeroed)
+        annualization=ann, conversions=conv, n_avail_zeroed=n_zeroed, audit_profile=manifest.get("audit_profile"),
+        excluded_links=excluded)
     if case.dcpf:
         check_network(case)
     return case

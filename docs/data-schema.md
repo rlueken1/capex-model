@@ -93,7 +93,7 @@ Required for every `dollar_year` and the base year; missing year = load error. O
 | Column | Type | Unit | Key | Feeds |
 |---|---|---|---|---|
 | `period_id` | str | | key | $p$ |
-| `weight_blocks` | float | blocks | | $w_p$ (§1.2); identity $\sum_p w_p = D_y/3$ (tol 1e-9), $w_p\ge1$ |
+| `weight_blocks` | float | blocks | | $w_p$ (§1.2); identity $\sum_p w_p = D_y/3$ (tol 1e-9), $w_p\ge1$; window exception: all periods `full_block` with $w_p=1$ need only $\sum_p w_p\le D_y/3$ (formulation §1.2, DECISIONS 58) |
 | `rep_kind` | enum | | | `single` (toy), `medoid`, `forced`, `full_block` |
 | `days_represented` | float | d | | $=3 w_p$ (cross-check) |
 | `source_start_date` | date | | | G5+: real first day of the medoid block (backcast: ties profiles to history) |

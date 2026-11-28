@@ -70,7 +70,7 @@ def run_json(sv: Solved, health: HealthReport, fp: Fingerprint) -> dict:
         "solver_version": sol.solver_version, "solver_options": sol.options, "python": comps["python"],
         "packages": comps["packages"], "seed": c.seed, "timestamp": datetime.now(timezone.utc).isoformat(),
         "solve_time_s": sol.solve_time_s, "rows": sv.lp.n_rows, "cols": sv.lp.n_cols, "nnz": int(sv.lp.a.nnz),
-        "status": sol.status, "crossover_ran": sol.crossover_ran, "iterations": sol.iterations,
+        "status": sol.status, "excluded_links": list(c.excluded_links), "crossover_ran": sol.crossover_ran, "iterations": sol.iterations,
         "z_total_usd_yr": sv.z_total, "z0_usd_yr": sv.z0, "health": health.status, "scaling": comps["scaling"]}
 
 

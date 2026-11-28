@@ -370,7 +370,6 @@ def _assert_loop_weights(run, sol, hours=T, comp_of=None):
 
 
 # ============================================================================================== Part 2: H1a-H1e
-@xf("loader accepting F-0.4 + links.link_type + DC link columns (S1)")
 @pytest.mark.parametrize("form", ["angle", "ptdf"])
 def test_h1a_dc_link_binding(g4run, ind, form):
     run, r = g4run(("h1a", form), b_h1a(form=form)), ind("h1a", b_h1a())
@@ -406,7 +405,6 @@ def test_h1a_dc_link_binding(g4run, ind, form):
     assert (ps["flags"].fillna("").astype(str).str.contains("CONGESTED")).all()
 
 
-@xf("loader accepting F-0.4 + links.link_type + DC link columns (S1)")
 def test_h1b_free_dc_link_one_price(g4run, ind):
     run, r = g4run("h1b", b_h1a(500.0)), ind("h1b", b_h1a(500.0))
     s, t = r.sol, run.t
@@ -421,7 +419,6 @@ def test_h1b_free_dc_link_one_price(g4run, ind):
     assert (ps["primary_class"] == "MARGINAL_UNIT").all() and (ps["setter_ids"] == "solitude").all()
 
 
-@xf("loader accepting F-0.4 + links.link_type + DC link columns (S1)")
 @pytest.mark.parametrize("form", ["angle", "ptdf"])
 def test_h1b_free_dc_row_enters_alpha_no_unexplained(g4run, ind, form):
     run, r = g4run(("h1b_cd", form), b_h1b_alpha(form)), ind(f"h1b_cd_{form}", b_h1b_alpha(form))
@@ -435,7 +432,6 @@ def test_h1b_free_dc_row_enters_alpha_no_unexplained(g4run, ind, form):
     _assert_all_pass(run.h)
 
 
-@xf("loader accepting F-0.4 + links.link_type + DC link columns (S1)")
 @pytest.mark.parametrize("rate,expect_binding", [(50.0, True), (800.0, False)])
 def test_h1c_islands_joined_by_one_dc_link(g4run, ind, rate, expect_binding):
     run, r = g4run(("h1c", rate), b_h1c(rate)), ind(f"h1c{int(rate)}", b_h1c(rate))
@@ -468,7 +464,6 @@ def test_h1c_islands_joined_by_one_dc_link(g4run, ind, rate, expect_binding):
         assert (byz == "solitude").all()
 
 
-@xf("tx.dc_links: exclude switch (S1, formulation 7.4a.12)")
 def test_h1d_exclude_equals_p5a(g4run, ind, tmp_path):
     ex = g4run("h1d", b_h1a(switches={"tx.model": "dcpf", "tx.dc_links": "exclude"}))
     plain = g4run(("h1d_plain",), b_plain())                                                   # pjm5, F-0.4, no dc row (= P5a)
@@ -492,7 +487,6 @@ def test_h1d_exclude_equals_p5a(g4run, ind, tmp_path):
         assert why is None, f"{f}: {why}"
 
 
-@xf("loader accepting F-0.4 + links.link_type + DC link columns (S1)")
 def test_h1e_angle_equals_ptdf_with_dc(g4run):
     a, p = g4run(("h1a", "angle"), b_h1a()), g4run(("h1a", "ptdf"), b_h1a(form="ptdf"))
     assert total_obj(p.t) == pytest.approx(total_obj(a.t), rel=TOL["tight_rel"])
@@ -535,21 +529,18 @@ def _load_raises(builder, tmp_path, needle):
     assert needle in str(e.value), str(e.value)
 
 
-@xf("loader accepting F-0.4 + links.link_type (S1: valid dc rows must load)")
 def test_loader_accepts_a_valid_dc_row(tmp_path):
     from capex.data import load_case
     load_case(b_h1a()(tmp_path))
     load_case(b_h1a(switches={"tx.model": "dcpf", "tx.dc_links": "controllable"})(tmp_path / "b"))
 
 
-@xf("loader rule: link_type requires formulation_version F-0.4 (7.4a.9)")
 def test_loader_link_type_requires_f04(tmp_path):
     from capex.data import load_case
     load_case(b_h1a()(tmp_path / "ok"))                                    # positive control: the same input under F-0.4 loads
     _load_raises(lambda p: make_fixture(p, dc=[dc_row("dc_be", "B", "E", 50.0)], formulation="F-0.3"), tmp_path / "old", "link_type")
 
 
-@xf("loader rule: a dc row with a reactance is a DataError (7.4a.12 A2)")
 def test_loader_dc_row_with_reactance(tmp_path):
     def build(p):
         r = dc_row("dc_be", "B", "E", 50.0)
@@ -558,7 +549,6 @@ def test_loader_dc_row_with_reactance(tmp_path):
     _load_raises(build, tmp_path, "reactance")
 
 
-@xf("loader rule: a dc rating of 0 is a DataError (7.4a.12 A2)")
 @pytest.mark.parametrize("which", ["ntc_fwd_mw", "ntc_rev_mw"])
 def test_loader_dc_zero_rating(tmp_path, which):
     def build(p):
@@ -568,7 +558,6 @@ def test_loader_dc_zero_rating(tmp_path, which):
     _load_raises(build, tmp_path, "rating")
 
 
-@xf("loader rule: link_type outside {ac, dc} is a DataError")
 def test_loader_bad_link_type(tmp_path):
     def build(p):
         r = dc_row("dc_be", "B", "E", 50.0)
@@ -577,7 +566,6 @@ def test_loader_bad_link_type(tmp_path):
     _load_raises(build, tmp_path, "link_type")
 
 
-@xf("loader rule: tx.dc_links needs tx.model dcpf and F-0.4 (A1)")
 def test_loader_dc_links_switch_rules(tmp_path):
     from capex.data import DataError, load_case
     cd = make_fixture(tmp_path / "a", tx="transport", switches={"tx.model": "transport", "tx.dc_links": "exclude"})
@@ -591,7 +579,6 @@ def test_loader_dc_links_switch_rules(tmp_path):
         load_case(cd)
 
 
-@xf("loader rule: audit_profile values and F-0.4 requirement (S3)")
 def test_loader_audit_profile_rules(tmp_path):
     from capex.data import DataError, load_case
     load_case(make_fixture(tmp_path / "ok1", audit_profile="standard"))
@@ -602,7 +589,6 @@ def test_loader_audit_profile_rules(tmp_path):
         load_case(make_fixture(tmp_path / "old", audit_profile="standard", formulation="F-0.3"))
 
 
-@xf("loader rule: bal_residual_mw / kvl_residual_mw are not tolerance keys under audit_profile standard (S3)")
 @pytest.mark.parametrize("key", ["bal_residual_mw", "kvl_residual_mw"])
 def test_loader_standard_profile_rejects_mw_tolerance_keys(tmp_path, key):
     from capex.data import DataError, load_case
@@ -623,7 +609,6 @@ def _storage_state(run, hours=T):
     return np.nan_to_num(ch), np.nan_to_num(dis), np.nan_to_num(soc)
 
 
-@xf("S2: storage in the dcpf interval LP / price-setter classes under dcpf with F-0.4 loader")
 @pytest.mark.parametrize("form", ["angle", "ptdf"])
 def test_s2a_storage_under_dcpf(g4run, ind, form):
     run, r = g4run(("s2a", form), b_s2a(form=form)), ind("s2a", b_s2a())
@@ -793,8 +778,8 @@ A1_CHECKS = [("balance", "g", (0, 0, 0)), ("kvl.recompute", "flow", (0, 0, 0)), 
 
 
 A1_PROFILES = [pytest.param(None, id="no-key"),
-               pytest.param("exact", id="exact", marks=xf("S3: audit_profile key (explicit exact, F-0.4 loader)")),
-               pytest.param("standard", id="standard", marks=xf("S3: audit_profile key (standard thresholds and detail suffix)"))]
+               pytest.param("exact", id="exact"),
+               pytest.param("standard", id="standard")]
 
 
 @pytest.mark.parametrize("check,fam,idx", A1_CHECKS)
@@ -822,7 +807,6 @@ def test_a1_synthetic_residuals(tmp_path, check, fam, idx, profile, delta, exact
         assert "audit_profile" not in str(row["detail"].iloc[0])
 
 
-@xf("S4: theta / ref_angle unscaling (F3-12, formulation 6.1)")
 def test_u1_injected_scaled_vector_is_unscaled_per_s4(tmp_path):
     """Inject non-zero SCALED theta reduced costs and ref_angle row activity into the solver output; duals_raw must report
     theta reduced cost = s~ / (k_C s_obj) ($/rad-yr, k_theta = 1) and the ref_angle activity/slack in rad (k_row = 1)."""
@@ -862,7 +846,6 @@ B1_PERIODS = ["p063", "p064", "p065", "p066", "p067"]
 
 
 @needs_full
-@xf("RTS case loading (rts_gmlc_px: F-0.4 + audit_profile + link_type) and R4-F full-year run")
 def test_b1_blocks_are_independent_full_year_vs_window(tmp_path_factory):
     """R4-F (rts_gmlc_px, 122 blocks) restricted to p063-p067 equals R4-Z (the same case restricted to those blocks):
     per-block variable cost, rel 1e-8 (no inter-block coupling at Gate 4)."""

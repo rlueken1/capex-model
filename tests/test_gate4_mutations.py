@@ -67,7 +67,6 @@ def test_mutation_plumbing_append_row_keeps_a_clean_run_clean(tmp_path, monkeypa
 
 
 # ------------------------------------------------------------------------------------------------ M14
-@xf("DC links in the LP (S1) and link_inconsistent on DC links")
 def test_m14_dc_link_given_a_kvl_row(tmp_path, monkeypatch):
     import capex.run as run_mod
     cd = b_h1a(50.0)(tmp_path)
@@ -95,7 +94,6 @@ def test_m14_dc_link_given_a_kvl_row(tmp_path, monkeypatch):
 
 
 # ------------------------------------------------------------------------------------------------ M15
-@xf("DC links in the LP under the PTDF form (S1, hook H1) and ptdf.recompute with DC flows")
 def test_m15_dc_flow_dropped_from_ptdf_flow(tmp_path, monkeypatch):
     import capex.run as run_mod
     cd = b_h1a(50.0, form="ptdf")(tmp_path)

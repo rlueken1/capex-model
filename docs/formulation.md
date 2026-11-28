@@ -84,6 +84,9 @@ $\Delta t$ is omitted from equations; code must still assert it.
 - Period weight $w_p$ = number of 3-day blocks of the year that period $p$ represents
   $= (\text{days represented by } p)/3$. Every modeled hour $(p,t)$ stands for $w_p$ real hours.
 - **Weight identity (validated on load, tol $10^{-9}$):** $\sum_{p} 72\, w_p = H_y$, i.e. $\sum_p w_p = D_y/3$.
+  **Window exception (F-0.4, DECISIONS 58):** when every period has `rep_kind = full_block` and $w_p=1$ (each period is a
+  real 3-day block that represents only itself, e.g. the PLEXOS reference window p063–p067 of Gate 4), the identity is
+  relaxed to $\sum_p w_p\le D_y/3$; the run then covers those blocks only (no annual scaling).
 - **Weight floor:** $w_p \ge 1$ (a period represents at least itself). This is what keeps
   $w_p \cdot \text{VOLL}$ from interacting with tiny weights (§6). Violations are a load error.
 - Remainder days ($D_y \bmod 3 \in \{1,2\}$) form one truncated final block of $1$ or $2$ days. It is
@@ -435,7 +438,9 @@ $$x_j=\tilde x_j/k_j,\quad s_j=\tilde s_j\,\frac{k_j}{k_Cs_{obj}},\qquad \text{a
 MW/MWh columns and rows have $k=k_P$ (factor $S/s_{obj}$, as §3). The angle columns `theta` and the rows `ref_angle` have
 $k=k_\theta=1$ (rad, unscaled, §7.4a.2): $\theta$ reduced cost $=\tilde s_\theta/(k_Cs_{obj})$ (\$/rad-yr), `ref_angle`
 activity and slack in rad, dual $\tilde y/(k_Cs_{obj})$. All four are 0 at every optimum, so no output changes; the rule
-makes them correct in `duals_raw` when a mutation or a non-optimal basis makes them nonzero.
+makes them correct in `duals_raw` when a mutation or a non-optimal basis makes them nonzero. Implementation of "no output
+changes": `duals_raw` lists `theta` reduced-cost rows (label `theta`, $\$$/rad-yr) only where nonzero; `ref_angle` rows are
+listed as every row family is (activity/slack in rad).
 
 Typical scaled magnitudes (PJM-size, $w_p\in[1,40]$; toys $w\le122$, same bounds hold within $\times4$):
 | Item | Range |

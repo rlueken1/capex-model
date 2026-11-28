@@ -111,14 +111,14 @@ def test_implemented_switch_keys_still_load(tmp_path):
 
 
 # =================================================================== 8.10: fingerprint vs run.json version
-def test_formulation_version_constant_is_f03():
-    assert capex.FORMULATION_VERSION == "F-0.3"
+def test_formulation_version_constant_is_f04():
+    assert capex.FORMULATION_VERSION == "F-0.4"
 
 
 def test_fingerprint_carries_code_version_and_run_json_the_case_version(tmp_path):
     _sv, _h, fp, _t = _run(CASES / "T1", tmp_path / "o")                 # T1 declares F-0.2
     run = json.loads((tmp_path / "o" / "run.json").read_text())
-    assert fp.components["formulation_version"] == "F-0.3"
+    assert fp.components["formulation_version"] == "F-0.4"
     assert run["formulation_version"] == "F-0.2"
 
 
@@ -126,7 +126,7 @@ def test_fingerprint_and_run_json_both_f03_for_an_f03_case(tmp_path):
     cd = make_pjm5(tmp_path / "c", form="angle", ref=0)
     _sv, _h, fp, _t = _run(cd, tmp_path / "o")
     run = json.loads((tmp_path / "o" / "run.json").read_text())
-    assert fp.components["formulation_version"] == "F-0.3" and run["formulation_version"] == "F-0.3"
+    assert fp.components["formulation_version"] == "F-0.4" and run["formulation_version"] == "F-0.3"
 
 
 # =================================================================== 4 "List cells", P5a and T4

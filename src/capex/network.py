@@ -16,21 +16,22 @@ PTDF_NOISE = 1e-10
 
 @dataclass(frozen=True)
 class Islands:
-    """Electrical islands: connected components of (zones, links), ids i1, i2, ... by smallest zone row index."""
+    """Electrical islands: connected components of (zones, AC links), ids i1, i2, ... by smallest zone row index."""
     ids: tuple[str, ...]
     node: np.ndarray       # (N,) island index of each zone
     ref: np.ndarray        # (I,) reference zone index n0(i)
 
 
 def susceptance_mw_rad(case: Case) -> np.ndarray:
-    """b_l = base_mva_l / reactance_pu_l in MW/rad, shape (L,)."""
-    return case.links.base_mva / case.links.x_pu
+    """b_l = base_mva_l / reactance_pu_l in MW/rad, shape (L,); 0 for a DC link (it carries no angle relation)."""
+    return np.where(case.links.is_dc, 0.0, case.links.base_mva / case.links.x_pu)
 
 
 def _labels(case: Case) -> np.ndarray:
-    """Component label of each zone, numbered by the smallest zone index in the component."""
+    """Component label of each zone over the AC lines only, numbered by the smallest zone index in the component."""
     n, lk = len(case.zones), case.links
-    graph = coo_matrix((np.ones(len(lk.ids)), (lk.origin, lk.end)), shape=(n, n))
+    ac = ~lk.is_dc
+    graph = coo_matrix((np.ones(ac.sum()), (lk.origin[ac], lk.end[ac])), shape=(n, n))
     labels = connected_components(graph, directed=False)[1]
     _, first = np.unique(labels, return_index=True)
     return np.argsort(np.argsort(first))[labels]
@@ -53,7 +54,8 @@ def islands(case: Case) -> Islands:
 
 
 def ptdf(case: Case, isl: Islands) -> np.ndarray:
-    """H = diag(b) A X with X the inverse of the reduced bus susceptance matrix per island (shape (L,N))."""
+    """H = diag(b) A X with X the inverse of the reduced bus susceptance matrix per island (shape (L,N));
+    the rows of DC links are zero (b = 0)."""
     n, lk = len(case.zones), case.links
     b = susceptance_mw_rad(case)
     a = np.zeros((len(b), n))

@@ -22,15 +22,18 @@ ISLAND_ANGLE_TOL = 1e-9
 
 @dataclass(frozen=True)
 class Grid:
-    """Network of the case data: islands (ids i1.. by smallest zone row), reference zones, b, PTDF, ratings."""
+    """Network of the case data: AC islands (ids i1.. by smallest zone row), reference zones, b, PTDF, ratings, DC links
+    and rent components (islands joined by any DC link, formulation 7.4a.12)."""
     ids: tuple[str, ...]
     node: np.ndarray      # (N,) island index per zone
-    line: np.ndarray      # (L,) island index per link
     ref: np.ndarray       # (I,) reference zone per island
     origin: np.ndarray    # (L,)
     end: np.ndarray       # (L,)
-    b: np.ndarray         # (L,) MW/rad
-    rating: np.ndarray    # (L,) MW, inf = unlimited
+    b: np.ndarray         # (L,) MW/rad (0 for a DC link)
+    f_plus: np.ndarray    # (L,) MW forward rating, inf = unlimited
+    f_minus: np.ndarray   # (L,) MW reverse rating
+    dc: np.ndarray        # (L,) bool: controllable DC link
+    rent: np.ndarray      # (N,) rent-component index per zone
 
     @property
     def incidence(self) -> np.ndarray:
@@ -39,6 +42,10 @@ class Grid:
         a[np.arange(len(self.b)), self.origin] = 1.0
         a[np.arange(len(self.b)), self.end] = -1.0
         return a
+
+    @property
+    def ac(self) -> np.ndarray:
+        return np.flatnonzero(~self.dc)
 
     def reduced(self, island: int) -> np.ndarray:
         """Indices of the island's zones without its reference zone."""
@@ -60,10 +67,11 @@ class NetworkReport:
     island_detail: str
 
 
-def _components(case: Case) -> np.ndarray:
-    """Component label per zone, numbered in order of the smallest zone row index of each component."""
+def _components(case: Case, links: np.ndarray) -> np.ndarray:
+    """Component label per zone over the selected links, numbered in order of the smallest zone row index."""
     lk, n = case.links, len(case.zones)
-    raw = connected_components(coo_matrix((np.ones(len(lk.ids)), (lk.origin, lk.end)), shape=(n, n)), directed=False)[1]
+    raw = connected_components(coo_matrix((np.ones(links.sum()), (lk.origin[links], lk.end[links])), shape=(n, n)),
+                               directed=False)[1]
     first = {lab: k for k, lab in enumerate(dict.fromkeys(raw.tolist()))}
     return np.array([first[lab] for lab in raw.tolist()], dtype=np.int64)
 
@@ -78,10 +86,11 @@ def _reference_zones(case: Case, node: np.ndarray) -> np.ndarray:
 
 def grid(case: Case) -> Grid:
     lk = case.links
-    node = _components(case)
-    return Grid(ids=tuple(f"i{i + 1}" for i in range(int(node.max()) + 1)), node=node, line=node[lk.origin],
-                ref=_reference_zones(case, node), origin=lk.origin, end=lk.end, b=lk.base_mva / lk.x_pu,
-                rating=lk.f_plus)
+    node = _components(case, ~lk.is_dc)
+    return Grid(ids=tuple(f"i{i + 1}" for i in range(int(node.max()) + 1)), node=node,
+                ref=_reference_zones(case, node), origin=lk.origin, end=lk.end,
+                b=np.where(lk.is_dc, 0.0, lk.base_mva / lk.x_pu), f_plus=lk.f_plus, f_minus=lk.f_minus, dc=lk.is_dc,
+                rent=_components(case, np.ones(len(lk.ids), dtype=bool)))
 
 
 def _bus_susceptance(g: Grid) -> np.ndarray:
@@ -111,6 +120,15 @@ def injection(sv: Solved) -> np.ndarray:
     return inj
 
 
+def dc_injection(sv: Solved, g: Grid) -> np.ndarray:
+    """Injection (N,P,T) of the solved DC flows: +f_k at e(k), -f_k at o(k) (zero with no DC link)."""
+    out = np.zeros(sv.case.demand.shape)
+    f = sv.var("flow")[g.dc]
+    np.add.at(out, g.end[g.dc], f)
+    np.add.at(out, g.origin[g.dc], -f)
+    return out
+
+
 def angles_from_injection(g: Grid, inj: np.ndarray) -> np.ndarray:
     """theta (rad, theta_ref = 0) solving B_red theta = inj per island with `numpy.linalg.solve`, no PTDF."""
     bus, theta = _bus_susceptance(g), np.zeros(inj.shape)
@@ -127,26 +145,30 @@ def line_flow(g: Grid, theta: np.ndarray) -> np.ndarray:
     return g.b[:, None, None] * (theta[g.origin] - theta[g.end])
 
 
-def _kvl_residual(sv: Solved, g: Grid, theta: np.ndarray) -> float:
-    return float(np.abs(sv.var("flow") - line_flow(g, theta)).max(initial=0.0))
+def _flow_residual(sv: Solved, g: Grid, theta: np.ndarray) -> float:
+    """max over AC lines of |f - b (theta_o - theta_e)| MW; DC links carry no angle relation and are skipped."""
+    return float(np.abs(sv.var("flow") - line_flow(g, theta))[g.ac].max(initial=0.0))
 
 
 def _line_dual_violation(sv: Solved, g: Grid, mu: np.ndarray) -> float:
-    """max |mu| off the ratings and max(0, -mu sgn f) at a rating (complementary slackness, sign table 7.4a.5)."""
-    f = sv.var("flow")
-    at_rating = np.abs(f) >= g.rating[:, None, None] - sv.case.tolerances.binding_slack
+    """max |mu| off the ratings and max(0, -mu sgn f) at a rating (complementary slackness, sign table 7.4a.5),
+    over AC lines and DC links; a DC link may have different forward and reverse ratings."""
+    f, slack = sv.var("flow"), sv.case.tolerances.binding_slack
+    at_rating = (f >= g.f_plus[:, None, None] - slack) | (f <= -g.f_minus[:, None, None] + slack)
     off = np.where(at_rating, 0.0, np.abs(mu))
     on = np.where(at_rating, np.maximum(0.0, -mu * np.sign(f)), 0.0)
     return float(max(off.max(initial=0.0), on.max(initial=0.0)))
 
 
 def _rent_residual(g: Grid, pi: np.ndarray, inj: np.ndarray, mu: np.ndarray, f: np.ndarray) -> float:
-    """Congestion-rent identity per island-hour: sum_{n in i} pi (-inj) = sum_{l in i} mu f, relative to
-    max(1, |sum mu f|); the maximum over (i,p,t), so residuals of different islands cannot cancel."""
-    lhs = np.zeros((len(g.ids), *pi.shape[1:]))
+    """Congestion-rent identity per rent-component hour: sum_{n in C} pi (-inj) = sum_{l in C} mu f (AC lines and DC
+    links; inj excludes DC flows), relative to max(1, |sum mu f|); the maximum over (C,p,t), so residuals of different
+    components cannot cancel. With no DC link a component is an island (formulation 7.4a.5)."""
+    n_comp = int(g.rent.max()) + 1
+    lhs = np.zeros((n_comp, *pi.shape[1:]))
     rhs = np.zeros_like(lhs)
-    np.add.at(lhs, g.node, pi * -inj)
-    np.add.at(rhs, g.line, mu * f)
+    np.add.at(lhs, g.rent, pi * -inj)
+    np.add.at(rhs, g.rent[g.origin], mu * f)
     return float((np.abs(lhs - rhs) / np.maximum(1.0, np.abs(rhs))).max(initial=0.0))
 
 
@@ -189,14 +211,14 @@ def network_report(sv: Solved, eco: Economics) -> NetworkReport:
     h = ptdf(g)
     inj = injection(sv)
     mu, f, pi = eco.mu_link, sv.var("flow"), eco.pi
-    rc_theta = angles_from_injection(g, inj)
+    rc_theta = angles_from_injection(g, inj + dc_injection(sv, g))
     lp_theta = "theta" in sv.lp.cols
     theta = sv.var("theta") if lp_theta else rc_theta
     energy = pi[g.ref[g.node]]
     congestion = -np.einsum("ln,lpt->npt", h, mu)
     violations, detail = _island_check(sv, g)
     metrics = {
-        "kvl": _kvl_residual(sv, g, theta), "ptdf": float(np.abs(f - line_flow(g, rc_theta)).max(initial=0.0)),
+        "kvl": _flow_residual(sv, g, theta), "ptdf": _flow_residual(sv, g, rc_theta),
         "lmp": float(np.abs(pi - (energy + congestion)).max(initial=0.0)),
         "rent": _rent_residual(g, pi, inj, mu, f), "line_duals": _line_dual_violation(sv, g, mu)}
     return NetworkReport(grid=g, h=h, inj=inj, theta=theta, theta_source="lp" if lp_theta else "recomputed",

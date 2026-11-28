@@ -17,31 +17,35 @@ class Solved:
     lp: LP
     sol: Solution
 
+    @property
+    def _cost_scale(self) -> float:
+        return self.lp.scaling.k_c * self.lp.scaling.s_obj
+
     @cached_property
     def x(self) -> np.ndarray:
         return self.sol.x / self.lp.col_scale
 
     @cached_property
     def y(self) -> np.ndarray:
-        """Row duals in $/yr per unit of row RHS (canonical convention, section 1.3)."""
-        return self.sol.row_dual * self.lp.scaling.dual_factor
+        """Row duals in $/yr per unit of row RHS (canonical convention, section 1.3): y = y~ k_i / (k_C s_obj)."""
+        return self.sol.row_dual * (self.lp.row_scale / self._cost_scale)
 
     @cached_property
     def s(self) -> np.ndarray:
-        """Column reduced costs in $/yr per unit of the variable."""
-        return self.sol.col_dual * self.lp.scaling.dual_factor
+        """Column reduced costs in $/yr per unit of the variable: s = s~ k_j / (k_C s_obj) (formulation 6.1)."""
+        return self.sol.col_dual * (self.lp.col_scale / self._cost_scale)
 
     @cached_property
     def row_activity(self) -> np.ndarray:
-        return self.sol.row_activity / self.lp.scaling.k_p
+        return self.sol.row_activity / self.lp.row_scale
 
     @cached_property
     def row_lo(self) -> np.ndarray:
-        return self.lp.row_lo / self.lp.scaling.k_p
+        return self.lp.row_lo / self.lp.row_scale
 
     @cached_property
     def row_hi(self) -> np.ndarray:
-        return self.lp.row_hi / self.lp.scaling.k_p
+        return self.lp.row_hi / self.lp.row_scale
 
     @cached_property
     def col_lo(self) -> np.ndarray:

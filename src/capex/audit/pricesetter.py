@@ -45,6 +45,8 @@ class LoopRow(NamedTuple):
     lo: float
     hi: float
     case: str               # "unique" | "weights_nonunique" | "interval"
+    failed: int = 0         # case (c): interval sides that ended in a failed solve (NaN)
+    storage_rows: int = 0   # case (c): S2 storage rows in the interval LP
 
 
 @dataclass(frozen=True)
@@ -56,6 +58,8 @@ class PriceSetter:
     link_inconsistent: int
     islands: np.ndarray     # (Z,P,T)
     loop: pd.DataFrame | None = None   # price_setter_loop (dcpf only)
+    loop_interval: int = 0             # price_setter.loop_interval value (dcpf only)
+    storage_rows_used: bool = False    # an S2 storage row entered some interval LP
 
 
 def _components(edges: np.ndarray, origin: np.ndarray, end: np.ndarray, n_zones: int) -> np.ndarray:
@@ -288,9 +292,16 @@ def assemble(sv: Solved, eco: Economics, classes: list[_Class], interval: _Inter
     ctx = _Ctx(sv, eco, classes, interval, matched, primary, explained, binding, touching_bad, isl, loops)
     records = [ctx.record(z, p, t) for z in range(n_z) for p in range(n_p) for t in range(n_t)]
     separated, bad = link_state
-    return PriceSetter(table=pd.DataFrame([r for r, _ in records]), summary=_summary([pc for _, ps in records for pc in ps]),
+    return PriceSetter(table=_empty_cells(pd.DataFrame([r for r, _ in records])), summary=_summary([pc for _, ps in records for pc in ps]),
                        link_issues=_link_issues(sv, separated, bad), unexplained=int((~explained).sum()),
                        link_inconsistent=int(bad.sum()), islands=isl)
+
+
+def _empty_cells(table: pd.DataFrame) -> pd.DataFrame:
+    """price_lo / price_hi: an empty cell is None, never NaN (a failed interval side is written empty, formulation 7.4a.7)."""
+    for col in ("price_lo", "price_hi"):
+        table[col] = table[col].astype(object).where(table[col].notna(), None)
+    return table
 
 
 def _summary(pieces: list[tuple]) -> pd.DataFrame:

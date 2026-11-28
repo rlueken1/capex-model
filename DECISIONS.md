@@ -361,3 +361,11 @@
     (3× thermal columns; without Pmin/commitment the lowest segment is dispatchable from 0 MW, so the extra accuracy is
     spurious until UC); `HR_incr` of the last segment (overstates the price at partial load). Accuracy cost flagged in
     §2.4/§9: flatter intra-unit price steps; cost understated by no-load fuel.
+
+2026-11-27 (builder, G4-4)
+58. Window runs load (formulation §1.2 weight identity): when every period is `rep_kind = full_block` with $w_p=1$, the load
+    check is $\sum_p w_p\le D_y/3$ instead of equality. Reason: the Gate 4 judged runs (R4-Z/C/N/NS, gate-4.md §2) and the
+    B1 test restrict `rts_gmlc*` to p063–p067, which sums to 5 blocks, not 122; F-0.4 text required the identity with no
+    exception, so those cases could not load. Every other case keeps the equality. Also (S4 implementation reading):
+    `duals_raw` lists θ reduced-cost rows only where nonzero, so the pjm5 `duals_raw.csv` stays byte-identical; the
+    `price_setter` cells `price_lo`/`price_hi` are `None` (empty in CSV) instead of NaN where no interval applies.
