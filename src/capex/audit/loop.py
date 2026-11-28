@@ -13,6 +13,7 @@ from ..model import LP
 from ..solver import Solver
 
 SV_TOL = 1e-9          # singular values <= SV_TOL sigma_max count as zero
+TIE_EPS = 1e-7         # $/MWh: a TIE_AT_BOUND unit joins M_i only at |pi_m - c_m| <= TIE_EPS (7.4a.7, DECISIONS 60(a))
 UNIQUE, NONUNIQUE, INTERVAL = "unique", "weights_nonunique", "interval"
 SIDES = (1.0, -1.0)    # minimise, then maximise the target price
 

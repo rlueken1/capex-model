@@ -21,6 +21,7 @@ from .solved import Solved
 
 N_LOCAL = 6    # VOLL, VOLL_BLACKOUT, MARGINAL_UNIT, STORAGE_DIS, STORAGE_CH, TIE_AT_BOUND (CAPACITY_RENT follows)
 BLACKOUT = "VOLL_BLACKOUT"
+TIE = "TIE_AT_BOUND"
 LOOP_COLUMNS = ["zone", "period_id", "t", "resource_id", "alpha", "cost_usd_mwh", "setter_zone", "case"]
 
 
@@ -65,14 +66,17 @@ def _congested(priced_ac: np.ndarray, comp: np.ndarray, origin: np.ndarray) -> n
 
 def _members(sv: Solved, eco: Economics, local: list[_Class], nodes: np.ndarray, p: int, t: int) -> list[Member]:
     """M_i: every setter of a bus-local class at any bus of the component, sorted by id. Class setters already passed
-    their class's price check; VOLL_BLACKOUT is excluded (pi = VOLL + mu_use there is not a known cost, see `_bounds`)."""
+    their class's price check; VOLL_BLACKOUT is excluded (pi = VOLL + mu_use there is not a known cost, see `_bounds`).
+    A TIE_AT_BOUND setter joins only at an exact tie |pi_m - c_m| <= loop.TIE_EPS (DECISIONS 60(a)); otherwise it is
+    not marginal and stays a bound row only."""
     case, found = sv.case, []
     for cls in (c for c in local if c.name != BLACKOUT):
         pool = pools(case, cls.kind, *eco.pi.shape[1:])
         for z in nodes:
             idx = np.flatnonzero(cls.setters[z, :, p, t])
             found += [Member(pool["ids"][r], pool["tech"][r], pool["fuel"][r], int(pool["zone"][r]), float(c))
-                      for r, c in zip(idx, setter_costs(case, eco, cls, idx, p, t))]
+                      for r, c in zip(idx, setter_costs(case, eco, cls, idx, p, t))
+                      if cls.name != TIE or abs(float(eco.pi[z, p, t]) - float(c)) <= loop.TIE_EPS]
     return sorted(found, key=lambda m: m.id)
 
 

@@ -351,3 +351,6 @@ Next: P12 (gate-4.md draft).
 - 2026-11-28 G4-7 (formulation lead, Opus subagent): `reports/gate-4-spec-trace.md`, 10 findings (F4-1 blocker: R4-NX loop_alpha FAIL is a spec error — TIE_AT_BOUND non-exact ties in 𝓜_i; spec fixed, DECISIONS 60, F-0.4 amendment 1).
   8 G4-3 SPEC-GAPs ruled (formulation §7.4a.13); A1–A10 table; nothing in code drives C1/G1. Fix items G4-7-fix1/1b/2/3 added before G4-8.
   Tests: 800 pass / 6 fail (known C1/G1) / 1 xfail (S2b) / 5 skip. Owner at G4-8: S2b route (F4-10).
+- 2026-11-28 G4-7-fix1 (builder, main session, no subagents): `capex/audit/loopsetter.py::_members` drops TIE_AT_BOUND setters with |π − mc| > `loop.TIE_EPS` = 1e-7 (DECISIONS 60(a)); constant in `capex/audit/loop.py`.
+  R4-N / R4-NX / R4-NS window health all 31/31 pass (loop_alpha 2.0e-11 / 9.6e-12 / 2.3e-12) — R4-NX blocker F4-1 closed.
+  Tests: 800 pass / 6 fail (known C1/G1) / 1 xfail (S2b) / 5 skip — unchanged incl. pjm5 identity; check_markers ok. Next: G4-7-fix1b (verifier).

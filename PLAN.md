@@ -178,9 +178,9 @@ One per session, in order (gate-4.md §10; builder ≠ verifier).
   `reports/gate-4-evidence.md`; refresh the dashboard Model results tab (`scripts/export_dashboard.py`).
 - [x] G4-7 Formulation lead [Opus], branch `gate-4`: code-vs-spec trace `reports/gate-4-spec-trace.md` (incl. A1–A10
   and closing the 8 G4-3 SPEC-GAPs); findings become fix items. Done 2026-11-28: 10 findings (1 blocker F4-1), DECISIONS 60, F-0.4 amendment 1.
-- [~] G4-7-fix1 (claimed 2026-11-28T06:23:49Z) Builder [Sonnet], branch `gate-4` (F4-1, DECISIONS 60(a)): in `capex/audit/loopsetter.py::_members`, drop
+- [x] G4-7-fix1 Builder [Sonnet], branch `gate-4` (F4-1, DECISIONS 60(a)): in `capex/audit/loopsetter.py::_members`, drop
   `TIE_AT_BOUND` setters with |π(bus) − mc| > `loop.TIE_EPS` = 1e-7 from 𝓜_i; no other change. Re-run R4-N, R4-NX, R4-NS health
-  (R4-NX `loop_alpha` must pass); pjm5 identity must hold. No judging tests.
+  (R4-NX `loop_alpha` must pass); pjm5 identity must hold. No judging tests. Done 2026-11-28: `loop.TIE_EPS`; R4-N/NX/NS 31/31 pass (loop_alpha 2.0e-11/9.6e-12/2.3e-12).
 - [ ] G4-7-fix1b Verifier [Sonnet], branch `gate-4` (F4-1): from formulation §7.4a.7 — pjm5 dcpf fixture with one unit at a bound,
   mc 0.005 above the congested-hour bus price: `loop_alpha` passes and the unit is not in CONGESTION_LOOP `setter_ids`; plus an
   R4-NX window health test (`CAPEX_GATE4_FULL`-gated).
